@@ -10,8 +10,8 @@ const characterStore = useCharacterStore();
 
 definePageMeta({
     middleware() {
-        const {loggedIn} = useUserSession();
-        if (!loggedIn.value) {
+        const {loggedIn, session} = useUserSession();
+        if (!loggedIn.value || !session.value.user) {
             return navigateTo('/authenticate');
         }
     },

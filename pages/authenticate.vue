@@ -1,5 +1,4 @@
 <script setup lang="ts">
-const {user} = useUserSession();
 const isDark = computed(() => useColorMode().value == 'dark');
 
 const allowRegistration = ref<boolean>(false);
