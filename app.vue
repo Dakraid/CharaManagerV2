@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import '~/assets/css/site.css';
-import { toast } from '~/components/ui/toast';
+import {toast} from '~/components/ui/toast';
 
 const nuxtApp = useNuxtApp();
 const appStore = useAppStore();
@@ -10,16 +10,16 @@ async function refreshCharacter() {
     characterStore.loading = true;
 
     try {
-        const { data } = await useFetch<number>('/api/chars/count', {
+        const count = await $fetch<number>('/api/chars/count', {
             method: 'GET',
         });
-        characterStore.count = data.value ?? 0;
+        characterStore.count = count ?? 0;
     } catch (err: any) {
         console.error(err);
     }
 
     try {
-        const { data } = await useFetch<Character[]>('/api/chars/characters', {
+        const characters = await $fetch<Character[]>('/api/chars/characters', {
             method: 'GET',
             query: {
                 page: characterStore.currentPage,
@@ -27,7 +27,7 @@ async function refreshCharacter() {
             },
         });
 
-        characterStore.characters = data.value ?? undefined;
+        characterStore.characters = characters ?? undefined;
     } catch (err: any) {
         console.error(err);
     }
@@ -57,14 +57,14 @@ nuxtApp.hooks.hook('characters:menu', async (id: number) => {
 </script>
 
 <template>
-    <NuxtPwaManifest />
+    <NuxtPwaManifest/>
     <div class="flex h-screen min-h-screen max-h-screen min-w-screen max-w-screen flex-col">
-        <NavHeader />
+        <NavHeader/>
         <main
             class="flex flex-1 flex-col h-[calc(100vh_-_theme(spacing.16))] min-h-[calc(100vh_-_theme(spacing.16))] max-h-[calc(100vh_-_theme(spacing.16))] bg-muted/40 p-4 gap-4 md:gap-8 md:p-10">
-            <NuxtPage />
+            <NuxtPage/>
         </main>
-        <Toaster />
+        <Toaster/>
     </div>
 </template>
 

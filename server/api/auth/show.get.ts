@@ -8,7 +8,16 @@ export default defineEventHandler(async (event) => {
         });
     }
 
+    const runtimeConfig = useRuntimeConfig(event);
     const userRows = await db.select().from(users);
 
-    return userRows.length;
+    if (runtimeConfig.allowRegistration) {
+        if (runtimeConfig.singleUserMode) {
+            return !(userRows.length > 0);
+        }
+
+        return true;
+    }
+
+    return false;
 });

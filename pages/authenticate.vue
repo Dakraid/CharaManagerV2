@@ -1,19 +1,14 @@
 <script setup lang="ts">
 const {user} = useUserSession();
-const runtimeConfig = useRuntimeConfig();
 const isDark = computed(() => useColorMode().value == 'dark');
 
 const allowRegistration = ref<boolean>(false);
 
-const response = await $fetch<number>('/api/auth/count', {
+const response = await $fetch<boolean>('/api/auth/show', {
     method: 'GET',
 });
 
-allowRegistration.value = runtimeConfig.allowRegistration;
-
-if (runtimeConfig.singleUserMode && response > 0) {
-    allowRegistration.value = false;
-}
+allowRegistration.value = response ?? false;
 </script>
 
 <template>
