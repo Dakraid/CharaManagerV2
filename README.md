@@ -18,6 +18,8 @@ CharaManager is a web application made to manage and maintain your collection of
 
 ### Know Issues
 
+- Relation display is broken
+    - Known issue, currently in progress
 - Not all features are mobile-ready
     - This is in parts by design, as some functionality simply doesn't work well on small screens i.e. Relations or Statistics
 
