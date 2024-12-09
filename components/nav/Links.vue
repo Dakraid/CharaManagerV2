@@ -11,7 +11,7 @@ const route = useRoute();
         :class="
             cn(
                 'px-4 py-2 rounded-md text-muted-foreground transition-colors hover:text-foreground hover:bg-accent cursor-pointer',
-                route.path === '/' ? 'text-foreground bg-accent' : ''
+                (route.path === '/' || route.path.startsWith('/?')) ? 'text-foreground bg-accent' : ''
             )
         ">
         <div class="flex justify-center items-center gap-2">
@@ -33,19 +33,6 @@ const route = useRoute();
         </div>
     </NuxtLink>
     <NuxtLink
-        to="/logging"
-        :class="
-            cn(
-                'px-4 py-2 rounded-md text-muted-foreground transition-colors hover:text-foreground hover:bg-accent cursor-pointer',
-                route.path === '/logging' ? 'text-foreground bg-accent' : ''
-            )
-        ">
-        <div class="flex justify-center items-center gap-2">
-            <Logs class="h-[1.2rem] w-[1.2rem]"/>
-            Logging
-        </div>
-    </NuxtLink>
-    <NuxtLink
         to="/statistics"
         :class="
             cn(
@@ -56,6 +43,19 @@ const route = useRoute();
         <div class="flex justify-center items-center gap-2">
             <ChartLine class="h-[1.2rem] w-[1.2rem]"/>
             Statistics
+        </div>
+    </NuxtLink>
+    <NuxtLink
+        to="/logging"
+        :class="
+            cn(
+                'px-4 py-2 rounded-md text-muted-foreground transition-colors hover:text-foreground hover:bg-accent cursor-pointer',
+                route.path === '/logging' ? 'text-foreground bg-accent' : ''
+            )
+        ">
+        <div class="flex justify-center items-center gap-2">
+            <Logs class="h-[1.2rem] w-[1.2rem]"/>
+            Logging
         </div>
     </NuxtLink>
 </template>
