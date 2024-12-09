@@ -71,10 +71,18 @@ const filteredData = computed(() => {
     const focusItem = props.data.find(([name]) => name === currentFocus.value)
     if (!focusItem) return props.data
     const focusValue = focusItem[1]
-    return props.data.filter(([_, value]) => value <= focusValue)
+
+    // Get filtered items and rescale their values relative to focus item
+    return props.data
+        .filter(([_, value]) => value <= focusValue)
+        .map(([name, value]) => {
+            // Scale the value to be relative to the focus item (0-100%)
+            const scaledValue = (value / focusValue) * focusValue
+            return [name, scaledValue] as [string, number]
+        })
 })
 
-const getPastelColor = (key: string) => {
+const getColor = (key: string) => {
     if (!colorMap.value.has(key)) {
         const hue = Math.random() * 360
         // Changed color generation to use darker colors with lower lightness and higher saturation
@@ -114,11 +122,13 @@ const updateTreemap = () => {
 
     treemapData.value = root.leaves().map(leaf => ({
         ...leaf,
-        color: getPastelColor(leaf.data[0]),
+        color: getColor(leaf.data[0]),
     }))
 }
 
 const focusOnItem = (item: [string, number]) => {
+    // Don't allow focusing on already focused item
+    if (currentFocus.value === item[0]) return
     currentFocus.value = item[0]
 }
 

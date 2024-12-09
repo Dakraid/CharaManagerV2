@@ -6,32 +6,7 @@ import {createStorage} from "unstorage";
 import fsDriver from "unstorage/drivers/fs";
 import {max} from "drizzle-orm";
 
-export default defineEventHandler(async (event) => {
-    await Authenticate(event);
-    const db = event.context.$db;
-
-    if (!db) {
-        throw createError({
-            statusCode: StatusCode.INTERNAL_SERVER_ERROR,
-            statusMessage: 'Database not initialized',
-        });
-    }
-
-    const storage = createStorage({
-        driver: fsDriver({base: './cache'}),
-    });
-
-    const highestCharId = await db.select({highest: max(characters.id)}).from(characters);
-    const cachedStatistics = await storage.getItem<StatisticsCache>("statistics:cache");
-
-    if (cachedStatistics && cachedStatistics.highestId === Number(highestCharId[0].highest)) {
-        return cachedStatistics.statistics;
-    }
-
-    const characterRows = await db.select().from(characters);
-    const characterDefsRaw = await db.select().from(definitions);
-    const characterDefs = characterDefsRaw.map((def) => JSON.parse(def.definition).data);
-
+async function getAuthorStats(characterDefs: any[]): Promise<[string, number][]> {
     const authorsGrouped = _.groupBy(characterDefs, 'creator');
     const authorStats: [string, number][] = [];
     _.forEach(authorsGrouped, function (value, key) {
@@ -57,32 +32,83 @@ export default defineEventHandler(async (event) => {
         }
     });
 
+    return authorStats.filter((x: [string, number]) => x[1] > 0).sort((a: [string, number], b: [string, number]) => b[1] - a[1]);
+}
+
+async function getTokenStats(characterDefs: any[]): Promise<[string, number][]> {
     const tokens: [string, number][] = [];
     characterDefs.forEach((char) => {
         tokens.push([char.name, char.description.length]);
     });
 
+    return tokens.filter((x: [string, number]) => x[1] > 1).sort((a: [string, number], b: [string, number]) => b[1] - a[1]);
+}
+
+async function getDateStats(characterRows: any[]): Promise<[string, number][]> {
     const datesGrouped = _.groupBy(characterRows, (char) => dayjs(char.uploadDate).format('DD/MM/YYYY'));
     const dates: [string, number][] = [];
     _.forEach(datesGrouped, function (value, key) {
         dates.push([key, value.length]);
     });
 
-    const tags = await db.select().from(tagCounts);
-    const tagsRecord: [string, number][] = tags
-        .filter((item): item is { tag: string; usageCount: number } =>
-            item.tag !== null && item.usageCount !== null
-        )
-        .map(({tag, usageCount}) => [tag, usageCount]);
-
     dayjs.extend(customParseFormat);
 
+    return dates.sort((a: [string, number], b: [string, number]) => dayjs(a[0], 'DD-MM-YYYY').unix() - dayjs(b[0], 'DD-MM-YYYY').unix());
+}
+
+async function getTagStats(tagRows: any[]): Promise<[string, number][]> {
+    const tags = tagRows
+        .filter((item): item is { tag: string, usageCount: number } =>
+            item.tag !== null && item.usageCount !== null
+        )
+        .map(({tag, usageCount}): [string, number] => [tag, usageCount]);
+
+    return tags.sort((a, b) => b[1] - a[1]);
+}
+
+export default defineEventHandler(async (event) => {
+    await Authenticate(event);
+    const db = event.context.$db;
+
+    if (!db) {
+        throw createError({
+            statusCode: StatusCode.INTERNAL_SERVER_ERROR,
+            statusMessage: 'Database not initialized',
+        });
+    }
+
+    const storage = createStorage({
+        driver: fsDriver({base: './cache'}),
+    });
+
+    const highestCharId = await db.select({highest: max(characters.id)}).from(characters);
+    const cachedStatistics = await storage.getItem<StatisticsCache>("statistics:cache");
+
+    if (cachedStatistics && cachedStatistics.highestId === Number(highestCharId[0].highest)) {
+        return cachedStatistics.statistics;
+    }
+
+    const [characterRows, characterDefsRaw, tagRows] = await Promise.all([
+        db.select().from(characters),
+        db.select().from(definitions),
+        db.select().from(tagCounts)
+    ]);
+
+    const characterDefs = characterDefsRaw.map((def) => JSON.parse(def.definition).data);
+
+    const [authorStats, tokens, dates, tags] = await Promise.all([
+        getAuthorStats(characterDefs),
+        getTokenStats(characterDefs),
+        getDateStats(characterRows),
+        getTagStats(tagRows)
+    ]);
+
     const result: Statistics = {
-        charTags: tagsRecord.sort((a: any, b: any) => b.usageCount - a.usageCount),
         charCount: characterRows.length,
-        charAuthors: authorStats.filter((x: any) => x.Count > 0).sort((a: any, b: any) => b.Count - a.Count),
-        charDates: dates.sort((a: any, b: any) => dayjs(a.Date, 'DD-MM-YYYY').unix() - dayjs(b.Date, 'DD-MM-YYYY').unix()),
-        charTokens: tokens.filter((x: any) => x.Tokens > 1).sort((a: any, b: any) => b.Tokens - a.Tokens),
+        charTags: tags,
+        charAuthors: authorStats,
+        charDates: dates,
+        charTokens: tokens,
     };
 
     await storage.setItem<StatisticsCache>("statistics:cache", {highestId: Number(highestCharId[0].highest), statistics: result});

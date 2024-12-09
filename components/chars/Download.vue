@@ -65,7 +65,7 @@ const onSubmit = handleSubmit(async (values) => {
     if (values.links.includes('\n')) {
         try {
             for (const value of (values.links as string).split('\n')) {
-                if (value.includes('chub.ai')) {
+                if (value.startsWith('https://www.chub.ai/')) {
                     const {data, error} = await useFetch<FileUpload>('/api/sites/venusai', {
                         method: 'POST',
                         body: {
@@ -84,11 +84,11 @@ const onSubmit = handleSubmit(async (values) => {
                     }
 
                     files.value.push(data.value);
-                } else if (values.links.includes('jannyai.com')) {
+                } else if (value.startsWith('https://jannyai.com')) {
                     const {data, error} = await useFetch<FileUpload>('/api/sites/jannyai', {
                         method: 'POST',
                         body: {
-                            targetUri: values.links,
+                            targetUri: value,
                         },
                     });
 
@@ -114,7 +114,7 @@ const onSubmit = handleSubmit(async (values) => {
         }
     } else {
         try {
-            if (values.links.includes('chub.ai')) {
+            if ((values.links as string).startsWith('https://www.chub.ai/')) {
                 const {data, error} = await useFetch<FileUpload>('/api/sites/venusai', {
                     method: 'POST',
                     body: {
@@ -127,7 +127,7 @@ const onSubmit = handleSubmit(async (values) => {
                 }
 
                 files.value.push(data.value);
-            } else if (values.links.includes('jannyai.com')) {
+            } else if ((values.links as string).startsWith('https://jannyai.com')) {
                 const {data, error} = await useFetch<FileUpload>('/api/sites/jannyai', {
                     method: 'POST',
                     body: {
