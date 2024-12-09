@@ -1,0 +1,7 @@
+POST http://localhost:9999/api/relations/build
+Content-Type: application/json
+authorization: Bearer setMe
+
+{}
+
+###

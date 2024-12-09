@@ -1,0 +1,10 @@
+**/.git
+**/.svn
+**/.hg
+**/*.d.ts
+**/node_modules
+.output/**
+images/**
+public/**
+server/api/sites/jannyai.post.ts
+server/api/sites/venusai.post.ts
