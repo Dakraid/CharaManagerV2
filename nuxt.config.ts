@@ -98,7 +98,7 @@ export default defineNuxtConfig({
         debugMode: false,
         // Registration
         allowRegistration: true,
-        singleUserMode: false,
+        singleUserMode: true,
         // Database
         dbHost: '',
         dbUser: '',
@@ -107,11 +107,6 @@ export default defineNuxtConfig({
         // Migration
         dbMigrate: false,
         dbMigrations: './utils/drizzle',
-        // Redis Cache
-        redisHost: '',
-        redisPort: 6379,
-        redisUser: '',
-        redisPassword: '',
         // Embeddings
         embeddingProvider: 'nomic',
         oaiKey: '',
@@ -129,7 +124,7 @@ export default defineNuxtConfig({
             imageDomain: '',
         },
         // Experimental
-        expUseS3ImageStore: true,
+        expUseS3ImageStore: false,
         // S3 Configuration
         S3Bucket: '',
         S3Endpoint: '',

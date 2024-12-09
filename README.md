@@ -4,45 +4,41 @@ CharaManager is a web application made to manage and maintain your collection of
 
 ## Features
 
--   Upload and parsing of character cards
--   Multi file upload
--   Direct download from ChubAi
--   Hash-based duplicate detection
--   Automatic conversion of v1 to v2 card specification
--   Character card editor
-    -   Replacing of character images and cropping
-    -   Allows editing of all fields except embedded lorebooks, latter coming soon
--   Automatic hierarchy and relation detection using name and string distance matching
--   Comparison of definition content between related cards using a full diff editor
--   Statistics for cards, including characters per author, token count, cards uploaded per day
--   Portable as all data is stored within '.data/CharaManager.sqlite3' and the app can recreate all necessary files from that
+- Upload and parsing of character cards
+- Multi file upload
+- Direct download from VenusAi and JannyAi
+- Embedding-based duplicate detection
+- Multi functional search including description search using embeddings
+- Automatic conversion of v1 to v2 card specification
+- Character card editor
+    - Allows editing of all fields except embedded lorebooks, latter coming soon
+- Automatic hierarchy and relation detection using name and string distance matching
+- Comparison of definition content between related cards using a full diff editor
+- Statistics for cards, including characters per author, token count, cards uploaded per day
 
 ### Know Issues
 
--   Layout and Styling:
-    -   Smaller screen sizes may struggle to contain the full application
-    -   Workaround:
-        -   Currently, there no workaround except using a larger screen
-    -   Fix (in progress):
-        -   Update styling to work better on smaller screens
+- Not all features are mobile-ready
+    - This is in parts by design, as some functionality simply doesn't work well on small screens i.e. Relations or Statistics
 
 ### Upcoming Integrations
 
--   Lorebook Editing
--   Character Renaming
--   SillyTavern Synchronization
+- Updated search dialog with better filters
+- Replacing of character images and cropping
+- Lorebook Editing
+- SillyTavern Synchronization
 
-## Running from Pre-Built
+## Dependencies
 
-You can find the latest builds under the Actions tab or by clicking here: [Actions](https://github.com/Dakraid/CharaManager/actions)
+CharaManagerV2 requires multiple elements to work properly:
 
-Click on the last successful run and download an artifact matching your OS (currently Linux and Windows are supported).
+- Postgres database with [pgvector](https://github.com/pgvector/pgvector) enabled
+- Embedding provider, I recommend [NomicAI](https://atlas.nomic.ai)
 
-Unpack the archive into a folder and run within it following command:
+Optional dependencies:
 
-```bash
-node server/index.mjs
-```
+- S3 (or S3 compatible) storage provider
+- 2Captcha key
 
 ## Running from Source
 
@@ -52,11 +48,44 @@ Make sure to install the dependencies:
 
 ```bash
 npm install
+npx playwright install --with-deps
+```
+
+### Database Setup
+
+In the root folder of the project, create a file named `drizzle.config.ts`, and enter following adjusted for your connection:
+
+```TS
+import { defineConfig } from 'drizzle-kit';
+
+export default defineConfig({
+    out: './utils/drizzle',
+    schema: './utils/drizzle/schema.ts',
+    dialect: 'postgresql',
+    dbCredentials: {
+        host: 'host',
+        user: 'user',
+        password: 'password',
+        database: 'database',
+        ssl: 'allow',
+    },
+    verbose: true,
+});
+```
+
+Afterward run `npx drizzle-kit migrate`
+
+### Settings
+
+Copy the included `.env.sample` to `.env` and adjust the contents as needed.
+
+```bash
+npm dev
 ```
 
 ### Development Server
 
-Start the development server on `http://localhost:3000`:
+Start the development server on (default) `http://localhost:3000`:
 
 ```bash
 npm dev
@@ -86,7 +115,6 @@ The license text for the AGPLv3.0 can be found here: [AGPLv3.0](https://www.gnu.
 The following clause applies on top of it and overrides any conflicting clauses:
 **This project may not be used in a commercial context under any circumstance unless a commercial license has been granted by the owner. This stipulation applies on top of the
 AGPLv3 license.**
-
 
 # Credits
 
