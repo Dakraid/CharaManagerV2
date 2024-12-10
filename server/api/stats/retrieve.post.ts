@@ -1,10 +1,10 @@
 import dayjs from 'dayjs';
-import customParseFormat from 'dayjs/plugin/customParseFormat';
 import _ from 'lodash';
 import type {Statistics, StatisticsCache} from '~/utils/Interfaces';
 import {createStorage} from "unstorage";
 import fsDriver from "unstorage/drivers/fs";
 import {max} from "drizzle-orm";
+import customParseFormat from 'dayjs/plugin/customParseFormat'
 
 async function getAuthorStats(characterDefs: any[]): Promise<[string, number][]> {
     const authorsGrouped = _.groupBy(characterDefs, 'creator');
@@ -45,13 +45,12 @@ async function getTokenStats(characterDefs: any[]): Promise<[string, number][]> 
 }
 
 async function getDateStats(characterRows: any[]): Promise<[string, number][]> {
+    dayjs.extend(customParseFormat);
     const datesGrouped = _.groupBy(characterRows, (char) => dayjs(char.uploadDate).format('DD/MM/YYYY'));
     const dates: [string, number][] = [];
     _.forEach(datesGrouped, function (value, key) {
         dates.push([key, value.length]);
     });
-
-    dayjs.extend(customParseFormat);
 
     return dates.sort((a: [string, number], b: [string, number]) => dayjs(a[0], 'DD-MM-YYYY').unix() - dayjs(b[0], 'DD-MM-YYYY').unix());
 }
@@ -88,6 +87,7 @@ export default defineEventHandler(async (event) => {
         return cachedStatistics.statistics;
     }
 
+    dayjs.extend(customParseFormat);
     const [characterRows, characterDefsRaw, tagRows] = await Promise.all([
         db.select().from(characters),
         db.select().from(definitions),
