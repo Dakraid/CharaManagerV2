@@ -103,15 +103,20 @@ async function closeCompare() {
             v-element-visibility="onElementVisibility"
             class="max-h-[calc(100vh_-_theme(spacing.36))] rounded-md overflow-y-hidden scroll-smooth">
             <div class="w-full flex flex-col wrap gap-4 m-4">
-                <div v-for="parentCharacter in parentCharacters" :key="parentCharacter.id" class="w-full flex flex-row flex-wrap gap-2">
-                    <LazyCharsDisplayDefault :character="parentCharacter" />
-                    <Separator orientation="vertical" class="h-[596px] my-auto" />
-                    <LazyCharsDisplayChild
-                        v-for="childCharacter in childCharacters[parentCharacter.id]"
-                        :key="childCharacter.id"
-                        :character="childCharacter"
-                        @compare="showCompare(parentCharacter, childCharacter)" />
-                    <Separator orientation="horizontal" class="mt-2" />
+                <div v-for="parentCharacter in parentCharacters" :key="parentCharacter.id" class="Container w-full">
+                    <LazyCharsDisplayDefault :character="parentCharacter" class="Parent" />
+                    <Separator orientation="vertical" class="SeparatorY h-full my-auto" />
+                    <Transition>
+                        <div v-if="childCharacters[parentCharacter.id] && childCharacters[parentCharacter.id].length > 0" class="Child flex flex-wrap gap-2">
+                            <LazyCharsDisplayChild
+                                v-for="childCharacter in childCharacters[parentCharacter.id]"
+                                :key="childCharacter.id"
+                                :character="childCharacter"
+                                @compare="showCompare(parentCharacter, childCharacter)" />
+                        </div>
+                        <CommonLoading v-else class="Child" />
+                    </Transition>
+                    <Separator orientation="horizontal" class="SeparatorX w-full mt-1" />
                 </div>
             </div>
         </ScrollArea>
@@ -119,4 +124,30 @@ async function closeCompare() {
     </Transition>
 </template>
 
-<style scoped></style>
+<style scoped>
+.Container {
+    display: grid;
+    grid-template-columns: 320px 3px 1fr;
+    grid-template-rows: 1fr 3px;
+    gap: 0.5rem;
+    grid-template-areas:
+        'Parent SeparatorY Child'
+        'SeparatorX SeparatorX SeparatorX';
+}
+
+.SeparatorY {
+    grid-area: SeparatorY;
+}
+
+.Parent {
+    grid-area: Parent;
+}
+
+.Child {
+    grid-area: Child;
+}
+
+.SeparatorX {
+    grid-area: SeparatorX;
+}
+</style>
