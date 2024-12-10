@@ -10,7 +10,8 @@ export default withNuxt()
             '@typescript-eslint/no-unused-vars': 0,
             'vue/require-default-prop': 0,
             'vue/first-attribute-linebreak': 0,
-            'max-len': ['error', {code: 180}],
+            'vue/no-parsing-error': 0,
+            'max-len': ['error', { code: 180 }],
         },
     })
     .append(eslintConfigPrettier)

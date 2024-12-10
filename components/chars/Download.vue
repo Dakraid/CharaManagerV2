@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import {toTypedSchema} from '@vee-validate/zod';
-import {CircleX, LoaderCircle} from 'lucide-vue-next';
-import {useForm} from 'vee-validate';
+import { toTypedSchema } from '@vee-validate/zod';
+import { CircleX, LoaderCircle } from 'lucide-vue-next';
+import { useForm } from 'vee-validate';
 import * as z from 'zod';
-import {useToast} from '~/components/ui/toast';
-import type {FileUpload} from '~/utils/Interfaces';
+import { useToast } from '~/components/ui/toast';
+import type { FileUpload } from '~/utils/Interfaces';
 
-const {toast} = useToast();
+const { toast } = useToast();
 const nuxtApp = useNuxtApp();
 const characterStore = useCharacterStore();
 
@@ -55,7 +55,7 @@ const formSchema = toTypedSchema(
     })
 );
 
-const {handleSubmit} = useForm({
+const { handleSubmit } = useForm({
     validationSchema: formSchema,
 });
 
@@ -66,7 +66,7 @@ const onSubmit = handleSubmit(async (values) => {
         try {
             for (const value of (values.links as string).split('\n')) {
                 if (value.startsWith('https://www.chub.ai/')) {
-                    const {data, error} = await useFetch<FileUpload>('/api/sites/venusai', {
+                    const { data, error } = await useFetch<FileUpload>('/api/sites/venusai', {
                         method: 'POST',
                         body: {
                             targetUri: value,
@@ -85,7 +85,7 @@ const onSubmit = handleSubmit(async (values) => {
 
                     files.value.push(data.value);
                 } else if (value.startsWith('https://jannyai.com')) {
-                    const {data, error} = await useFetch<FileUpload>('/api/sites/jannyai', {
+                    const { data, error } = await useFetch<FileUpload>('/api/sites/jannyai', {
                         method: 'POST',
                         body: {
                             targetUri: value,
@@ -115,7 +115,7 @@ const onSubmit = handleSubmit(async (values) => {
     } else {
         try {
             if ((values.links as string).startsWith('https://www.chub.ai/')) {
-                const {data, error} = await useFetch<FileUpload>('/api/sites/venusai', {
+                const { data, error } = await useFetch<FileUpload>('/api/sites/venusai', {
                     method: 'POST',
                     body: {
                         targetUri: values.links,
@@ -128,7 +128,7 @@ const onSubmit = handleSubmit(async (values) => {
 
                 files.value.push(data.value);
             } else if ((values.links as string).startsWith('https://jannyai.com')) {
-                const {data, error} = await useFetch<FileUpload>('/api/sites/jannyai', {
+                const { data, error } = await useFetch<FileUpload>('/api/sites/jannyai', {
                     method: 'POST',
                     body: {
                         targetUri: values.links,
@@ -155,7 +155,7 @@ const onSubmit = handleSubmit(async (values) => {
 async function uploadFiles() {
     characterStore.loading = true;
     try {
-        const {data} = await useFetch('/api/chars/character', {
+        const { data } = await useFetch('/api/chars/character', {
             method: 'PUT',
             body: {
                 files: files.value,
@@ -207,24 +207,24 @@ onMounted(async () => {
                 <FormItem>
                     <FormLabel>Source URIs</FormLabel>
                     <FormControl>
-                        <Textarea placeholder="Paste links here..." class="resize-none" v-bind="componentField"/>
+                        <Textarea placeholder="Paste links here..." class="resize-none" v-bind="componentField" />
                     </FormControl>
-                    <FormDescription>One link per line.<br/>Supported are VenusAI and JannyAI</FormDescription>
-                    <FormMessage/>
+                    <FormDescription>One link per line.<br />Supported are VenusAI and JannyAI</FormDescription>
+                    <FormMessage />
                 </FormItem>
             </FormField>
             <Button type="submit" class="w-full">Download</Button>
         </form>
 
         <Transition>
-            <LoaderCircle v-if="downloading" class="h-20 w-20 mx-auto motion-safe:animate-spin"/>
+            <LoaderCircle v-if="downloading" class="h-20 w-20 mx-auto motion-safe:animate-spin" />
         </Transition>
 
         <Transition>
             <div v-if="files.length !== 0" class="flex flex-col gap-4">
                 <Button variant="outline" @click="uploadFiles">Upload</Button>
                 <div class="flex items-top justify-center gap-2">
-                    <Checkbox id="importNotes" v-model:checked="personalityToCreatorNotes"/>
+                    <Checkbox id="importNotes" v-model:checked="personalityToCreatorNotes" />
                     <div class="grid gap-2 leading-none">
                         <label for="importNotes" class="text-sm text-center font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                             Import Personality as Creator Nodes?
@@ -242,7 +242,7 @@ onMounted(async () => {
                 class="flex flex-wrap overflow-y-scroll bg-card rounded-md border p-4"
                 :style="`max-height: ${maxHeight}px;`">
                 <div v-for="file in files" :key="file.name" class="Preview border rounded-md">
-                    <CharsDisplayUpload :content="file.content" @remove="removeFile(file.name)"/>
+                    <CharsDisplayUpload :content="file.content" @remove="removeFile(file.name)" />
                 </div>
             </div>
             <p v-else-if="files.length !== 0" class="text-sm text-center text-muted-foreground">Too many files selected for preview.</p>

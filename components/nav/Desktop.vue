@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import {cn} from '~/lib/utils';
+import { cn } from '~/lib/utils';
 </script>
 
 <template>
     <nav class="hidden flex-col gap-4 text-lg font-medium lg:flex lg:flex-row lg:items-center lg:text-sm">
         <NuxtLink to="/" class="flex items-center gap-2 text-lg font-semibold md:text-base md:mr-4">
-            <NuxtImg src="/logo.svg" alt="Logo" class="h-10 w-10 min-h-10 min-w-10"/>
+            <NuxtImg src="/logo.svg" alt="Logo" class="h-10 w-10 min-h-10 min-w-10" />
             <span>CharaManagerV2</span>
         </NuxtLink>
-        <NavLinks/>
+        <NavLinks />
     </nav>
 </template>
 

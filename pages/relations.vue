@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {vElementVisibility} from '@vueuse/components';
+import { vElementVisibility } from '@vueuse/components';
 import _ from 'lodash';
 
 const appStore = useAppStore();
@@ -7,7 +7,7 @@ const characterStore = useCharacterStore();
 
 definePageMeta({
     middleware() {
-        const {loggedIn} = useUserSession();
+        const { loggedIn } = useUserSession();
         if (!loggedIn.value) {
             return navigateTo('/authenticate');
         }
@@ -30,7 +30,7 @@ const childChar = ref<Character | undefined>();
 
 let relations: Relation[] = [];
 try {
-    const {data} = await useFetch<Relation[]>('/api/relations/retrieve', {
+    const { data } = await useFetch<Relation[]>('/api/relations/retrieve', {
         method: 'POST',
     });
     relations = data.value ?? [];
@@ -42,7 +42,7 @@ try {
 const groupedRelations = _.groupBy(relations, 'parentId');
 
 const parentCharacters = ref<Character[]>([]);
-const childCharacters = ref<{ [id: number]: Character[]; }>({});
+const childCharacters = ref<{ [id: number]: Character[] }>({});
 
 try {
     const characters = await $fetch<Character[]>('/api/chars/characters', {
@@ -96,25 +96,26 @@ async function closeCompare() {
 
 <template>
     <Transition>
-        <CommonLoading v-if="loading" loading-text="Loading relations"/>
-        <CharsCompare v-else-if="!loading && compare" :character="childChar" :parent="parentChar" @close="closeCompare"/>
-        <ScrollArea v-else-if="!loading && parentCharacters.length > 0"
-                    v-element-visibility="onElementVisibility"
-                    class="max-h-[calc(100vh_-_theme(spacing.36))] rounded-md overflow-y-hidden scroll-smooth">
+        <CommonLoading v-if="loading" loading-text="Loading relations" />
+        <CharsCompare v-else-if="!loading && compare" :character="childChar" :parent="parentChar" @close="closeCompare" />
+        <ScrollArea
+            v-else-if="!loading && parentCharacters.length > 0"
+            v-element-visibility="onElementVisibility"
+            class="max-h-[calc(100vh_-_theme(spacing.36))] rounded-md overflow-y-hidden scroll-smooth">
             <div class="w-full flex flex-col wrap gap-4 m-4">
                 <div v-for="parentCharacter in parentCharacters" :key="parentCharacter.id" class="w-full flex flex-row flex-wrap gap-2">
-                    <LazyCharsDisplayDefault :character="parentCharacter"/>
-                    <Separator orientation="vertical" class="h-[596px] my-auto"/>
+                    <LazyCharsDisplayDefault :character="parentCharacter" />
+                    <Separator orientation="vertical" class="h-[596px] my-auto" />
                     <LazyCharsDisplayChild
                         v-for="childCharacter in childCharacters[parentCharacter.id]"
                         :key="childCharacter.id"
                         :character="childCharacter"
-                        @compare="showCompare(parentCharacter, childCharacter)"/>
-                    <Separator orientation="horizontal" class="mt-2"/>
+                        @compare="showCompare(parentCharacter, childCharacter)" />
+                    <Separator orientation="horizontal" class="mt-2" />
                 </div>
             </div>
         </ScrollArea>
-        <CommonError v-else error="No relations found"/>
+        <CommonError v-else error="No relations found" />
     </Transition>
 </template>
 

@@ -21,7 +21,7 @@ allowRegistration.value = response ?? false;
                         <span class="text-6xl font-bold">Welcome to CharaManagerV2</span>
                     </inspiraRadiantText>
 
-                    <NuxtImg src="/CharaManager.svg" alt="Image" class="w-64 rounded-2xl object-cover opacity-100 mix-blend-overlay z-20"/>
+                    <NuxtImg src="/CharaManager.svg" alt="Image" class="w-64 rounded-2xl object-cover opacity-100 mix-blend-overlay z-20" />
 
                     <Badge>VERSION 0.1.0-DEV</Badge>
                 </div>
@@ -31,7 +31,7 @@ allowRegistration.value = response ?? false;
                     :ease="100"
                     :color="isDark ? '#FFF' : '#000'"
                     :staticity="10"
-                    refresh/>
+                    refresh />
             </stunningTyndallEffect>
         </div>
         <div>
@@ -39,7 +39,7 @@ allowRegistration.value = response ?? false;
                 <div class="flex flex-col flex-wrap lg:flex-row lg:flex-nowrap z-40">
                     <AuthState>
                         <template #default="{ loggedIn, clear }">
-                            <AuthLogin v-if="!loggedIn" class="w-full lg:w-[350px] lg:mx-8 lg:my-0"/>
+                            <AuthLogin v-if="!loggedIn" class="w-full lg:w-[350px] lg:mx-8 lg:my-0" />
                             <div v-if="loggedIn" class="w-full flex flex-col gap-6 my-auto lg:w-[350px]">
                                 <div class="flex flex-col gap-2 text-center w-full">
                                     <h1 class="text-3xl font-bold">Logout</h1>
@@ -48,11 +48,11 @@ allowRegistration.value = response ?? false;
                                 <Button v-if="loggedIn" @click="clear"> Logout</Button>
                             </div>
                             <div v-if="allowRegistration || loggedIn">
-                                <Separator v-if="$device.isDesktop" orientation="vertical" class="my-auto mx-8 label-fix-black" label="OR"/>
-                                <Separator v-else orientation="horizontal" class="mx-auto my-8 label-fix-black" label="OR"/>
+                                <Separator v-if="$device.isDesktop" orientation="vertical" class="my-auto mx-8 label-fix-black" label="OR" />
+                                <Separator v-else orientation="horizontal" class="mx-auto my-8 label-fix-black" label="OR" />
                             </div>
-                            <AuthRegister v-if="allowRegistration && !loggedIn" class="w-full lg:w-[350px] lg:mx-8 lg:my-0"/>
-                            <AuthUpdate v-if="loggedIn" class="w-full lg:w-[350px] lg:mx-8 lg:my-0"/>
+                            <AuthRegister v-if="allowRegistration && !loggedIn" class="w-full lg:w-[350px] lg:mx-8 lg:my-0" />
+                            <AuthUpdate v-if="loggedIn" class="w-full lg:w-[350px] lg:mx-8 lg:my-0" />
                         </template>
                         <template #placeholder>
                             <Button disabled> Loading...</Button>

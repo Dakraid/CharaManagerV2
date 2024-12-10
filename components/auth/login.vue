@@ -1,9 +1,9 @@
 <script lang="ts" setup>
-import {toTypedSchema} from '@vee-validate/zod';
+import { toTypedSchema } from '@vee-validate/zod';
 import * as z from 'zod';
-import {useToast} from '~/components/ui/toast';
+import { useToast } from '~/components/ui/toast';
 
-const {toast} = useToast();
+const { toast } = useToast();
 
 const loginSchema = toTypedSchema(
     z.object({
@@ -12,7 +12,7 @@ const loginSchema = toTypedSchema(
     })
 );
 
-const {fetch, user} = useUserSession();
+const { fetch, user } = useUserSession();
 
 async function onSubmit(values: any) {
     try {
@@ -56,18 +56,18 @@ async function onSubmit(values: any) {
                 <FormItem>
                     <FormLabel>Username</FormLabel>
                     <FormControl>
-                        <Input type="text" placeholder="Username" required v-bind="componentField"/>
+                        <Input type="text" placeholder="Username" required v-bind="componentField" />
                     </FormControl>
-                    <FormMessage/>
+                    <FormMessage />
                 </FormItem>
             </FormField>
             <FormField v-slot="{ componentField }" name="password">
                 <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                        <Input type="password" placeholder="********" required v-bind="componentField"/>
+                        <Input type="password" placeholder="********" required v-bind="componentField" />
                     </FormControl>
-                    <FormMessage/>
+                    <FormMessage />
                 </FormItem>
             </FormField>
             <Button type="submit" class="w-full mt-2"> Login</Button>

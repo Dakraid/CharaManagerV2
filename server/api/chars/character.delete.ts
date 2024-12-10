@@ -1,11 +1,11 @@
-import {eq} from 'drizzle-orm';
-import {DeleteObjectCommand} from "@aws-sdk/client-s3";
-import fs from "node:fs/promises";
-import path from "node:path";
+import { DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { eq } from 'drizzle-orm';
+import fs from 'node:fs/promises';
+import path from 'node:path';
 
 export default defineEventHandler(async (event) => {
     await Authenticate(event);
-    const {id} = await readBody<{ id: number }>(event);
+    const { id } = await readBody<{ id: number }>(event);
     const db = event.context.$db;
 
     if (!db) {

@@ -1,5 +1,5 @@
-import {and, asc, cosineDistance, desc, eq, gt, ne, sql} from 'drizzle-orm';
-import type {NodePgDatabase} from 'drizzle-orm/node-postgres';
+import { and, asc, cosineDistance, desc, eq, gt, ne, sql } from 'drizzle-orm';
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 
 async function findSimilar(db: NodePgDatabase, id: number, threshold: number, embedding: number[] | null) {
     if (embedding === null) {
@@ -9,7 +9,7 @@ async function findSimilar(db: NodePgDatabase, id: number, threshold: number, em
     ${cosineDistance(definitions.embedding, embedding)}
     )`;
     const result = await db
-        .select({id: definitions.id, similarity: similarity})
+        .select({ id: definitions.id, similarity: similarity })
         .from(definitions)
         .where(and(gt(similarity, threshold), ne(definitions.id, id)))
         .orderBy((t) => desc(t.similarity));
@@ -32,7 +32,7 @@ export default defineEventHandler(async (event) => {
     await db.delete(relations);
 
     const charactersWithDef = await db
-        .select({id: characters.id, fileName: characters.fileName, definition: definitions.definition, embedding: definitions.embedding})
+        .select({ id: characters.id, fileName: characters.fileName, definition: definitions.definition, embedding: definitions.embedding })
         .from(characters)
         .leftJoin(definitions, eq(characters.id, definitions.id))
         .orderBy(desc(characters.id));
@@ -71,7 +71,7 @@ export default defineEventHandler(async (event) => {
             if (childIds.has(x.id)) {
                 return;
             }
-            charRelations.push({parentId: x.id, childId: y.id});
+            charRelations.push({ parentId: x.id, childId: y.id });
             childIds.add(y.id);
         });
     });

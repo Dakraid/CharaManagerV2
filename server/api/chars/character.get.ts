@@ -1,9 +1,9 @@
-import {def} from '@vue/shared';
+import { GetObjectCommand } from '@aws-sdk/client-s3';
+import { def } from '@vue/shared';
 import dayjs from 'dayjs';
-import {eq} from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import * as fs from 'node:fs/promises';
 import path from 'node:path';
-import {GetObjectCommand} from "@aws-sdk/client-s3";
 
 export default defineEventHandler(async (event) => {
     await Authenticate(event);
@@ -69,7 +69,7 @@ export default defineEventHandler(async (event) => {
             }
 
             const imageBase64 = 'data:image/png;base64,' + Buffer.from(imageBuffer).toString('base64');
-            return {card: addDefinition(imageBase64, result[0].definition), name: `${result[0].charName}_${dayjs(result[0].uploadDate).format('YYYY-MM-DD_HH-mm-ss')}.png`};
+            return { card: addDefinition(imageBase64, result[0].definition), name: `${result[0].charName}_${dayjs(result[0].uploadDate).format('YYYY-MM-DD_HH-mm-ss')}.png` };
         } catch (error) {
             throw createError({
                 statusCode: StatusCode.NOT_FOUND,
@@ -80,6 +80,6 @@ export default defineEventHandler(async (event) => {
         const image = await fs.readFile(path.join(runtimeConfig.imageFolder, `full/${id}.png`));
         const imageBase64 = 'data:image/png;base64,' + Buffer.from(image).toString('base64');
 
-        return {card: addDefinition(imageBase64, result[0].definition), name: `${result[0].charName}_${dayjs(result[0].uploadDate).format('YYYY-MM-DD_HH-mm-ss')}.png`};
+        return { card: addDefinition(imageBase64, result[0].definition), name: `${result[0].charName}_${dayjs(result[0].uploadDate).format('YYYY-MM-DD_HH-mm-ss')}.png` };
     }
 });

@@ -1,17 +1,17 @@
 import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+import { max } from 'drizzle-orm';
 import _ from 'lodash';
-import type {Statistics, StatisticsCache} from '~/utils/Interfaces';
-import {createStorage} from "unstorage";
-import fsDriver from "unstorage/drivers/fs";
-import {max} from "drizzle-orm";
-import customParseFormat from 'dayjs/plugin/customParseFormat'
+import { createStorage } from 'unstorage';
+import fsDriver from 'unstorage/drivers/fs';
+import type { Statistics, StatisticsCache } from '~/utils/Interfaces';
 
 async function getAuthorStats(characterDefs: any[]): Promise<[string, number][]> {
     const authorsGrouped = _.groupBy(characterDefs, 'creator');
     const authorStats: [string, number][] = [];
     _.forEach(authorsGrouped, function (value, key) {
         if (key.trim().length === 0) {
-            const author = authorStats.find(s => s[0] === 'Undefined');
+            const author = authorStats.find((s) => s[0] === 'Undefined');
             if (author) {
                 author[1] += 1;
             } else {
@@ -57,10 +57,8 @@ async function getDateStats(characterRows: any[]): Promise<[string, number][]> {
 
 async function getTagStats(tagRows: any[]): Promise<[string, number][]> {
     const tags = tagRows
-        .filter((item): item is { tag: string, usageCount: number } =>
-            item.tag !== null && item.usageCount !== null
-        )
-        .map(({tag, usageCount}): [string, number] => [tag, usageCount]);
+        .filter((item): item is { tag: string; usageCount: number } => item.tag !== null && item.usageCount !== null)
+        .map(({ tag, usageCount }): [string, number] => [tag, usageCount]);
 
     return tags.sort((a, b) => b[1] - a[1]);
 }
@@ -77,31 +75,22 @@ export default defineEventHandler(async (event) => {
     }
 
     const storage = createStorage({
-        driver: fsDriver({base: './cache'}),
+        driver: fsDriver({ base: './cache' }),
     });
 
-    const highestCharId = await db.select({highest: max(characters.id)}).from(characters);
-    const cachedStatistics = await storage.getItem<StatisticsCache>("statistics:cache");
+    const highestCharId = await db.select({ highest: max(characters.id) }).from(characters);
+    const cachedStatistics = await storage.getItem<StatisticsCache>('statistics:cache');
 
     if (cachedStatistics && cachedStatistics.highestId === Number(highestCharId[0].highest)) {
         return cachedStatistics.statistics;
     }
 
     dayjs.extend(customParseFormat);
-    const [characterRows, characterDefsRaw, tagRows] = await Promise.all([
-        db.select().from(characters),
-        db.select().from(definitions),
-        db.select().from(tagCounts)
-    ]);
+    const [characterRows, characterDefsRaw, tagRows] = await Promise.all([db.select().from(characters), db.select().from(definitions), db.select().from(tagCounts)]);
 
     const characterDefs = characterDefsRaw.map((def) => JSON.parse(def.definition).data);
 
-    const [authorStats, tokens, dates, tags] = await Promise.all([
-        getAuthorStats(characterDefs),
-        getTokenStats(characterDefs),
-        getDateStats(characterRows),
-        getTagStats(tagRows)
-    ]);
+    const [authorStats, tokens, dates, tags] = await Promise.all([getAuthorStats(characterDefs), getTokenStats(characterDefs), getDateStats(characterRows), getTagStats(tagRows)]);
 
     const result: Statistics = {
         charCount: characterRows.length,
@@ -111,7 +100,7 @@ export default defineEventHandler(async (event) => {
         charTokens: tokens,
     };
 
-    await storage.setItem<StatisticsCache>("statistics:cache", {highestId: Number(highestCharId[0].highest), statistics: result});
+    await storage.setItem<StatisticsCache>('statistics:cache', { highestId: Number(highestCharId[0].highest), statistics: result });
 
     return result;
 });

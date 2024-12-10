@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import {vElementVisibility} from '@vueuse/components';
-import {CardSize} from "~/utils/CardSize";
+import { vElementVisibility } from '@vueuse/components';
+import { CardSize } from '~/utils/CardSize';
 
 const route = useRoute();
 const router = useRouter();
@@ -10,7 +10,7 @@ const characterStore = useCharacterStore();
 
 definePageMeta({
     middleware() {
-        const {loggedIn, session} = useUserSession();
+        const { loggedIn, session } = useUserSession();
         if (!loggedIn.value || !session.value.user) {
             return navigateTo('/authenticate');
         }
@@ -21,7 +21,7 @@ characterStore.currentPage = Number(route.query.page) ? Number(route.query.page)
 
 router.push({
     path: '',
-    query: {page: characterStore.currentPage},
+    query: { page: characterStore.currentPage },
 });
 
 useRouteCache((helper) => {
@@ -40,7 +40,7 @@ async function updatePage(page: number) {
 
     await router.push({
         path: '',
-        query: {page: characterStore.currentPage},
+        query: { page: characterStore.currentPage },
     });
 
     await nuxtApp.hooks.callHook('characters:refresh');
@@ -73,8 +73,8 @@ async function onElementVisibility(state: boolean) {
                     class="controls"
                     @update:page="updatePage">
                     <PaginationList v-slot="{ items }" class="flex items-center justify-between md:justify-center gap-1">
-                        <PaginationFirst/>
-                        <PaginationPrev/>
+                        <PaginationFirst />
+                        <PaginationPrev />
 
                         <template v-for="(item, index) in items">
                             <PaginationListItem v-if="item.type === 'page'" :key="index" :value="item.value" as-child>
@@ -82,11 +82,11 @@ async function onElementVisibility(state: boolean) {
                                     {{ item.value }}
                                 </Button>
                             </PaginationListItem>
-                            <PaginationEllipsis v-else :key="item.type" :index="index"/>
+                            <PaginationEllipsis v-else :key="item.type" :index="index" />
                         </template>
 
-                        <PaginationNext/>
-                        <PaginationLast/>
+                        <PaginationNext />
+                        <PaginationLast />
                     </PaginationList>
                 </Pagination>
             </ClientOnly>
@@ -94,9 +94,9 @@ async function onElementVisibility(state: boolean) {
             <div class="perPage flex gap-2 w-40 md:w-48">
                 <NumberField id="perPage" :default-value="30" :min="1" :model-value="appStore.perPage" @update:model-value="updatePerPage">
                     <NumberFieldContent>
-                        <NumberFieldDecrement class="p-2"/>
-                        <NumberFieldInput class="p-2"/>
-                        <NumberFieldIncrement class="p-2"/>
+                        <NumberFieldDecrement class="p-2" />
+                        <NumberFieldInput class="p-2" />
+                        <NumberFieldIncrement class="p-2" />
                     </NumberFieldContent>
                 </NumberField>
 
@@ -117,7 +117,7 @@ async function onElementVisibility(state: boolean) {
             </div>
         </div>
         <Transition>
-            <CommonLoading v-if="!characterStore.characters || characterStore.loading" loading-text="Loading..." css-class="col-start-1 row-start-2"/>
+            <CommonLoading v-if="!characterStore.characters || characterStore.loading" loading-text="Loading..." css-class="col-start-1 row-start-2" />
         </Transition>
         <Transition>
             <h1
@@ -132,16 +132,16 @@ async function onElementVisibility(state: boolean) {
                 style="grid-column-start: 1; grid-row-start: 2">
                 <ClientOnly>
                     <RenderCacheable v-if="appStore.cardSize == 2" class="flex justify-around flex-wrap gap-2 m-4">
-                        <CharsDisplaySquare v-for="character in characterStore.characters" :key="character.id" :character="character"/>
+                        <CharsDisplaySquare v-for="character in characterStore.characters" :key="character.id" :character="character" />
                     </RenderCacheable>
                     <RenderCacheable v-else class="flex justify-around flex-wrap gap-2 m-4">
-                        <CharsDisplayDefault v-for="character in characterStore.characters" :key="character.id" :character="character"/>
+                        <CharsDisplayDefault v-for="character in characterStore.characters" :key="character.id" :character="character" />
                     </RenderCacheable>
                 </ClientOnly>
             </ScrollArea>
         </Transition>
         <RenderCacheable class="hidden row-start-1 row-span-2 lg:col-start-2 lg:block lg:max-h-[calc(100vh_-_theme(spacing.36))]">
-            <CharsSidebar/>
+            <CharsSidebar />
         </RenderCacheable>
     </div>
 </template>

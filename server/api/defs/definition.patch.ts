@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
-import {eq} from 'drizzle-orm';
-import {createHash} from 'node:crypto';
+import { eq } from 'drizzle-orm';
+import { createHash } from 'node:crypto';
 
 export default defineEventHandler(async (event) => {
     await Authenticate(event);
@@ -28,7 +28,7 @@ export default defineEventHandler(async (event) => {
         await db.insert(definitionHistory).values({
             definitionId: oldDefinition[0].id,
             prevDefinition: oldDefinition[0].definition,
-            changedDate: dayjs().format('YYYY-MM-DD HH:mm:ss')
+            changedDate: dayjs().format('YYYY-MM-DD HH:mm:ss'),
         });
     } catch (err: any) {
         throw createError({
@@ -39,7 +39,7 @@ export default defineEventHandler(async (event) => {
 
     try {
         const hash = createHash('sha256').update(update.definition).digest('hex');
-        await db.update(definitions).set({definition: update.definition, hash: hash}).where(eq(definitions.id, update.id));
+        await db.update(definitions).set({ definition: update.definition, hash: hash }).where(eq(definitions.id, update.id));
     } catch (err: any) {
         throw createError({
             statusCode: StatusCode.INTERNAL_SERVER_ERROR,
@@ -52,7 +52,7 @@ export default defineEventHandler(async (event) => {
 
     if (oldDef.data.name !== newDef.data.name) {
         try {
-            await db.update(characters).set({charName: newDef.data.name}).where(eq(characters.id, update.id));
+            await db.update(characters).set({ charName: newDef.data.name }).where(eq(characters.id, update.id));
         } catch (err: any) {
             throw createError({
                 statusCode: StatusCode.INTERNAL_SERVER_ERROR,

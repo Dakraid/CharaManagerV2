@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import {useIntersectionObserver} from '@vueuse/core';
+import { useIntersectionObserver } from '@vueuse/core';
 import dayjs from 'dayjs';
-import {Download, Pencil, Trash} from 'lucide-vue-next';
-import {cn} from '~/lib/utils';
+import { Download, Pencil, Trash } from 'lucide-vue-next';
+import { cn } from '~/lib/utils';
 
 const props = defineProps<{
     character: Character;
@@ -11,8 +11,8 @@ const props = defineProps<{
 const runtimeConfig = useRuntimeConfig();
 const appStore = useAppStore();
 
-const error = ref(false)
-const retryCount = ref(0)
+const error = ref(false);
+const retryCount = ref(0);
 
 const imageUri = runtimeConfig.public.imageDomain.endsWith('/')
     ? `${runtimeConfig.public.imageDomain}thumb/${props.character.id}.png`
@@ -26,7 +26,7 @@ const replaceLettersWithHash = (str: string): string => str.replace(/\S/g, '#');
 const target = ref(null);
 const targetIsVisible = ref(false);
 
-useIntersectionObserver(target, ([{isIntersecting}]) => {
+useIntersectionObserver(target, ([{ isIntersecting }]) => {
     targetIsVisible.value = isIntersecting;
 });
 </script>
@@ -59,7 +59,7 @@ useIntersectionObserver(target, ([{isIntersecting}]) => {
                         </Tooltip>
                     </TooltipProvider>
                     <Button variant="destructive" size="icon" class="h-10 w-12" @click="deleteCharacter(character)">
-                        <Trash class="h-4 w-4"/>
+                        <Trash class="h-4 w-4" />
                     </Button>
                 </CardTitle>
                 <TooltipProvider>
@@ -76,7 +76,7 @@ useIntersectionObserver(target, ([{isIntersecting}]) => {
                                 class="flex justify-center z-20"
                                 rating-size="24px"
                                 @rating-selected="updateRating(character, hoveredRating)"
-                                @rating-hovered="(event) => (hoveredRating = event)"/>
+                                @rating-hovered="(event) => (hoveredRating = event)" />
                         </TooltipTrigger>
                         <TooltipContent side="bottom">
                             <div class="flex justify-between gap-2">
@@ -87,7 +87,7 @@ useIntersectionObserver(target, ([{isIntersecting}]) => {
                 </TooltipProvider>
             </CardHeader>
             <CardContent class="Image-Grid w-[256px] mx-auto p-0 z-10 rounded-xl overflow-hidden transition-all">
-                <Skeleton v-if="!targetIsVisible" class="Image-Container h-[384px] w-[256px] rounded-xl"/>
+                <Skeleton v-if="!targetIsVisible" class="Image-Container h-[384px] w-[256px] rounded-xl" />
                 <NuxtImg
                     v-else
                     :id="character.etag"
@@ -102,7 +102,7 @@ useIntersectionObserver(target, ([{isIntersecting}]) => {
                     loading="lazy"
                     placeholder="Placeholder.png"
                     placeholder-class="h-[256px] w-[256px] bg-muted rounded-xl object-cover"
-                    :class="cn('Image-Container border rounded-xl transition-all mx-auto', appStore.blurChars ? 'blur-2xl rotate-180 grayscale' : '')"/>
+                    :class="cn('Image-Container border rounded-xl transition-all mx-auto', appStore.blurChars ? 'blur-2xl rotate-180 grayscale' : '')" />
                 <Badge variant="secondary" class="Token-Permanent-Container rounded-xl rounded-tl-none rounded-br-none"> Permanent: {{ character.tokensPermanent ?? -1 }}</Badge>
                 <Badge variant="secondary" class="Token-Total-Container rounded-xl rounded-tr-none rounded-bl-none"> Total: {{ character.tokensTotal ?? -1 }}</Badge>
             </CardContent>
@@ -110,13 +110,13 @@ useIntersectionObserver(target, ([{isIntersecting}]) => {
                 <div class="w-full flex justify-between gap-8">
                     <Button class="flex-1 h-8" @click="showCharacter(character)">
                         <div class="flex gap-2 items-center justify-center">
-                            <Pencil class="h-4 w-4"/>
+                            <Pencil class="h-4 w-4" />
                             <span>Edit</span>
                         </div>
                     </Button>
                     <Button class="flex-1 h-8" @click="downloadCharacter(character)">
                         <div class="flex gap-2 items-center justify-center">
-                            <Download class="h-4 w-4"/>
+                            <Download class="h-4 w-4" />
                             <span>Download</span>
                         </div>
                     </Button>

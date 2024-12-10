@@ -1,6 +1,6 @@
 export default defineNitroPlugin(async (nitroApp) => {
     const runtimeConfig = useRuntimeConfig();
-    
+
     let embedderProvider: any;
     switch (runtimeConfig.embeddingProvider) {
         case 'openai':

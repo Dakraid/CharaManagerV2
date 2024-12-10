@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import type * as Cards from 'character-card-utils';
 import dayjs from 'dayjs';
-import {ImageUp, MessageSquarePlus, SendHorizontal, Trash2} from 'lucide-vue-next';
-import {useToast} from '~/components/ui/toast';
-import {cn} from '~/lib/utils';
+import { ImageUp, MessageSquarePlus, SendHorizontal, Trash2 } from 'lucide-vue-next';
+import { useToast } from '~/components/ui/toast';
+import { cn } from '~/lib/utils';
 
 const props = defineProps<{
     character: Character;
     definition: Cards.V2;
 }>();
 
-const {toast} = useToast();
+const { toast } = useToast();
 
 const nuxtApp = useNuxtApp();
 const appStore = useAppStore();
@@ -109,7 +109,7 @@ async function handleFileInput(event: any) {
 
 async function uploadImage() {
     try {
-        const {data} = await useFetch<string>('/api/img/image', {
+        const { data } = await useFetch<string>('/api/img/image', {
             method: 'PUT',
             body: {
                 id: activeCharacter.value.id,
@@ -175,11 +175,11 @@ onMounted(async () => {
             <CardHeader>
                 <div class="flex flex-col gap-2">
                     <h1 class="text-muted-foreground text-center text-sm">Image Replacement</h1>
-                    <Input id="file-input" ref="fileInput" type="file" name="file" accept="image/*" @input="handleFileInput"/>
+                    <Input id="file-input" ref="fileInput" type="file" name="file" accept="image/*" @input="handleFileInput" />
                     <Transition>
                         <Button v-if="newFile.trim() !== ''" type="submit" variant="secondary" class="flex-1" @click="uploadImage">
                             <span class="sr-only">Change image</span>
-                            <ImageUp class="h-6 w-6"/>
+                            <ImageUp class="h-6 w-6" />
                         </Button>
                     </Transition>
                 </div>
@@ -197,7 +197,7 @@ onMounted(async () => {
                     loading="lazy"
                     placeholder="Placeholder.png"
                     placeholder-class="h-[576ppx] w-[384px] bg-muted rounded-xl"
-                    :class="cn('h-[576px] w-[384px] mx-auto object-cover rounded-xl transition-all', appStore.blurChars ? 'blur-2xl' : '')"/>
+                    :class="cn('h-[576px] w-[384px] mx-auto object-cover rounded-xl transition-all', appStore.blurChars ? 'blur-2xl' : '')" />
             </CardContent>
             <CardFooter class="p-6 min-h-10">
                 <div class="h-10"></div>
@@ -212,7 +212,7 @@ onMounted(async () => {
                     </div>
                 </CardDescription>
                 <CardTitle>
-                    <Input v-model="activeDefinition.data.name"/>
+                    <Input v-model="activeDefinition.data.name" />
                 </CardTitle>
             </CardHeader>
             <CardContent class="flex-1 p-6 pt-2 pb-2">
@@ -238,16 +238,16 @@ onMounted(async () => {
                         <ScrollArea id="general" class="height-fix">
                             <div class="grid grid-rows-[min-content_1fr_min-content_1fr_min-content_1fr_min-content_1fr] gap-2 h-full pr-4">
                                 <Label for="description">Description</Label>
-                                <Textarea id="description" v-model="activeDefinition.data.description" spellcheck="true"/>
+                                <Textarea id="description" v-model="activeDefinition.data.description" spellcheck="true" />
 
                                 <Label for="first_message">First Message</Label>
-                                <Textarea id="first_message" v-model="activeDefinition.data.first_mes" spellcheck="true"/>
+                                <Textarea id="first_message" v-model="activeDefinition.data.first_mes" spellcheck="true" />
 
                                 <Label for="personality">Personality</Label>
-                                <Textarea id="personality" v-model="activeDefinition.data.personality" spellcheck="true"/>
+                                <Textarea id="personality" v-model="activeDefinition.data.personality" spellcheck="true" />
 
                                 <Label for="scenario">Scenario</Label>
-                                <Textarea id="scenario" v-model="activeDefinition.data.scenario" spellcheck="true"/>
+                                <Textarea id="scenario" v-model="activeDefinition.data.scenario" spellcheck="true" />
                             </div>
                         </ScrollArea>
                     </TabsContent>
@@ -256,7 +256,7 @@ onMounted(async () => {
                         value="alternatives">
                         <Button id="save" type="submit" variant="outline" @click="addGreeting">
                             <span class="sr-only">Add Greeting</span>
-                            <MessageSquarePlus class="h-6 w-6"/>
+                            <MessageSquarePlus class="h-6 w-6" />
                         </Button>
                         <Label for="alt_greetings">Alternative Greetings</Label>
                         <ScrollArea id="alt_greetings" class="height-fix">
@@ -265,22 +265,23 @@ onMounted(async () => {
                                     v-for="(item, index) in activeDefinition.data.alternate_greetings"
                                     :key="item"
                                     v-model="activeDefinition.data.alternate_greetings[index]"
-                                    class="h-full" spellcheck="true"/>
+                                    class="h-full"
+                                    spellcheck="true" />
                             </div>
                         </ScrollArea>
                     </TabsContent>
                     <TabsContent :class="cn('grid grid-rows-[min-content_1fr] gap-2 h-[calc(100%-48px)]', activeTab === 'examples' ? 'grid' : 'hidden')" value="examples">
                         <Label for="examples">Message Examples</Label>
-                        <Textarea id="examples" v-model="activeDefinition.data.mes_example" class="resize-none" spellcheck="true"/>
+                        <Textarea id="examples" v-model="activeDefinition.data.mes_example" class="resize-none" spellcheck="true" />
                     </TabsContent>
                     <TabsContent
                         :class="cn('grid grid-rows-[min-content_1fr_min-content_1fr] gap-2 h-[calc(100%-48px)]', activeTab === 'prompts' ? 'grid' : 'hidden')"
                         value="prompts">
                         <Label for="system_prompt">System Prompt</Label>
-                        <Textarea id="system_prompt" v-model="activeDefinition.data.system_prompt" class="resize-none" spellcheck="true"/>
+                        <Textarea id="system_prompt" v-model="activeDefinition.data.system_prompt" class="resize-none" spellcheck="true" />
 
                         <Label for="post_history_instructions">Jailbreak</Label>
-                        <Textarea id="post_history_instructions" v-model="activeDefinition.data.post_history_instructions" class="resize-none"/>
+                        <Textarea id="post_history_instructions" v-model="activeDefinition.data.post_history_instructions" class="resize-none" />
                     </TabsContent>
                     <TabsContent
                         :class="
@@ -291,26 +292,26 @@ onMounted(async () => {
                         "
                         value="creator">
                         <Label for="creator_name">Creator</Label>
-                        <Input id="creator_name" v-model="activeDefinition.data.creator"/>
+                        <Input id="creator_name" v-model="activeDefinition.data.creator" />
 
                         <Label for="creator_notes">Creator Notes</Label>
-                        <Textarea id="creator_notes" v-model="activeDefinition.data.creator_notes" class="resize-none" spellcheck="true"/>
+                        <Textarea id="creator_notes" v-model="activeDefinition.data.creator_notes" class="resize-none" spellcheck="true" />
 
                         <Label for="character_version">Character Version</Label>
-                        <Input id="character_version" v-model="activeDefinition.data.character_version"/>
+                        <Input id="character_version" v-model="activeDefinition.data.character_version" />
 
                         <Label for="character_tags">Tags</Label>
                         <TagsInput v-model="activeDefinition.data.tags" if="character_tags" class="flex-grow">
                             <TagsInputItem v-for="item in activeDefinition.data.tags" :key="item" :value="item">
-                                <TagsInputItemText/>
-                                <TagsInputItemDelete/>
+                                <TagsInputItemText />
+                                <TagsInputItemDelete />
                             </TagsInputItem>
-                            <TagsInputInput placeholder="Add Tag..."/>
+                            <TagsInputInput placeholder="Add Tag..." />
                         </TagsInput>
                     </TabsContent>
                     <TabsContent :class="cn('grid grid-rows-[min-content_1fr] gap-2 h-[calc(100%-48px)]', activeTab === 'json' ? 'grid' : 'hidden')" value="json">
                         <Label for="json">JSON Dump</Label>
-                        <Textarea id="json" v-model="characterDump" class="resize-none" disabled/>
+                        <Textarea id="json" v-model="characterDump" class="resize-none" disabled />
                     </TabsContent>
                 </Tabs>
             </CardContent>
@@ -318,11 +319,11 @@ onMounted(async () => {
                 <div class="w-full flex justify-between items-center">
                     <Button type="submit" variant="destructive" @click="deleteActiveCharacter">
                         <span class="sr-only">Delete</span>
-                        <Trash2 class="h-6 w-6"/>
+                        <Trash2 class="h-6 w-6" />
                     </Button>
                     <Button type="submit" variant="secondary" @click="saveActiveDefinition">
                         <span class="sr-only">Save</span>
-                        <SendHorizontal class="h-6 w-6"/>
+                        <SendHorizontal class="h-6 w-6" />
                     </Button>
                 </div>
             </CardFooter>
