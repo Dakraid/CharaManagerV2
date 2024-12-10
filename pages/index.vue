@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { vElementVisibility } from '@vueuse/components';
-import { CardSize } from '~/utils/CardSize';
 
 const route = useRoute();
 const router = useRouter();

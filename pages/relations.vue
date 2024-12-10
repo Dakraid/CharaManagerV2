@@ -2,7 +2,7 @@
 import { vElementVisibility } from '@vueuse/components';
 import _ from 'lodash';
 
-const appStore = useAppStore();
+const router = useRouter();
 const characterStore = useCharacterStore();
 
 definePageMeta({
@@ -24,9 +24,6 @@ useRouteCache((helper) => {
 
 const hasError = ref<boolean>(false);
 const loading = ref<boolean>(true);
-const compare = ref<boolean>(false);
-const parentChar = ref<Character | undefined>();
-const childChar = ref<Character | undefined>();
 
 let relations: Relation[] = [];
 try {
@@ -82,22 +79,16 @@ async function onElementVisibility(state: boolean) {
 }
 
 async function showCompare(parent: Character, child: Character) {
-    compare.value = true;
-    parentChar.value = parent;
-    childChar.value = child;
-}
-
-async function closeCompare() {
-    compare.value = false;
-    parentChar.value = undefined;
-    childChar.value = undefined;
+    await router.push({
+        path: 'compare',
+        query: { parent: parent.id, child: child.id },
+    });
 }
 </script>
 
 <template>
     <Transition>
         <CommonLoading v-if="loading" loading-text="Loading relations" />
-        <CharsCompare v-else-if="!loading && compare" :character="childChar" :parent="parentChar" @close="closeCompare" />
         <ScrollArea
             v-else-if="!loading && parentCharacters.length > 0"
             v-element-visibility="onElementVisibility"
