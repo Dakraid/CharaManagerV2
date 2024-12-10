@@ -1,0 +1,68 @@
+name: Build
+
+on:
+    push:
+        branches: ['main', 'latest']
+    pull_request:
+        branches: ['main', 'latest']
+
+jobs:
+    Linux:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@master
+
+            - name: Setup node env
+              uses: actions/setup-node@v4
+              with:
+                  node-version: lts/Jod
+                  check-latest: true
+
+            - name: Install dependencies
+              run: npm ci --quiet
+
+            - name: Run prepare
+              run: npm prepare
+
+            - name: Run linter
+              run: npm lint
+
+            - name: Run build
+              run: npm build
+
+            - uses: actions/upload-artifact@v4
+              with:
+                  name: build-linux
+                  path: .output
+
+    Windows:
+        runs-on: windows-latest
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@master
+
+            - name: Setup node env
+              uses: actions/setup-node@v4
+              with:
+                  node-version: lts/Jod
+                  check-latest: true
+
+            - name: Install dependencies
+              run: npm ci --quiet
+
+            - name: Run prepare
+              run: npm prepare
+
+            - name: Run linter
+              run: npm lint
+
+            - name: Run build
+              run: npm build
+
+            - uses: actions/upload-artifact@v4
+              with:
+                  name: build-windows
+                  path: .output

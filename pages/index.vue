@@ -131,10 +131,10 @@ async function onElementVisibility(state: boolean) {
                 style="grid-column-start: 1; grid-row-start: 2">
                 <ClientOnly>
                     <RenderCacheable v-if="appStore.cardSize == 2" class="flex justify-around flex-wrap gap-2 m-4">
-                        <CharsDisplaySquare v-for="character in characterStore.characters" :key="character.id" :character="character" />
+                        <LazyCharsDisplaySquare v-for="character in characterStore.characters" :key="character.id" :character="character" />
                     </RenderCacheable>
                     <RenderCacheable v-else class="flex justify-around flex-wrap gap-2 m-4">
-                        <CharsDisplayDefault v-for="character in characterStore.characters" :key="character.id" :character="character" />
+                        <LazyCharsDisplayDefault v-for="character in characterStore.characters" :key="character.id" :character="character" />
                     </RenderCacheable>
                 </ClientOnly>
             </ScrollArea>
