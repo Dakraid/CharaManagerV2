@@ -49,6 +49,9 @@ export default defineNuxtConfig({
     typescript: {
         typeCheck: false,
     },
+    build: {
+        transpile: ['dayjs/plugin/customParseFormat'],
+    },
     experimental: {
         watcher: 'parcel',
         crossOriginPrefetch: true,
