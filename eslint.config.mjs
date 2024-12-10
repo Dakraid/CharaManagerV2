@@ -9,7 +9,7 @@ export default withNuxt()
             '@typescript-eslint/no-explicit-any': 0,
             '@typescript-eslint/no-unused-vars': 0,
             'vue/require-default-prop': 0,
-            'vue/ first-attribute-linebreak': 0,
+            'vue/first-attribute-linebreak': 0,
             'max-len': ['error', {code: 180}],
         },
     })

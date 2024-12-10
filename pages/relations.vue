@@ -41,35 +41,33 @@ try {
 
 const groupedRelations = _.groupBy(relations, 'parentId');
 
-const parentCharacters: Character[] = [];
-const childCharacters: { [parentId: number]: Character[] } = {};
+const parentCharacters = ref<Character[]>([]);
+const childCharacters = ref<{ [id: number]: Character[]; }>({});
+
 try {
-    const {data} = await useFetch<Character[]>('/api/chars/characters', {
+    const characters = await $fetch<Character[]>('/api/chars/characters', {
         method: 'POST',
         body: {
             ids: Object.keys(groupedRelations),
         },
     });
 
-    if (data.value !== null) {
-        parentCharacters.push(...data.value);
+    if (characters) {
+        parentCharacters.value.push(...characters);
     }
 
     _.forEach(groupedRelations, async function (value, key) {
         const childIds = value.map((x) => x.childId);
-        const {data} = await useFetch<Character[]>('/api/chars/characters', {
+        const characters1 = await $fetch<Character[]>('/api/chars/characters', {
             method: 'POST',
             body: {
                 ids: childIds,
             },
         });
 
-        if (!childCharacters[Number(key)]) {
-            childCharacters[Number(key)] = [];
-        }
-
-        if (data.value !== null) {
-            childCharacters[Number(key)].push(...data.value);
+        if (characters1 !== null && characters1.length > 0) {
+            const numKey = Number(key);
+            childCharacters.value[numKey] = characters1;
         }
     });
 } catch (err: any) {
@@ -98,12 +96,16 @@ async function closeCompare() {
 
 <template>
     <Transition>
-        <ScrollArea v-if="!compare" v-element-visibility="onElementVisibility" class="max-h-[calc(100vh_-_theme(spacing.36))] rounded-md overflow-y-hidden scroll-smooth">
+        <CommonLoading v-if="loading" loading-text="Loading relations"/>
+        <CharsCompare v-else-if="!loading && compare" :character="childChar" :parent="parentChar" @close="closeCompare"/>
+        <ScrollArea v-else-if="!loading && parentCharacters.length > 0"
+                    v-element-visibility="onElementVisibility"
+                    class="max-h-[calc(100vh_-_theme(spacing.36))] rounded-md overflow-y-hidden scroll-smooth">
             <div class="w-full flex flex-col wrap gap-4 m-4">
                 <div v-for="parentCharacter in parentCharacters" :key="parentCharacter.id" class="w-full flex flex-row flex-wrap gap-2">
-                    <CharsDisplayDefault :character="parentCharacter"/>
+                    <LazyCharsDisplayDefault :character="parentCharacter"/>
                     <Separator orientation="vertical" class="h-[596px] my-auto"/>
-                    <CharsDisplayChild
+                    <LazyCharsDisplayChild
                         v-for="childCharacter in childCharacters[parentCharacter.id]"
                         :key="childCharacter.id"
                         :character="childCharacter"
@@ -112,7 +114,7 @@ async function closeCompare() {
                 </div>
             </div>
         </ScrollArea>
-        <CharsCompare v-else :character="childChar" :parent="parentChar" @close="closeCompare"/>
+        <CommonError v-else error="No relations found"/>
     </Transition>
 </template>
 

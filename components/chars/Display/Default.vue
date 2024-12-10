@@ -18,29 +18,6 @@ const imageUri = runtimeConfig.public.imageDomain.endsWith('/')
     ? `${runtimeConfig.public.imageDomain}thumb/${props.character.id}.png`
     : `${runtimeConfig.public.imageDomain}/thumb/${props.character.id}.png`;
 
-const handleImageError = async (event: any) => {
-    console.log(event);
-    try {
-        const response = await fetch(imageUri)
-        if (response.status === 503 && retryCount.value < 3) {
-            console.log('Failed to fetch image, retrying...');
-            retryCount.value++
-            error.value = false
-
-            await new Promise(resolve => setTimeout(resolve, 200))
-
-            const timestamp = new Date().getTime()
-            event.target.src = imageUri.includes('?')
-                ? `${imageUri}&_t=${timestamp}`
-                : `${imageUri}?_t=${timestamp}`
-        } else {
-            error.value = true
-        }
-    } catch (err) {
-        error.value = true
-    }
-}
-
 const isHovered = ref(false);
 const hoveredRating = ref(0);
 
@@ -124,8 +101,7 @@ useIntersectionObserver(target, ([{isIntersecting}]) => {
                     loading="lazy"
                     placeholder="Placeholder.png"
                     placeholder-class="h-[384px] w-[256px] bg-muted rounded-xl"
-                    :class="cn('Image-Container border rounded-xl transition-all mx-auto', appStore.blurChars ? 'blur-2xl rotate-180 grayscale' : '')"
-                    @error="handleImageError"/>
+                    :class="cn('Image-Container border rounded-xl transition-all mx-auto', appStore.blurChars ? 'blur-2xl rotate-180 grayscale' : '')"/>
                 <Badge variant="secondary" class="Token-Permanent-Container rounded-xl rounded-tl-none rounded-br-none"> Permanent: {{ character.tokensPermanent ?? -1 }}</Badge>
                 <Badge variant="secondary" class="Token-Total-Container rounded-xl rounded-tr-none rounded-bl-none"> Total: {{ character.tokensTotal ?? -1 }}</Badge>
             </CardContent>

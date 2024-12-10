@@ -108,6 +108,7 @@ export default defineNuxtConfig({
         dbMigrate: false,
         dbMigrations: './utils/drizzle',
         // Embeddings
+        matchThreshold: 0.96,
         embeddingProvider: 'nomic',
         oaiKey: '',
         oaiBaseUrl: '',

@@ -1,23 +1,23 @@
 import {and, asc, cosineDistance, desc, eq, gt, ne, sql} from 'drizzle-orm';
 import type {NodePgDatabase} from 'drizzle-orm/node-postgres';
 
-async function findSimilar(db: NodePgDatabase, id: number, embedding: number[] | null) {
+async function findSimilar(db: NodePgDatabase, id: number, threshold: number, embedding: number[] | null) {
     if (embedding === null) {
         return;
     }
     const similarity = sql<number>`1 - (
     ${cosineDistance(definitions.embedding, embedding)}
     )`;
-    return db
+    const result = await db
         .select({id: definitions.id, similarity: similarity})
         .from(definitions)
-        .where(and(gt(similarity, 0.95), ne(definitions.id, id)))
+        .where(and(gt(similarity, threshold), ne(definitions.id, id)))
         .orderBy((t) => desc(t.similarity));
+
+    return result;
 }
 
 export default defineEventHandler(async (event) => {
-    // await Authenticate(event);
-
     const db = event.context.$db;
 
     if (!db) {
@@ -26,6 +26,8 @@ export default defineEventHandler(async (event) => {
             statusMessage: 'Database not initialized',
         });
     }
+
+    const runtimeConfig = useRuntimeConfig(event);
 
     await db.delete(relations);
 
@@ -41,7 +43,7 @@ export default defineEventHandler(async (event) => {
     for (const characterWithDef of charactersWithDef) {
         promises.push({
             id: characterWithDef.id,
-            promise: findSimilar(db, characterWithDef.id, characterWithDef.embedding),
+            promise: findSimilar(db, characterWithDef.id, runtimeConfig.matchThreshold, characterWithDef.embedding),
         });
     }
 
@@ -74,5 +76,9 @@ export default defineEventHandler(async (event) => {
         });
     });
 
-    await db.insert(relations).values(charRelations);
+    if (charRelations.length > 0) {
+        await db.insert(relations).values(charRelations);
+    }
+
+    return db.$count(relations);
 });
