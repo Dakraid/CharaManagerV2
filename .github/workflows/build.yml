@@ -24,13 +24,13 @@ jobs:
               run: npm ci --quiet
 
             - name: Run prepare
-              run: npm prepare
+              run: npm run prepare
 
             - name: Run linter
-              run: npm lint
+              run: npm run lint
 
             - name: Run build
-              run: npm build
+              run: npm run build
 
             - uses: actions/upload-artifact@v4
               with:
@@ -54,13 +54,13 @@ jobs:
               run: npm ci --quiet
 
             - name: Run prepare
-              run: npm prepare
+              run: npm run prepare
 
             - name: Run linter
-              run: npm lint
+              run: npm run lint
 
             - name: Run build
-              run: npm build
+              run: npm run build
 
             - uses: actions/upload-artifact@v4
               with:
