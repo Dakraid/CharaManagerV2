@@ -16,17 +16,13 @@ const {fetch, user} = useUserSession();
 
 async function onSubmit(values: any) {
     try {
-        const response = await $fetch('/api/auth/login', {
+        await $fetch('/api/auth/login', {
             method: 'POST',
             body: {
                 username: values.username,
                 password: values.password,
             },
         });
-
-        if (response.error.value) {
-            throw response.error.value;
-        }
 
         await fetch();
 
