@@ -1,12 +1,35 @@
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { max } from 'drizzle-orm';
+import { encode } from 'gpt-tokenizer';
 import _ from 'lodash';
 import { createStorage } from 'unstorage';
 import fsDriver from 'unstorage/drivers/fs';
 import type { Statistics, StatisticsCache } from '~/utils/Interfaces';
 
-async function getAuthorStats(characterDefs: any[]): Promise<[string, number][]> {
+interface characterDefRaw {
+    id: number;
+    hash: string;
+    definition: string;
+    embedding: number[] | null;
+    tokensPermanent: number | null;
+    tokensTotal: number | null;
+}
+
+interface characterDef {
+    id: number;
+    file: string;
+    sourceUri: string | null;
+    fileName: string;
+    charName: string | null;
+    etag: string | null;
+    uploadDate: string;
+    hash: string;
+    public: boolean;
+    ownerId: number | null;
+}
+
+async function getAuthorStats(characterDefs: characterDef[]): Promise<[string, number][]> {
     const authorsGrouped = _.groupBy(characterDefs, 'creator');
     const authorStats: [string, number][] = [];
     _.forEach(authorsGrouped, function (value, key) {
@@ -35,10 +58,12 @@ async function getAuthorStats(characterDefs: any[]): Promise<[string, number][]>
     return authorStats.filter((x: [string, number]) => x[1] > 0).sort((a: [string, number], b: [string, number]) => b[1] - a[1]);
 }
 
-async function getTokenStats(characterDefs: any[]): Promise<[string, number][]> {
+async function getTokenStats(characterDefsRaw: characterDefRaw[]): Promise<[string, number][]> {
     const tokens: [string, number][] = [];
-    characterDefs.forEach((char) => {
-        tokens.push([char.name, char.description.length]);
+
+    characterDefsRaw.forEach((row) => {
+        const characterDef = JSON.parse(row.definition).data;
+        tokens.push([characterDef.name, row.tokensPermanent ?? encode(characterDef.description).length]);
     });
 
     return tokens.filter((x: [string, number]) => x[1] > 1).sort((a: [string, number], b: [string, number]) => b[1] - a[1]);
@@ -90,7 +115,12 @@ export default defineEventHandler(async (event) => {
 
     const characterDefs = characterDefsRaw.map((def) => JSON.parse(def.definition).data);
 
-    const [authorStats, tokens, dates, tags] = await Promise.all([getAuthorStats(characterDefs), getTokenStats(characterDefs), getDateStats(characterRows), getTagStats(tagRows)]);
+    const [authorStats, tokens, dates, tags] = await Promise.all([
+        getAuthorStats(characterDefs),
+        getTokenStats(characterDefsRaw),
+        getDateStats(characterRows),
+        getTagStats(tagRows),
+    ]);
 
     const result: Statistics = {
         charCount: characterRows.length,
