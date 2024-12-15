@@ -10,16 +10,16 @@ async function refreshCharacter() {
     characterStore.loading = true;
 
     try {
-        const count = await $fetch<number>('/api/chars/count', {
+        const { data } = await useFetch<number>('/api/chars/count', {
             method: 'GET',
         });
-        characterStore.count = count ?? 0;
+        characterStore.count = data.value ?? 0;
     } catch (err: any) {
         console.error(err);
     }
 
     try {
-        const characters = await $fetch<Character[]>('/api/chars/characters', {
+        const { data } = await useFetch<Character[]>('/api/chars/characters', {
             method: 'GET',
             query: {
                 page: characterStore.currentPage,
@@ -27,7 +27,7 @@ async function refreshCharacter() {
             },
         });
 
-        characterStore.characters = characters ?? undefined;
+        characterStore.characters = data.value ?? undefined;
     } catch (err: any) {
         console.error(err);
     }
