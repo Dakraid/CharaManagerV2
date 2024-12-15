@@ -1,8 +1,6 @@
-import { Embedder } from '@nomic-ai/atlas';
 import * as Cards from 'character-card-utils';
 import dayjs from 'dayjs';
 import { eq, inArray } from 'drizzle-orm';
-import { EmbeddingModel, FlagEmbedding } from 'fastembed';
 import { encode, isWithinTokenLimit } from 'gpt-tokenizer';
 import { createHash } from 'node:crypto';
 

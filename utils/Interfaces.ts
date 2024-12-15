@@ -83,3 +83,72 @@ export interface User {
     username: string;
     password: string;
 }
+
+export enum StringSearch {
+    Strict = 'strict',
+    Includes = 'includes',
+}
+
+export enum StringSearchExtended {
+    Strict = 'strict',
+    Includes = 'includes',
+    Like = 'like',
+}
+
+export enum ComparisonOperator {
+    Equal = 'equal',
+    NotEqual = 'notEqual',
+    Greater = 'greater',
+    Less = 'less',
+    GreaterOrEqual = 'greaterOrEqual',
+    LessOrEqual = 'lessOrEqual',
+    Between = 'between',
+    Outside = 'outside',
+    Before = 'before',
+    After = 'after',
+}
+
+export type SearchFlagString = {
+    query: string;
+    option: StringSearch;
+};
+
+export type SearchFlagStringExtend = {
+    query: string;
+    option: StringSearchExtended;
+};
+
+export type SearchFlagNumber = {
+    query: number;
+    option: Exclude<ComparisonOperator, ComparisonOperator.Between | ComparisonOperator.Outside | ComparisonOperator.Before | ComparisonOperator.After>;
+};
+
+export type SearchFlagNumberRange = {
+    from: number;
+    to: number;
+    option: ComparisonOperator.Between | ComparisonOperator.Outside;
+};
+
+export type SearchFlagDate = {
+    query: Date;
+    option: ComparisonOperator.Equal | ComparisonOperator.Before | ComparisonOperator.After;
+};
+
+export type SearchFlagDateRange = {
+    from: Date;
+    to: Date;
+    option: ComparisonOperator.Between;
+};
+
+export type SearchFlagEmbedding = {
+    query: string;
+    threshold: number;
+};
+
+export type SearchFlags = {
+    id?: SearchFlagNumber | SearchFlagNumberRange;
+    name?: SearchFlagString;
+    desc?: SearchFlagStringExtend | SearchFlagEmbedding;
+    fileName?: SearchFlagString;
+    uploadDate?: SearchFlagDate | SearchFlagDateRange;
+};
