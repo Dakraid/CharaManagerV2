@@ -1,4 +1,3 @@
-import { Readable } from 'node:stream';
 import * as pngText from 'png-chunk-text';
 import encode from 'png-chunks-encode';
 import extractChunks from 'png-chunks-extract';
@@ -29,7 +28,7 @@ function isBase64PNG(image: string) {
     return image.startsWith('data:image/png;base64,');
 }
 
-function splitBase64PNG(image: string) {
+function splitBase64(image: string) {
     return image.split('base64,')[1];
 }
 
@@ -38,7 +37,7 @@ async function extractImageAsync(image: string) {
         throw new Error('Invalid PNG image format.');
     }
 
-    const imageString = splitBase64PNG(image);
+    const imageString = splitBase64(image);
     const contentArray = await processLargeImage(imageString);
     const chunks = extractChunks(await streamToUint8Array(contentArray));
 
@@ -56,7 +55,7 @@ function extractImage(image: string) {
         throw new Error('Invalid PNG image format.');
     }
 
-    return 'data:image/png;base64,' + Buffer.from(encode(extractChunks(Buffer.from(splitBase64PNG(image), 'base64')).filter((chunk) => chunk.name !== 'tEXt'))).toString('base64');
+    return 'data:image/png;base64,' + Buffer.from(encode(extractChunks(Buffer.from(splitBase64(image), 'base64')).filter((chunk) => chunk.name !== 'tEXt'))).toString('base64');
 }
 
 function extractDefinition(image: string) {
@@ -64,7 +63,7 @@ function extractDefinition(image: string) {
         throw new Error('Invalid PNG image format.');
     }
 
-    const imageString = splitBase64PNG(image);
+    const imageString = splitBase64(image);
 
     const contentArray = Buffer.from(imageString, 'base64');
     const chunks = extractChunks(contentArray);
@@ -95,7 +94,7 @@ function updateDefinition(image: string, definition: string) {
         throw new Error('Invalid PNG image format.');
     }
 
-    const imageString = splitBase64PNG(image);
+    const imageString = splitBase64(image);
 
     const contentArray = Buffer.from(imageString, 'base64');
     const chunks = extractChunks(contentArray);
@@ -118,7 +117,7 @@ function addDefinition(image: string, definition: string): string {
         throw new Error('Invalid PNG image format.');
     }
 
-    const imageString = splitBase64PNG(image);
+    const imageString = splitBase64(image);
     const contentArray = Buffer.from(imageString, 'base64');
     const chunks = extractChunks(contentArray);
     let json = '';
@@ -161,7 +160,7 @@ export {
     extractImage,
     extractImageAsync,
     isBase64PNG,
-    splitBase64PNG,
+    splitBase64,
     updateDefinition,
     estimateBase64ImageSize,
 };

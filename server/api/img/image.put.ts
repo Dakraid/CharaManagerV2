@@ -4,7 +4,6 @@ import Jimp from 'jimp-compact';
 import { createHash } from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { isBase64PNG } from '~/server/utils/Base64Image';
 
 export default defineEventHandler(async (event) => {
     await Authenticate(event);
@@ -28,8 +27,13 @@ export default defineEventHandler(async (event) => {
             pureImage = newImage;
         }
 
-        const buffer = Buffer.from(splitBase64PNG(pureImage), 'base64');
+        if (pureImage.includes('base64')) {
+            pureImage = splitBase64(pureImage);
+        }
+
+        const buffer = Buffer.from(pureImage, 'base64');
         const image = await Jimp.read(buffer);
+        const pngBuffer = image.getBufferAsync(Jimp.MIME_PNG);
         const thumbnail = await image.resize(Jimp.AUTO, 384).getBufferAsync(Jimp.MIME_PNG);
 
         if (runtimeConfig.expUseS3ImageStore) {
@@ -61,7 +65,7 @@ export default defineEventHandler(async (event) => {
                         new PutObjectCommand({
                             Bucket: runtimeConfig.S3Bucket,
                             Key: `full/${id}.png`,
-                            Body: buffer,
+                            Body: pngBuffer,
                             ContentType: 'image/png',
                         })
                     ),
@@ -88,7 +92,7 @@ export default defineEventHandler(async (event) => {
 
             try {
                 await Promise.all([
-                    fs.writeFile(path.join(runtimeConfig.imageFolder, `/full/${id}.png`), buffer),
+                    fs.writeFile(path.join(runtimeConfig.imageFolder, `/full/${id}.png`), pngBuffer),
                     fs.writeFile(path.join(runtimeConfig.imageFolder, `/thumb/${id}.png`), thumbnail),
                 ]);
             } catch (err: any) {
@@ -97,7 +101,7 @@ export default defineEventHandler(async (event) => {
             }
         }
 
-        const hash = createHash('sha256').update(buffer).digest('hex');
+        const hash = createHash('sha256').update(pngBuffer).digest('hex');
         await db.update(characters).set({ etag: hash }).where(eq(characters.id, id));
 
         return hash;

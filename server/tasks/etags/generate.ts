@@ -7,7 +7,7 @@ import pg from 'pg';
 async function generateETag(db: NodePgDatabase, id: number, imageIn: string) {
     try {
         const pureImage = extractImage(imageIn);
-        const buffer = Buffer.from(splitBase64PNG(pureImage), 'base64');
+        const buffer = Buffer.from(splitBase64(pureImage), 'base64');
         const hash = createHash('sha256').update(buffer).digest('hex');
         await db.update(characters).set({ etag: hash }).where(eq(characters.id, id));
     } catch (err: any) {

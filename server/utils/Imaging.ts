@@ -2,7 +2,6 @@ import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import Jimp from 'jimp-compact';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { estimateBase64ImageSize } from '~/server/utils/Base64Image';
 
 async function processImage(id: number, imageIn: string, sizeLimit: number = 10): Promise<number> {
     console.log(`Processing Image #${id}`);
@@ -15,8 +14,9 @@ async function processImage(id: number, imageIn: string, sizeLimit: number = 10)
         return id;
     }
 
-    const buffer = Buffer.from(splitBase64PNG(pureImage), 'base64');
+    const buffer = Buffer.from(splitBase64(pureImage), 'base64');
     const image = await Jimp.read(buffer);
+    const pngBuffer = image.getBufferAsync(Jimp.MIME_PNG);
     const thumbnail = await image.resize(Jimp.AUTO, 384).getBufferAsync(Jimp.MIME_PNG);
 
     if (runtimeConfig.expUseS3ImageStore) {
@@ -35,7 +35,7 @@ async function processImage(id: number, imageIn: string, sizeLimit: number = 10)
                     new PutObjectCommand({
                         Bucket: runtimeConfig.S3Bucket,
                         Key: `full/${id}.png`,
-                        Body: buffer,
+                        Body: pngBuffer,
                         ContentType: 'image/png',
                     })
                 ),
@@ -54,7 +54,7 @@ async function processImage(id: number, imageIn: string, sizeLimit: number = 10)
         }
     } else {
         await Promise.all([
-            fs.writeFile(path.join(runtimeConfig.imageFolder, `/full/${id}.png`), buffer),
+            fs.writeFile(path.join(runtimeConfig.imageFolder, `/full/${id}.png`), pngBuffer),
             fs.writeFile(path.join(runtimeConfig.imageFolder, `/thumb/${id}.png`), thumbnail),
         ]);
     }
