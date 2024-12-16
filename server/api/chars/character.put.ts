@@ -105,43 +105,38 @@ export default defineEventHandler(async (event) => {
 
         const definitionRows: DefinitionRow[] = [];
         for (const update of updated) {
-            const cleanedContent = await CleanCharacterBook(extractDefinition(update.file));
-            const content = JSON.parse(cleanedContent);
-            const card = Cards.parseToV2(content);
+            try {
+                const cleanedContent = await CleanCharacterBook(extractDefinition(update.file));
+                const content = JSON.parse(cleanedContent);
+                const card = Cards.parseToV2(content);
 
-            if (personalityToCreatorNotes) {
-                card.data.creator_notes = card.data.personality;
-                card.data.personality = '';
+                if (personalityToCreatorNotes) {
+                    card.data.creator_notes = card.data.personality;
+                    card.data.personality = '';
+                }
+
+                const permanent = [card.data.description, card.data.personality];
+                const total = [card.data.description, card.data.personality, card.data.first_mes];
+                const tokensPermanent = encode(permanent.join('\n')).length;
+                const tokensTotal = encode(total.join('\n')).length;
+
+                const cardJson = JSON.stringify(card);
+                const hash = createHash('sha256').update(cardJson).digest('hex');
+
+                let embedding: number[] | undefined;
+                if (isWithinTokenLimit(card.data.description, 8192)) {
+                    embedding = await embedderProvider.embed(card.data.description);
+                }
+
+                definitionRows.push({ id: update.id, definition: cardJson, hash: hash, embedding: embedding, tokensTotal: tokensTotal, tokensPermanent: tokensPermanent });
+
+                await db.update(characters).set({ charName: card.data.name }).where(eq(characters.id, update.id));
+            } catch (err: any) {
+                console.error(err);
             }
-
-            const permanent = [card.data.description, card.data.personality];
-            const total = [card.data.description, card.data.personality, card.data.first_mes];
-            const tokensPermanent = encode(permanent.join('\n')).length;
-            const tokensTotal = encode(total.join('\n')).length;
-
-            const cardJson = JSON.stringify(card);
-            const hash = createHash('sha256').update(cardJson).digest('hex');
-
-            let embedding: number[] | undefined;
-            if (isWithinTokenLimit(card.data.description, 8192)) {
-                embedding = await embedderProvider.embed(card.data.description);
-            }
-
-            definitionRows.push({ id: update.id, definition: cardJson, hash: hash, embedding: embedding, tokensTotal: tokensTotal, tokensPermanent: tokensPermanent });
-
-            await db.update(characters).set({ charName: card.data.name }).where(eq(characters.id, update.id));
         }
 
-        if (updated.length > 50) {
-            for (let i = 0; i < updated.length; i += 50) {
-                const chunk = updated.slice(i, i + 50);
-                const promises = chunk.map((updated) => processImage(updated.id, updated.file));
-                await Promise.all(promises);
-            }
-        } else {
-            await runTask('images:generate', { payload: { images: updated } });
-        }
-
+        await runTask('images:generate', { payload: { images: updated } });
         await tx2.insert(definitions).values(definitionRows);
     });
 
