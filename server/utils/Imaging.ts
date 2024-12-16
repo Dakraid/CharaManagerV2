@@ -16,7 +16,7 @@ async function processImage(id: number, imageIn: string, sizeLimit: number = 10)
 
     const buffer = Buffer.from(splitBase64(pureImage), 'base64');
     const image = await Jimp.read(buffer);
-    const pngBuffer = image.getBufferAsync(Jimp.MIME_PNG);
+    const pngBuffer = await image.getBufferAsync(Jimp.MIME_PNG);
     const thumbnail = await image.resize(Jimp.AUTO, 384).getBufferAsync(Jimp.MIME_PNG);
 
     if (runtimeConfig.expUseS3ImageStore) {

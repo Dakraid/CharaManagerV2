@@ -33,7 +33,7 @@ export default defineEventHandler(async (event) => {
 
         const buffer = Buffer.from(pureImage, 'base64');
         const image = await Jimp.read(buffer);
-        const pngBuffer = image.getBufferAsync(Jimp.MIME_PNG);
+        const pngBuffer = await image.getBufferAsync(Jimp.MIME_PNG);
         const thumbnail = await image.resize(Jimp.AUTO, 384).getBufferAsync(Jimp.MIME_PNG);
 
         if (runtimeConfig.expUseS3ImageStore) {
