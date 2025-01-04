@@ -84,43 +84,50 @@ export interface User {
     password: string;
 }
 
-export enum StringSearch {
-    Strict = 'strict',
-    Includes = 'includes',
-}
-
-export enum StringSearchExtended {
-    Strict = 'strict',
-    Includes = 'includes',
-    Like = 'like',
-}
-
 export enum ComparisonOperator {
-    Equal = 'equal',
-    NotEqual = 'notEqual',
-    Greater = 'greater',
-    Less = 'less',
-    GreaterOrEqual = 'greaterOrEqual',
-    LessOrEqual = 'lessOrEqual',
-    Between = 'between',
-    Outside = 'outside',
-    Before = 'before',
-    After = 'after',
+    Equal = 'Equal',
+    NotEqual = 'Not Equal',
+    Greater = 'Greater',
+    Less = 'Less',
+    GreaterOrEqual = 'Greater or Equal',
+    LessOrEqual = 'Less or Equal',
+    Between = 'Between',
+    Outside = 'Outside',
+    Like = 'Like',
+    Cosine = 'Cosine',
 }
+
+export type ComparisonOperatorSymbol = {
+    [key in ComparisonOperator]: string;
+};
+
+export const comparisonOperatorSymbols: ComparisonOperatorSymbol = {
+    [ComparisonOperator.Equal]: '=',
+    [ComparisonOperator.NotEqual]: '!=',
+    [ComparisonOperator.Greater]: '>',
+    [ComparisonOperator.Less]: '<',
+    [ComparisonOperator.GreaterOrEqual]: '>=',
+    [ComparisonOperator.LessOrEqual]: '<=',
+    [ComparisonOperator.Between]: '><',
+    [ComparisonOperator.Outside]: '<>',
+    [ComparisonOperator.Like]: '~=',
+    [ComparisonOperator.Cosine]: 'cos',
+};
 
 export type SearchFlagString = {
     query: string;
-    option: StringSearch;
+    option: ComparisonOperator.Equal | ComparisonOperator.NotEqual | ComparisonOperator.Like;
 };
 
-export type SearchFlagStringExtend = {
+export type SearchFlagEmbedding = {
     query: string;
-    option: StringSearchExtended;
+    threshold: number;
+    option: ComparisonOperator.Cosine;
 };
 
 export type SearchFlagNumber = {
     query: number;
-    option: Exclude<ComparisonOperator, ComparisonOperator.Between | ComparisonOperator.Outside | ComparisonOperator.Before | ComparisonOperator.After>;
+    option: Exclude<ComparisonOperator, ComparisonOperator.Between | ComparisonOperator.Outside | ComparisonOperator.Like | ComparisonOperator.Cosine>;
 };
 
 export type SearchFlagNumberRange = {
@@ -129,26 +136,13 @@ export type SearchFlagNumberRange = {
     option: ComparisonOperator.Between | ComparisonOperator.Outside;
 };
 
-export type SearchFlagDate = {
-    query: Date;
-    option: ComparisonOperator.Equal | ComparisonOperator.Before | ComparisonOperator.After;
-};
+export type SearchFlagNumberOrRange = SearchFlagNumber | SearchFlagNumberRange;
+export type SearchFlagStringOrEmbedding = SearchFlagString | SearchFlagEmbedding;
 
-export type SearchFlagDateRange = {
-    from: Date;
-    to: Date;
-    option: ComparisonOperator.Between;
-};
-
-export type SearchFlagEmbedding = {
-    query: string;
-    threshold: number;
-};
-
-export type SearchFlags = {
-    id?: SearchFlagNumber | SearchFlagNumberRange;
-    name?: SearchFlagString;
-    desc?: SearchFlagStringExtend | SearchFlagEmbedding;
-    fileName?: SearchFlagString;
-    uploadDate?: SearchFlagDate | SearchFlagDateRange;
-};
+export interface SearchFlags {
+    id: SearchFlagNumberOrRange;
+    name: SearchFlagString;
+    desc: SearchFlagStringOrEmbedding;
+    fileName: SearchFlagString;
+    uploadDate: SearchFlagNumberOrRange;
+}

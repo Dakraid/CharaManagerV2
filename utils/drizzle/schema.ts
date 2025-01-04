@@ -99,6 +99,28 @@ export const definitions = pgTable(
     }
 );
 
+export const lorebooks = pgTable(
+    'lorebooks',
+    {
+        id: integer().primaryKey().notNull(),
+        lorebook: text().notNull(),
+        hash: text().notNull(),
+        embedding: vector({ dimensions: 768 }),
+    },
+    (table) => {
+        return {
+            embeddingIndex: index('embeddingIndex').using('hnsw', table.embedding.asc().nullsLast().op('vector_cosine_ops')),
+            lorebooksIdCharactersIdFk: foreignKey({
+                columns: [table.id],
+                foreignColumns: [characters.id],
+                name: 'lorebooks_id_characters_id_fk',
+            })
+                .onUpdate('cascade')
+                .onDelete('cascade'),
+        };
+    }
+);
+
 export const users = pgTable(
     'users',
     {
@@ -143,7 +165,11 @@ export const definitionTags = pgView('definition_tags', {
     id: integer(),
     tags: text(),
 }).as(
-    sql`SELECT id, array_agg(TRIM(BOTH '"'::text FROM tag)) AS tags FROM ( SELECT definitions.id, unnest(regexp_split_to_array("substring"(definitions.definition, '"tags":\[(.*?)\]'::text), ',\s*'::text)) AS tag FROM definitions WHERE definitions.definition ~~ '%"tags":%'::text) sub GROUP BY id`
+    sql`SELECT id, array_agg(TRIM(BOTH '"'::text FROM tag)) AS tags
+        FROM (SELECT definitions.id, unnest(regexp_split_to_array("substring"(definitions.definition, '"tags":\[(.*?)\]'::text), ',\s*'::text)) AS tag
+              FROM definitions
+              WHERE definitions.definition ~~ '%"tags":%'::text) sub
+        GROUP BY id`
 );
 
 export const tagCounts = pgView('tag_counts', {
@@ -151,5 +177,9 @@ export const tagCounts = pgView('tag_counts', {
     // You can use { mode: "bigint" } if numbers are exceeding js number limitations
     usageCount: bigint('usage_count', { mode: 'number' }),
 }).as(
-    sql`SELECT lower(unnest(tags)) AS tag, count(*) AS usage_count FROM definition_tags WHERE tags <> '{""}'::text[] AND tags IS NOT NULL AND array_length(tags, 1) > 0 GROUP BY (lower(unnest(tags))) ORDER BY (count(*)) DESC`
+    sql`SELECT lower(unnest(tags)) AS tag, count(*) AS usage_count
+        FROM definition_tags
+        WHERE tags <> '{""}'::text[] AND tags IS NOT NULL AND array_length(tags, 1) > 0
+        GROUP BY (lower(unnest(tags)))
+        ORDER BY (count(*)) DESC`
 );

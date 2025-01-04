@@ -1,7 +1,5 @@
 import { relations as drizzleRelations } from 'drizzle-orm/relations';
 
-import { characters, definitionHistory, definitions, ratings, relations, users } from './schema';
-
 export const charactersRelations = drizzleRelations(characters, ({ one, many }) => ({
     user: one(users, {
         fields: [characters.ownerId],
@@ -9,6 +7,7 @@ export const charactersRelations = drizzleRelations(characters, ({ one, many }) 
     }),
     ratings: many(ratings),
     definitions: many(definitions),
+    lorebooks: many(lorebooks),
     relations_parentId: many(relations, {
         relationName: 'relations_parentId_characters_id',
     }),
