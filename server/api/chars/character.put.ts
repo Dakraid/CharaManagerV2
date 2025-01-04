@@ -35,28 +35,32 @@ export default defineEventHandler(async (event) => {
 
     await db.transaction(async (tx) => {
         for (const file of files) {
-            const hash = createHash('sha256').update(file.content).digest('hex');
-            if (fileRows.some((f) => f.hash === hash)) {
-                continue;
-            }
-            if (isDigitString(file.lastModified)) {
-                fileRows.push({
-                    file: file.content,
-                    fileName: file.name,
-                    uploadDate: dayjs(Number(file.lastModified)).format('YYYY-MM-DD HH:mm:ss'),
-                    hash: hash,
-                    etag: hash,
-                    sourceUri: file.sourceUri,
-                });
-            } else {
-                fileRows.push({
-                    file: file.content,
-                    fileName: file.name,
-                    uploadDate: dayjs(file.lastModified).format('YYYY-MM-DD HH:mm:ss'),
-                    hash: hash,
-                    etag: hash,
-                    sourceUri: file.sourceUri,
-                });
+            try {
+                const hash = createHash('sha256').update(file.content).digest('hex');
+                if (fileRows.some((f) => f.hash === hash)) {
+                    continue;
+                }
+                if (isDigitString(file.lastModified)) {
+                    fileRows.push({
+                        file: file.content,
+                        fileName: file.name,
+                        uploadDate: dayjs(Number(file.lastModified)).format('YYYY-MM-DD HH:mm:ss'),
+                        hash: hash,
+                        etag: hash,
+                        sourceUri: file.sourceUri,
+                    });
+                } else {
+                    fileRows.push({
+                        file: file.content,
+                        fileName: file.name,
+                        uploadDate: dayjs(file.lastModified).format('YYYY-MM-DD HH:mm:ss'),
+                        hash: hash,
+                        etag: hash,
+                        sourceUri: file.sourceUri,
+                    });
+                }
+            } catch (err: any) {
+                console.error(err);
             }
         }
 

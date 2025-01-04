@@ -213,7 +213,7 @@ onMounted(async () => {
                     <FormMessage />
                 </FormItem>
             </FormField>
-            <Button type="submit" class="w-full">Download</Button>
+            <Button type="submit" class="w-full">Fetch</Button>
         </form>
 
         <Transition>
@@ -222,7 +222,7 @@ onMounted(async () => {
 
         <Transition>
             <div v-if="files.length !== 0" class="flex flex-col gap-4">
-                <Button variant="outline" @click="uploadFiles">Upload</Button>
+                <Button variant="outline" @click="uploadFiles">Save</Button>
                 <div class="flex items-top justify-center gap-2">
                     <Checkbox id="importNotes" v-model:checked="personalityToCreatorNotes" />
                     <div class="grid gap-2 leading-none">

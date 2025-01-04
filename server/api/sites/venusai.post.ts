@@ -72,9 +72,4 @@ export default defineEventHandler(async (event) => {
             statusMessage: err.message,
         });
     }
-
-    throw createError({
-        statusCode: StatusCode.INTERNAL_SERVER_ERROR,
-        statusMessage: "Received invalid response from: " + targetUri,
-    });
 });
