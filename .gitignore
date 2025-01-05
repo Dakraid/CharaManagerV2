@@ -309,6 +309,8 @@ cache/*
 local_cache/*
 .data/*
 images/*
+temp/*
+!temp/.gitkeep
 
 drizzle.config.ts
 
