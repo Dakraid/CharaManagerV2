@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import type { SQL } from 'drizzle-orm';
-import { eq, sql } from 'drizzle-orm';
+import { desc, eq, sql } from 'drizzle-orm';
 import type { PgSelect } from 'drizzle-orm/pg-core';
 import { ComparisonOperator } from '~/utils/Search';
 
@@ -221,7 +221,10 @@ function withDate(operator: ComparisonOperator, from: number, to?: number) {
 // }
 
 function withLimit<T extends PgSelect>(qb: T, page: number, perPage: number) {
-    return qb.limit(Number(perPage)).offset((Number(page) - 1) * Number(perPage));
+    return qb
+        .orderBy(desc(characters.uploadDate))
+        .limit(Number(perPage))
+        .offset((Number(page) - 1) * Number(perPage));
 }
 
 export default defineEventHandler(async (event) => {
@@ -253,10 +256,12 @@ export default defineEventHandler(async (event) => {
             uploadDate: characters.uploadDate,
             etag: characters.etag,
             rating: ratings.rating,
+            tokensPermanent: definitions.tokensPermanent,
+            tokensTotal: definitions.tokensTotal,
         })
         .from(characters)
         .leftJoin(ratings, eq(characters.id, ratings.id))
-        .leftJoin(definitions, eq(definitions.id, ratings.id))
+        .leftJoin(definitions, eq(characters.id, definitions.id))
         .$dynamic();
 
     const sqlChunks: SQL[] = [];

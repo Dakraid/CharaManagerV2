@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import dayjs from 'dayjs';
-import { Filter, SendHorizonal } from 'lucide-vue-next';
+import { Filter, FilterX, SendHorizonal } from 'lucide-vue-next';
 import { debounce } from 'perfect-debounce';
 
 const nuxtApp = useNuxtApp();
@@ -8,13 +8,14 @@ const appStore = useAppStore();
 const characterStore = useCharacterStore();
 
 const searchFlags = ref<SearchFlags>();
+const filterActive = ref<boolean>(false);
 
 const nameFrom = ref<any>();
 const nameOp = ref<stringType>(ComparisonOperator.Equal);
 
 const idFrom = ref<any>();
 const idTo = ref<any>();
-const idOp = ref<numericalType>(ComparisonOperator.Equal);
+const idOp = ref<numericalType>(ComparisonOperator.Disabled);
 
 const descFrom = ref<any>();
 const descOp = ref<embeddingType>(ComparisonOperator.Disabled);
@@ -25,10 +26,6 @@ const fileNameOp = ref<stringType>(ComparisonOperator.Disabled);
 const dateFrom = ref<any>();
 const dateTo = ref<any>();
 const dateOp = ref<numericalType>(ComparisonOperator.Disabled);
-
-function isRange(op: ComparisonOperator) {
-    return op === ComparisonOperator.Between || op === ComparisonOperator.Outside;
-}
 
 async function onSubmit() {
     searchFlags.value = {
@@ -58,7 +55,6 @@ async function onSubmit() {
     };
 
     characterStore.loading = true;
-    await nuxtApp.hooks.callHook('characters:refresh');
     const debounceSearch = debounce(async () => {
         const { data } = await useFetch<Character[]>('/api/chars/search', {
             method: 'POST',
@@ -75,20 +71,49 @@ async function onSubmit() {
 
     await debounceSearch();
     characterStore.loading = false;
+    filterActive.value = true;
+}
+
+async function OnClear() {
+    searchFlags.value = undefined;
+    nameFrom.value = undefined;
+    idFrom.value = undefined;
+    idTo.value = undefined;
+    descFrom.value = undefined;
+    fileNameFrom.value = undefined;
+    dateFrom.value = undefined;
+    dateTo.value = undefined;
+
+    nameOp.value = ComparisonOperator.Equal;
+    idOp.value = ComparisonOperator.Disabled;
+    descOp.value = ComparisonOperator.Disabled;
+    fileNameOp.value = ComparisonOperator.Disabled;
+    dateOp.value = ComparisonOperator.Disabled;
+
+    characterStore.loading = true;
+    await nuxtApp.hooks.callHook('characters:refresh');
+    characterStore.loading = false;
+    filterActive.value = false;
 }
 </script>
 
 <template>
     <div class="flex flex-nowrap gap-0">
+        <Transition>
+            <Button v-if="filterActive" id="clear" type="submit" variant="destructive" class="border-r-0 rounded-r-none" @click="OnClear">
+                <span class="sr-only">Clear</span>
+                <FilterX class="h-[1.2rem] w-[1.2rem]" />
+            </Button>
+        </Transition>
         <DropdownMenu>
             <DropdownMenuTrigger as-child>
-                <Button variant="outline" class="border-r-0 rounded-r-none">
+                <Button variant="outline" :class="filterActive ? 'border-x-0 rounded-none' : 'border-l-1 border-r-0 rounded-r-none'">
                     <Filter class="h-[1.2rem] w-[1.2rem]" />
                     <span class="sr-only">Filter Options</span>
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start">
-                <DropdownMenuLabel class="flex flex-col gap-2">
+                <DropdownMenuLabel class="flex flex-col gap-2 z-30">
                     <span class="text-muted-foreground">Leave any empty or null to ignore.</span>
                     <span class="text-muted-foreground">Between/Outside are range selections.</span>
                 </DropdownMenuLabel>
@@ -109,7 +134,6 @@ async function onSubmit() {
                             ComparisonOperator.Greater,
                             ComparisonOperator.Less,
                             ComparisonOperator.Between,
-                            ComparisonOperator.Outside,
                         ]" />
                 </DropdownMenuLabel>
                 <DropdownMenuLabel class="flex gap-2">
@@ -154,7 +178,6 @@ async function onSubmit() {
                             ComparisonOperator.Greater,
                             ComparisonOperator.Less,
                             ComparisonOperator.Between,
-                            ComparisonOperator.Outside,
                         ]" />
                 </DropdownMenuLabel>
             </DropdownMenuContent>
