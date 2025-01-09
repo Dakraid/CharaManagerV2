@@ -94,7 +94,9 @@ const props = defineProps<{
 
         <DropdownMenu>
             <DropdownMenuTrigger as-child>
-                <Button variant="outline" :class="cn('Button w-10 h-full rounded-r-none', hardCorners ? 'rounded-none' : '')"> {{ comparisonOperatorSymbols[operator] }}</Button>
+                <Button variant="outline" :class="cn('Button w-10 h-full rounded-r-none z-10', hardCorners ? 'rounded-none' : '')">
+                    {{ comparisonOperatorSymbols[operator] }}
+                </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent class="w-full max-w-sm" align="start">
                 <DropdownMenuLabel>Operator</DropdownMenuLabel>
