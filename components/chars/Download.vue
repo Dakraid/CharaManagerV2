@@ -167,6 +167,11 @@ async function uploadFiles() {
             throw new Error('Empty response received.');
         }
 
+        toast({
+            title: 'Upload successful!',
+            description: data.value,
+        });
+
         approveUpload.value = 'Uploaded files successfully!';
         await nuxtApp.hooks.callHook('characters:refresh');
     } catch (err: any) {

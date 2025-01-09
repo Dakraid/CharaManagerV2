@@ -1,27 +1,79 @@
-import { Embedder } from '@nomic-ai/atlas';
+import dayjs from 'dayjs';
 import type { SQL } from 'drizzle-orm';
 import { eq, sql } from 'drizzle-orm';
 import type { PgSelect } from 'drizzle-orm/pg-core';
-import { PgDialect } from 'drizzle-orm/pg-core';
-import { EmbeddingModel, FlagEmbedding } from 'fastembed';
+import { ComparisonOperator } from '~/utils/Search';
 
-function withId(id: number, operator: string) {
+function withName(operator: ComparisonOperator, query: string) {
     switch (operator) {
-        case '=':
+        case ComparisonOperator.Equal:
+            return sql`${characters.charName} =
+            ${query}`;
+        case ComparisonOperator.NotEqual:
+            return sql`${characters.charName} !=
+            ${query}`;
+        case ComparisonOperator.Unlike:
+            return sql`${characters.charName} NOT ILIKE
+            ${'%' + query + '%'}`;
+        case ComparisonOperator.Like:
+            return sql`${characters.charName} ILIKE
+            ${'%' + query + '%'}`;
+        default:
+            throw createError({
+                statusCode: StatusCode.BAD_REQUEST,
+                statusMessage: 'Invalid operator',
+            });
+    }
+}
+
+function withId(operator: ComparisonOperator, from: number, to?: number) {
+    switch (operator) {
+        case ComparisonOperator.Equal:
             return sql`${characters.id} =
-            ${id}`;
-        case '>':
+            ${from}`;
+        case ComparisonOperator.NotEqual:
+            return sql`${characters.id} !=
+            ${from}`;
+        case ComparisonOperator.Greater:
             return sql`${characters.id} >
-            ${id}`;
-        case '<':
-            return sql`${characters.id} <
-            ${id}`;
-        case '>=':
+            ${from}`;
+        case ComparisonOperator.GreaterOrEqual:
             return sql`${characters.id} >=
-            ${id}`;
-        case '<=':
+            ${from}`;
+        case ComparisonOperator.Less:
+            return sql`${characters.id} <
+            ${from}`;
+        case ComparisonOperator.LessOrEqual:
             return sql`${characters.id} <=
-            ${id}`;
+            ${from}`;
+        case ComparisonOperator.Between:
+            if (!to) {
+                throw createError({
+                    statusCode: StatusCode.BAD_REQUEST,
+                    statusMessage: 'Requested range operator but did not supply end query.',
+                });
+            }
+
+            return sql`${characters.id} >=
+            ${from}
+            AND
+            ${characters.id}
+            <=
+            ${to}`;
+        case ComparisonOperator.Outside:
+            if (!to) {
+                throw createError({
+                    statusCode: StatusCode.BAD_REQUEST,
+                    statusMessage: 'Requested range operator but did not supply end query.',
+                });
+            }
+
+            return sql`${characters.id} <=
+            ${from}
+            AND
+            ${characters.id}
+            >=
+            ${to}`;
         default:
             throw createError({
                 statusCode: StatusCode.BAD_REQUEST,
@@ -30,23 +82,35 @@ function withId(id: number, operator: string) {
     }
 }
 
-function withRating(rating: number, operator: string) {
+function withDescription(operator: ComparisonOperator, query: string, embedding?: number[], threshold?: number) {
     switch (operator) {
-        case '=':
-            return sql`${ratings.rating} =
-            ${rating}`;
-        case '>':
-            return sql`${ratings.rating} >
-            ${rating}`;
-        case '<':
-            return sql`${ratings.rating} <
-            ${rating}`;
-        case '>=':
-            return sql`${ratings.rating} >=
-            ${rating}`;
-        case '<=':
-            return sql`${ratings.rating} <=
-            ${rating}`;
+        case ComparisonOperator.Equal:
+            return sql`${characters.id} =
+            ${query}`;
+        case ComparisonOperator.NotEqual:
+            return sql`${characters.id} !=
+            ${query}`;
+        case ComparisonOperator.Unlike:
+            return sql`${characters.id} NOT ILIKE
+            ${'%' + query + '%'}`;
+        case ComparisonOperator.Like:
+            return sql`${characters.id} ILIKE
+            ${'%' + query + '%'}`;
+        case ComparisonOperator.Cosine:
+            if (!embedding || !threshold) {
+                throw createError({
+                    statusCode: StatusCode.BAD_REQUEST,
+                    statusMessage: 'Requested cosine operator but did not receive an embedding or threshold.',
+                });
+            }
+
+            return sql`(1 -
+            ${definitions.embedding}
+            <=>
+            ${embedding}
+            )
+            >
+            ${threshold}`;
         default:
             throw createError({
                 statusCode: StatusCode.BAD_REQUEST,
@@ -55,20 +119,106 @@ function withRating(rating: number, operator: string) {
     }
 }
 
-function withName(search: string) {
-    return sql`${characters.charName} ILIKE
-    ${'%' + search + '%'}`;
+function withFilename(operator: ComparisonOperator, query: string) {
+    switch (operator) {
+        case ComparisonOperator.Equal:
+            return sql`${characters.fileName} =
+            ${query}`;
+        case ComparisonOperator.NotEqual:
+            return sql`${characters.fileName} !=
+            ${query}`;
+        case ComparisonOperator.Unlike:
+            return sql`${characters.fileName} NOT ILIKE
+            ${'%' + query + '%'}`;
+        case ComparisonOperator.Like:
+            return sql`${characters.fileName} ILIKE
+            ${'%' + query + '%'}`;
+        default:
+            throw createError({
+                statusCode: StatusCode.BAD_REQUEST,
+                statusMessage: 'Invalid operator',
+            });
+    }
 }
 
-function withDescription(embedding: number[]) {
-    return sql`(1 -
-    ${definitions.embedding}
-    <=>
-    ${embedding}
-    )
-    >
-    0.9`;
+function withDate(operator: ComparisonOperator, from: number, to?: number) {
+    switch (operator) {
+        case ComparisonOperator.Equal:
+            return sql`date_trunc('day', TIMESTAMP '${characters.uploadDate}') =
+            ${dayjs(from).format('YYYY-MM-DD [00:00:00]')}`;
+        case ComparisonOperator.NotEqual:
+            return sql`date_trunc('day', TIMESTAMP '${characters.uploadDate}') !=
+            ${dayjs(from).format('YYYY-MM-DD [00:00:00]')}`;
+        case ComparisonOperator.Greater:
+            return sql`date_trunc('day', TIMESTAMP '${characters.uploadDate}') >
+            ${dayjs(from).format('YYYY-MM-DD [00:00:00]')}`;
+        case ComparisonOperator.GreaterOrEqual:
+            return sql`date_trunc('day', TIMESTAMP '${characters.uploadDate}') >=
+            ${dayjs(from).format('YYYY-MM-DD [00:00:00]')}`;
+        case ComparisonOperator.Less:
+            return sql`date_trunc('day', TIMESTAMP '${characters.uploadDate}') <
+            ${dayjs(from).format('YYYY-MM-DD [00:00:00]')}`;
+        case ComparisonOperator.LessOrEqual:
+            return sql`date_trunc('day', TIMESTAMP '${characters.uploadDate}') <=
+            ${dayjs(from).format('YYYY-MM-DD [00:00:00]')}`;
+        case ComparisonOperator.Between:
+            if (!to) {
+                throw createError({
+                    statusCode: StatusCode.BAD_REQUEST,
+                    statusMessage: 'Requested range operator but did not supply end query.',
+                });
+            }
+
+            return sql`date_trunc('day', TIMESTAMP '${characters.uploadDate}') >=
+            ${dayjs(from).format('YYYY-MM-DD [00:00:00]')}
+            AND
+            date_trunc('day', TIMESTAMP '${characters.uploadDate}') <=
+            ${dayjs(from).format('YYYY-MM-DD [00:00:00]')}`;
+        case ComparisonOperator.Outside:
+            if (!to) {
+                throw createError({
+                    statusCode: StatusCode.BAD_REQUEST,
+                    statusMessage: 'Requested range operator but did not supply end query.',
+                });
+            }
+
+            return sql`date_trunc('day', TIMESTAMP '${characters.uploadDate}') <=
+            ${dayjs(from).format('YYYY-MM-DD [00:00:00]')}
+            AND
+            date_trunc('day', TIMESTAMP '${characters.uploadDate}') >=
+            ${dayjs(from).format('YYYY-MM-DD [00:00:00]')}`;
+        default:
+            throw createError({
+                statusCode: StatusCode.BAD_REQUEST,
+                statusMessage: 'Invalid operator',
+            });
+    }
 }
+
+// function withRating(rating: number, operator: string) {
+//     switch (operator) {
+//         case '=':
+//             return sql`${ratings.rating} =
+//             ${rating}`;
+//         case '>':
+//             return sql`${ratings.rating} >
+//             ${rating}`;
+//         case '<':
+//             return sql`${ratings.rating} <
+//             ${rating}`;
+//         case '>=':
+//             return sql`${ratings.rating} >=
+//             ${rating}`;
+//         case '<=':
+//             return sql`${ratings.rating} <=
+//             ${rating}`;
+//         default:
+//             throw createError({
+//                 statusCode: StatusCode.BAD_REQUEST,
+//                 statusMessage: 'Invalid operator',
+//             });
+//     }
+// }
 
 function withLimit<T extends PgSelect>(qb: T, page: number, perPage: number) {
     return qb.limit(Number(perPage)).offset((Number(page) - 1) * Number(perPage));
@@ -93,7 +243,7 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    const { page, perPage, search } = await readBody<{ page: number; perPage: number; search: string }>(event);
+    const { page, perPage, searchFlags } = await readBody<{ page: number; perPage: number; searchFlags: SearchFlags }>(event);
 
     let query = db
         .select({
@@ -110,35 +260,31 @@ export default defineEventHandler(async (event) => {
         .$dynamic();
 
     const sqlChunks: SQL[] = [];
-    const regex = /(\w+):([<>=])(\d*)|(\w+):(\d*)|(\w+):"(.*)"|(\w+)/gm;
-    let match;
-    while ((match = regex.exec(search)) !== null) {
-        if (match.index === regex.lastIndex) {
-            regex.lastIndex++;
-        }
 
-        const [fullMatch, group1, operator, number1, group4, number2, group6, quotedValue, group8] = match;
+    if (searchFlags.name.query && searchFlags.name.query.trim() != '') {
+        sqlChunks.push(withName(searchFlags.name.option, searchFlags.name.query));
+    }
 
-        if (group1 && operator && number1) {
-            if (group1 === 'id') {
-                sqlChunks.push(withId(Number(number1), operator));
-            } else if (group1 === 'rating') {
-                sqlChunks.push(withRating(Number(number1), operator));
-            }
-        } else if (group4 && number2) {
-            if (group4 === 'id') {
-                sqlChunks.push(withId(Number(number2), '='));
-            }
-            if (group4 === 'rating') {
-                sqlChunks.push(withRating(Number(number2), '='));
-            }
-        } else if (group6 && quotedValue) {
-            const embedding = await embedderProvider.embed(search);
-            sqlChunks.push(withDescription(embedding));
-        } else if (group8) {
-            sqlChunks.push(withName(group8));
+    if (searchFlags.id.from && searchFlags.id.from != 0) {
+        sqlChunks.push(withId(searchFlags.id.option, searchFlags.id.from, searchFlags.id.to));
+    }
+
+    if (searchFlags.desc.query && searchFlags.desc.query.trim() != '') {
+        if (searchFlags.desc.option == ComparisonOperator.Cosine) {
+            const embedding = await embedderProvider.embed(searchFlags.desc.query);
+            sqlChunks.push(withDescription(searchFlags.desc.option, searchFlags.desc.query, embedding, searchFlags.desc.threshold));
+        } else {
+            sqlChunks.push(withDescription(searchFlags.desc.option, searchFlags.desc.query));
         }
     }
+
+    if (searchFlags.fileName.query && searchFlags.fileName.query.trim() != '') {
+        sqlChunks.push(withFilename(searchFlags.fileName.option, searchFlags.fileName.query));
+    }
+
+    // if (searchFlags.uploadDate.from && searchFlags.uploadDate.from != 0) {
+    //     sqlChunks.push(withDate(searchFlags.uploadDate.option, searchFlags.uploadDate.from, searchFlags.uploadDate.to));
+    // }
 
     if (sqlChunks.length > 1) {
         const finalWhere: SQL = sql.join(sqlChunks, sql` AND `);

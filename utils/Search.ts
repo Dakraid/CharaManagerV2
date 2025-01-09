@@ -8,6 +8,7 @@ export enum ComparisonOperator {
     Between = 'Between',
     Outside = 'Outside',
     Like = 'Like',
+    Unlike = 'Unlike',
     Cosine = 'Cosine',
 }
 
@@ -25,38 +26,31 @@ export const comparisonOperatorSymbols: ComparisonOperatorSymbol = {
     [ComparisonOperator.Between]: '><',
     [ComparisonOperator.Outside]: '<>',
     [ComparisonOperator.Like]: '~=',
+    [ComparisonOperator.Unlike]: '!~=',
     [ComparisonOperator.Cosine]: 'cos',
 };
 
 export type SearchFlagString = {
     query: string;
-    option: ComparisonOperator.Equal | ComparisonOperator.NotEqual | ComparisonOperator.Like;
+    option: ComparisonOperator.Equal | ComparisonOperator.NotEqual | ComparisonOperator.Like | ComparisonOperator.Unlike;
 };
 
 export type SearchFlagEmbedding = {
     query: string;
-    threshold: number;
-    option: ComparisonOperator.Cosine;
+    threshold?: number;
+    option: ComparisonOperator.Equal | ComparisonOperator.NotEqual | ComparisonOperator.Like | ComparisonOperator.Unlike | ComparisonOperator.Cosine;
 };
 
 export type SearchFlagNumber = {
-    query: number;
-    option: Exclude<ComparisonOperator, ComparisonOperator.Between | ComparisonOperator.Outside | ComparisonOperator.Like | ComparisonOperator.Cosine>;
-};
-
-export type SearchFlagNumberRange = {
     from: number;
-    to: number;
-    option: ComparisonOperator.Between | ComparisonOperator.Outside;
+    to?: number;
+    option: Exclude<ComparisonOperator, ComparisonOperator.Like | ComparisonOperator.Unlike | ComparisonOperator.Cosine>;
 };
-
-export type SearchFlagNumberOrRange = SearchFlagNumber | SearchFlagNumberRange;
-export type SearchFlagStringOrEmbedding = SearchFlagString | SearchFlagEmbedding;
 
 export interface SearchFlags {
-    id: SearchFlagNumberOrRange;
+    id: SearchFlagNumber;
     name: SearchFlagString;
-    desc: SearchFlagStringOrEmbedding;
+    desc: SearchFlagEmbedding;
     fileName: SearchFlagString;
-    uploadDate: SearchFlagNumberOrRange;
+    uploadDate: SearchFlagNumber;
 }

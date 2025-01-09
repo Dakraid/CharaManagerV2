@@ -9,13 +9,35 @@ const characterStore = useCharacterStore();
 async function refreshCharacter() {
     characterStore.loading = true;
 
+    let hasFailed = false;
+    let retryCounter = 0;
+
     try {
         const { data } = await useFetch<number>('/api/chars/count', {
             method: 'GET',
         });
+
         characterStore.count = data.value ?? 0;
     } catch (err: any) {
         console.error(err);
+        hasFailed = true;
+    }
+
+    while (hasFailed && retryCounter < 3) {
+        try {
+            const { data } = await useFetch<number>('/api/chars/count', {
+                method: 'GET',
+            });
+
+            characterStore.count = data.value ?? 0;
+
+            hasFailed = false;
+            retryCounter = 0;
+        } catch (err: any) {
+            console.log(`Failed to fetch, retrying...${retryCounter + 1}/3`);
+            retryCounter++;
+            await Sleep(1000);
+        }
     }
 
     try {
@@ -30,6 +52,28 @@ async function refreshCharacter() {
         characterStore.characters = data.value ?? undefined;
     } catch (err: any) {
         console.error(err);
+        hasFailed = true;
+    }
+
+    while (hasFailed && retryCounter < 3) {
+        try {
+            const { data } = await useFetch<Character[]>('/api/chars/characters', {
+                method: 'GET',
+                query: {
+                    page: characterStore.currentPage,
+                    perPage: appStore.perPage,
+                },
+            });
+
+            characterStore.characters = data.value ?? undefined;
+
+            hasFailed = false;
+            retryCounter = 0;
+        } catch (err: any) {
+            console.log(`Failed to fetch, retrying...${retryCounter + 1}/3`);
+            retryCounter++;
+            await Sleep(1000);
+        }
     }
 
     characterStore.loading = false;

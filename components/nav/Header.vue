@@ -1,41 +1,11 @@
 <script setup lang="ts">
-import { Check, Menu, Moon, Pencil, Search, Sun, SunMoon, UserCog } from 'lucide-vue-next';
-import { debounce } from 'perfect-debounce';
+import { Check, Menu, Moon, Pencil, Sun, SunMoon, UserCog } from 'lucide-vue-next';
 
-const nuxtApp = useNuxtApp();
 const colorMode = useColorMode();
 const appStore = useAppStore();
-const characterStore = useCharacterStore();
-
-const inputKey = ref<string>('');
-const searchQuery = ref<string>('');
 
 async function updateImageQuality(quality: number) {
     appStore.imageQuality = quality;
-}
-
-async function performSearch(e: any) {
-    await nuxtApp.hooks.callHook('characters:refresh');
-    const debounceSearch = debounce(async () => {
-        const { data } = await useFetch<Character[]>('/api/chars/search', {
-            method: 'POST',
-            body: {
-                page: characterStore.currentPage,
-                perPage: appStore.perPage,
-                search: searchQuery.value,
-            },
-        });
-
-        characterStore.count = data.value?.length ?? 0;
-        characterStore.characters = data.value ?? undefined;
-    }, 300);
-
-    if (searchQuery.value.trim() === '') {
-        await nuxtApp.hooks.callHook('characters:refresh');
-    } else {
-        await debounceSearch();
-    }
-    characterStore.loading = false;
 }
 </script>
 
@@ -59,63 +29,7 @@ async function performSearch(e: any) {
             </SheetContent>
         </Sheet>
         <div class="flex w-full items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
-            <TooltipProvider>
-                <Tooltip>
-                    <TooltipTrigger class="ml-auto flex-1 md:flex-initial">
-                        <form>
-                            <div class="relative">
-                                <Search class="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                                <Input v-model="searchQuery" type="search" placeholder="Search..." class="pl-8 md:w-[300px]" @input="performSearch" />
-                            </div>
-                        </form>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom">
-                        <div class="flex flex-col justify-between gap-2 md:w-[300px]">
-                            <h1 class="font-bold text-lg">Search Syntax</h1>
-                            <div class="flex flex-col justify-between">
-                                <p class="text-sm text-muted-foreground">Default search is by character name.</p>
-                                <p class="text-sm text-muted-foreground">Following advanced syntax is supported.</p>
-                                <p class="text-sm text-muted-foreground">Different options can be combined.</p>
-                            </div>
-                            <div class="flex flex-col gap-1 justify-between">
-                                <div class="flex flex-row">
-                                    <p class="text-sm font-mono">id:</p>
-                                    <p class="text-sm font-mono"><>=</p>
-                                    <p class="text-sm font-mono">integer (0 and above)</p>
-                                </div>
-                                <div class="flex flex-row">
-                                    <p class="text-sm font-mono">rating:</p>
-                                    <p class="text-sm font-mono"><>=</p>
-                                    <p class="text-sm font-mono">integer (0 to 9)</p>
-                                </div>
-                                <div class="flex flex-row">
-                                    <p class="text-sm font-mono">tokens:</p>
-                                    <p class="text-sm font-mono"><>=</p>
-                                    <p class="text-sm font-mono">integer (0 and above)</p>
-                                </div>
-                                <div class="flex flex-row">
-                                    <p class="text-sm font-mono">desc:</p>
-                                    <p class="text-sm font-mono">"string" (quotes required)</p>
-                                </div>
-                                <div class="flex flex-row">
-                                    <p class="text-sm font-mono">date:</p>
-                                    <p class="text-sm font-mono"><>=</p>
-                                    <p class="text-sm font-mono">"YYYY-MM-DD" (quotes required)</p>
-                                </div>
-                                <div class="flex flex-row">
-                                    <p class="text-sm font-mono">time:</p>
-                                    <p class="text-sm font-mono"><>=</p>
-                                    <p class="text-sm font-mono">"HH:mm" (quotes required, 24h)</p>
-                                </div>
-                                <div class="flex flex-row">
-                                    <p class="text-sm font-mono">file:</p>
-                                    <p class="text-sm font-mono">"string" (quotes required)</p>
-                                </div>
-                            </div>
-                        </div>
-                    </TooltipContent>
-                </Tooltip>
-            </TooltipProvider>
+            <NavSearch class="ml-auto flex-1 md:flex-initial" />
             <DropdownMenu>
                 <DropdownMenuTrigger as-child>
                     <Button variant="outline">
@@ -161,7 +75,7 @@ async function performSearch(e: any) {
                             <Checkbox id="blurChars" v-model:checked="appStore.blurChars" />
                             <div class="grid gap-2 leading-none">
                                 <label for="blurChars" class="text-sm text-center font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                                    Blur Characters?
+                                    Censor Characters?
                                 </label>
                             </div>
                         </div>

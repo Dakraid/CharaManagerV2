@@ -30,6 +30,7 @@ export default defineEventHandler(async (event) => {
 
     const fileRows: FileRow[] = [];
     let result: { id: number }[] = [];
+    let hasDuplicates = false;
 
     const { files, personalityToCreatorNotes } = await readBody<{ files: FileUpload[]; personalityToCreatorNotes: boolean }>(event);
 
@@ -78,6 +79,10 @@ export default defineEventHandler(async (event) => {
 
         if (cleaned.length === 0) {
             return 'No new files or all files are duplicates.';
+        }
+
+        if (fileRows.length > cleaned.length) {
+            hasDuplicates = true;
         }
 
         try {
@@ -144,5 +149,8 @@ export default defineEventHandler(async (event) => {
         await tx2.insert(definitions).values(definitionRows);
     });
 
+    if (hasDuplicates) {
+        return 'Successfully uploaded files. Some files have been skipped due to being duplicates.';
+    }
     return 'Successfully uploaded files.';
 });

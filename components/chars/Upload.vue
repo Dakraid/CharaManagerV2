@@ -90,12 +90,21 @@ async function uploadFiles() {
             for (let i = 0; i < files.value.length; i += 20) {
                 const chunk = files.value.slice(i, i + 20);
                 try {
-                    await useFetch('/api/chars/character', {
+                    const { data } = await useFetch('/api/chars/character', {
                         method: 'PUT',
                         body: {
                             files: chunk,
                             personalityToCreatorNotes: personalityToCreatorNotes.value,
                         },
+                    });
+
+                    if (!data.value) {
+                        throw new Error('Empty response received.');
+                    }
+
+                    toast({
+                        title: 'Upload successful!',
+                        description: data.value,
                     });
                 } catch (err: any) {
                     console.log(err);
@@ -104,13 +113,26 @@ async function uploadFiles() {
                 approveUpload.value = `Uploaded ${i} of ${files.value.length} files.`;
             }
         } else {
-            await useFetch('/api/chars/character', {
-                method: 'PUT',
-                body: {
-                    files: files.value,
-                    personalityToCreatorNotes: personalityToCreatorNotes.value,
-                },
-            });
+            try {
+                const { data } = await useFetch('/api/chars/character', {
+                    method: 'PUT',
+                    body: {
+                        files: files.value,
+                        personalityToCreatorNotes: personalityToCreatorNotes.value,
+                    },
+                });
+
+                if (!data.value) {
+                    throw new Error('Empty response received.');
+                }
+
+                toast({
+                    title: 'Upload successful!',
+                    description: data.value,
+                });
+            } catch (err: any) {
+                console.log(err);
+            }
         }
 
         approveUpload.value = 'Uploaded files successfully!';
