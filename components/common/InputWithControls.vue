@@ -33,7 +33,13 @@ const props = defineProps<{
                 <Input v-model="to" type="number" class="Control pl-[52px] rounded-t-none" :placeholder="placeholder != null ? placeholder : '...'" />
             </div>
 
-            <Input v-else v-model="from" type="number" class="Control pl-[52px]" :placeholder="placeholder != null ? placeholder : '...'" />
+            <Input
+                v-else
+                v-model="from"
+                :disabled="operator === ComparisonOperator.Disabled"
+                type="number"
+                class="Control pl-[52px]"
+                :placeholder="placeholder != null ? placeholder : '...'" />
         </div>
 
         <div v-else-if="type === 'date'" class="Control">
@@ -65,7 +71,10 @@ const props = defineProps<{
 
             <Popover v-else>
                 <PopoverTrigger as-child>
-                    <Button variant="outline" :class="cn('w-[280px] justify-start text-left font-normal pl-[52px]', !from && 'text-muted-foreground')">
+                    <Button
+                        variant="outline"
+                        :disabled="operator === ComparisonOperator.Disabled"
+                        :class="cn('w-[280px] justify-start text-left font-normal pl-[52px]', !from && 'text-muted-foreground')">
                         <CalendarIcon class="mr-2 h-4 w-4" />
                         {{ from ? df.format(from.toDate(getLocalTimeZone())) : 'Pick a date' }}
                     </Button>
@@ -76,7 +85,12 @@ const props = defineProps<{
             </Popover>
         </div>
 
-        <Input v-else v-model="from" :class="cn('Control pl-[52px]', hardCorners ? 'rounded-none' : '')" :placeholder="placeholder != null ? placeholder : '...'" />
+        <Input
+            v-else
+            v-model="from"
+            :disabled="operator === ComparisonOperator.Disabled"
+            :class="cn('Control pl-[52px]', hardCorners ? 'rounded-none' : '')"
+            :placeholder="placeholder != null ? placeholder : '...'" />
 
         <DropdownMenu>
             <DropdownMenuTrigger as-child>

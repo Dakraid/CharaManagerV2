@@ -2,7 +2,6 @@
 import dayjs from 'dayjs';
 import { Filter, SendHorizonal } from 'lucide-vue-next';
 import { debounce } from 'perfect-debounce';
-import { ComparisonOperator } from '~/utils/Search';
 
 const nuxtApp = useNuxtApp();
 const appStore = useAppStore();
@@ -11,19 +10,21 @@ const characterStore = useCharacterStore();
 const searchFlags = ref<SearchFlags>();
 
 const nameFrom = ref<any>();
-const nameOp = ref<ComparisonOperator.Equal | ComparisonOperator.NotEqual | ComparisonOperator.Like | ComparisonOperator.Unlike>(ComparisonOperator.Equal);
+const nameOp = ref<stringType>(ComparisonOperator.Equal);
+
 const idFrom = ref<any>();
 const idTo = ref<any>();
-const idOp = ref<Exclude<ComparisonOperator, ComparisonOperator.Like | ComparisonOperator.Unlike | ComparisonOperator.Cosine>>(ComparisonOperator.Equal);
+const idOp = ref<numericalType>(ComparisonOperator.Equal);
+
 const descFrom = ref<any>();
-const descOp = ref<ComparisonOperator.Equal | ComparisonOperator.NotEqual | ComparisonOperator.Like | ComparisonOperator.Unlike | ComparisonOperator.Cosine>(
-    ComparisonOperator.Equal
-);
+const descOp = ref<embeddingType>(ComparisonOperator.Disabled);
+
 const fileNameFrom = ref<any>();
-const fileNameOp = ref<ComparisonOperator.Equal | ComparisonOperator.NotEqual | ComparisonOperator.Like | ComparisonOperator.Unlike>(ComparisonOperator.Equal);
+const fileNameOp = ref<stringType>(ComparisonOperator.Disabled);
+
 const dateFrom = ref<any>();
 const dateTo = ref<any>();
-const dateOp = ref<Exclude<ComparisonOperator, ComparisonOperator.Like | ComparisonOperator.Unlike | ComparisonOperator.Cosine>>(ComparisonOperator.Equal);
+const dateOp = ref<numericalType>(ComparisonOperator.Disabled);
 
 function isRange(op: ComparisonOperator) {
     return op === ComparisonOperator.Between || op === ComparisonOperator.Outside;
@@ -100,6 +101,7 @@ async function onSubmit() {
                         label="Filter by ID"
                         placeholder="Enter id..."
                         :options="[
+                            ComparisonOperator.Disabled,
                             ComparisonOperator.Equal,
                             ComparisonOperator.NotEqual,
                             ComparisonOperator.GreaterOrEqual,
@@ -117,7 +119,14 @@ async function onSubmit() {
                         type="string"
                         label="Filter by Description"
                         placeholder="Enter description..."
-                        :options="[ComparisonOperator.Equal, ComparisonOperator.NotEqual, ComparisonOperator.Like, ComparisonOperator.Unlike, ComparisonOperator.Cosine]" />
+                        :options="[
+                            ComparisonOperator.Disabled,
+                            ComparisonOperator.Equal,
+                            ComparisonOperator.NotEqual,
+                            ComparisonOperator.Like,
+                            ComparisonOperator.Unlike,
+                            ComparisonOperator.Cosine,
+                        ]" />
                 </DropdownMenuLabel>
                 <DropdownMenuLabel class="flex gap-2">
                     <CommonInputWithControls
@@ -126,27 +135,28 @@ async function onSubmit() {
                         type="string"
                         label="Filter by Filename"
                         placeholder="Enter filename..."
-                        :options="[ComparisonOperator.Equal, ComparisonOperator.NotEqual, ComparisonOperator.Like, ComparisonOperator.Unlike]" />
+                        :options="[ComparisonOperator.Disabled, ComparisonOperator.Equal, ComparisonOperator.NotEqual, ComparisonOperator.Like, ComparisonOperator.Unlike]" />
                 </DropdownMenuLabel>
-                <!--                <DropdownMenuLabel class="flex gap-2">-->
-                <!--                    <CommonInputWithControls-->
-                <!--                        v-model:from="dateFrom"-->
-                <!--                        v-model:to="dateTo"-->
-                <!--                        v-model:operator="dateOp"-->
-                <!--                        type="date"-->
-                <!--                        label="Filter by Upload Date"-->
-                <!--                        placeholder="Filter by upload date..."-->
-                <!--                        :options="[-->
-                <!--                            ComparisonOperator.Equal,-->
-                <!--                            ComparisonOperator.NotEqual,-->
-                <!--                            ComparisonOperator.GreaterOrEqual,-->
-                <!--                            ComparisonOperator.LessOrEqual,-->
-                <!--                            ComparisonOperator.Greater,-->
-                <!--                            ComparisonOperator.Less,-->
-                <!--                            ComparisonOperator.Between,-->
-                <!--                            ComparisonOperator.Outside,-->
-                <!--                        ]" />-->
-                <!--                </DropdownMenuLabel>-->
+                <DropdownMenuLabel class="flex gap-2">
+                    <CommonInputWithControls
+                        v-model:from="dateFrom"
+                        v-model:to="dateTo"
+                        v-model:operator="dateOp"
+                        type="date"
+                        label="Filter by Upload Date"
+                        placeholder="Filter by upload date..."
+                        :options="[
+                            ComparisonOperator.Disabled,
+                            ComparisonOperator.Equal,
+                            ComparisonOperator.NotEqual,
+                            ComparisonOperator.GreaterOrEqual,
+                            ComparisonOperator.LessOrEqual,
+                            ComparisonOperator.Greater,
+                            ComparisonOperator.Less,
+                            ComparisonOperator.Between,
+                            ComparisonOperator.Outside,
+                        ]" />
+                </DropdownMenuLabel>
             </DropdownMenuContent>
         </DropdownMenu>
 
@@ -158,7 +168,7 @@ async function onSubmit() {
             :hard-corners="true"
             placeholder="Filter by name..."
             class="lg:min-w-[202px] w-full rounded-r-none rounded-l-none z-10"
-            :options="[ComparisonOperator.Equal, ComparisonOperator.NotEqual, ComparisonOperator.Like, ComparisonOperator.Unlike]" />
+            :options="[ComparisonOperator.Disabled, ComparisonOperator.Equal, ComparisonOperator.NotEqual, ComparisonOperator.Like, ComparisonOperator.Unlike]" />
 
         <Button id="save" type="submit" variant="outline" class="border-l-0 rounded-l-none" @click="onSubmit">
             <span class="sr-only">Filter</span>

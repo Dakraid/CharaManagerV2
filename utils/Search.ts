@@ -1,4 +1,5 @@
 export enum ComparisonOperator {
+    Disabled = 'Disabled',
     Equal = 'Equal',
     NotEqual = 'Not Equal',
     Greater = 'Greater',
@@ -12,11 +13,16 @@ export enum ComparisonOperator {
     Cosine = 'Cosine',
 }
 
+export type stringType = ComparisonOperator.Disabled | ComparisonOperator.Equal | ComparisonOperator.NotEqual | ComparisonOperator.Like | ComparisonOperator.Unlike;
+export type embeddingType = stringType | ComparisonOperator.Cosine;
+export type numericalType = Exclude<ComparisonOperator, ComparisonOperator.Like | ComparisonOperator.Unlike | ComparisonOperator.Cosine>;
+
 export type ComparisonOperatorSymbol = {
     [key in ComparisonOperator]: string;
 };
 
 export const comparisonOperatorSymbols: ComparisonOperatorSymbol = {
+    [ComparisonOperator.Disabled]: 'off',
     [ComparisonOperator.Equal]: '=',
     [ComparisonOperator.NotEqual]: '!=',
     [ComparisonOperator.Greater]: '>',
@@ -32,19 +38,19 @@ export const comparisonOperatorSymbols: ComparisonOperatorSymbol = {
 
 export type SearchFlagString = {
     query: string;
-    option: ComparisonOperator.Equal | ComparisonOperator.NotEqual | ComparisonOperator.Like | ComparisonOperator.Unlike;
+    option: stringType;
 };
 
 export type SearchFlagEmbedding = {
     query: string;
     threshold?: number;
-    option: ComparisonOperator.Equal | ComparisonOperator.NotEqual | ComparisonOperator.Like | ComparisonOperator.Unlike | ComparisonOperator.Cosine;
+    option: embeddingType;
 };
 
 export type SearchFlagNumber = {
     from: number;
     to?: number;
-    option: Exclude<ComparisonOperator, ComparisonOperator.Like | ComparisonOperator.Unlike | ComparisonOperator.Cosine>;
+    option: numericalType;
 };
 
 export interface SearchFlags {

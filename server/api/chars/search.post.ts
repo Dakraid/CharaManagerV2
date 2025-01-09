@@ -261,15 +261,15 @@ export default defineEventHandler(async (event) => {
 
     const sqlChunks: SQL[] = [];
 
-    if (searchFlags.name.query && searchFlags.name.query.trim() != '') {
+    if (searchFlags.name.query && searchFlags.name.query.trim() != '' && searchFlags.name.option !== ComparisonOperator.Disabled) {
         sqlChunks.push(withName(searchFlags.name.option, searchFlags.name.query));
     }
 
-    if (searchFlags.id.from && searchFlags.id.from != 0) {
+    if (searchFlags.id.from && searchFlags.id.from != 0 && searchFlags.id.option !== ComparisonOperator.Disabled) {
         sqlChunks.push(withId(searchFlags.id.option, searchFlags.id.from, searchFlags.id.to));
     }
 
-    if (searchFlags.desc.query && searchFlags.desc.query.trim() != '') {
+    if (searchFlags.desc.query && searchFlags.desc.query.trim() != '' && searchFlags.desc.option !== ComparisonOperator.Disabled) {
         if (searchFlags.desc.option == ComparisonOperator.Cosine) {
             const embedding = await embedderProvider.embed(searchFlags.desc.query);
             sqlChunks.push(withDescription(searchFlags.desc.option, searchFlags.desc.query, embedding, searchFlags.desc.threshold));
@@ -278,13 +278,13 @@ export default defineEventHandler(async (event) => {
         }
     }
 
-    if (searchFlags.fileName.query && searchFlags.fileName.query.trim() != '') {
+    if (searchFlags.fileName.query && searchFlags.fileName.query.trim() != '' && searchFlags.fileName.option !== ComparisonOperator.Disabled) {
         sqlChunks.push(withFilename(searchFlags.fileName.option, searchFlags.fileName.query));
     }
 
-    // if (searchFlags.uploadDate.from && searchFlags.uploadDate.from != 0) {
-    //     sqlChunks.push(withDate(searchFlags.uploadDate.option, searchFlags.uploadDate.from, searchFlags.uploadDate.to));
-    // }
+    if (searchFlags.uploadDate.from && searchFlags.uploadDate.from != 0 && searchFlags.uploadDate.option !== ComparisonOperator.Disabled) {
+        sqlChunks.push(withDate(searchFlags.uploadDate.option, searchFlags.uploadDate.from, searchFlags.uploadDate.to));
+    }
 
     if (sqlChunks.length > 1) {
         const finalWhere: SQL = sql.join(sqlChunks, sql` AND `);
