@@ -90,7 +90,7 @@ async function uploadFiles() {
             for (let i = 0; i < files.value.length; i += 20) {
                 const chunk = files.value.slice(i, i + 20);
                 try {
-                    const { data } = await useFetch('/api/chars/character', {
+                    const { data } = await useFetch('/api/chars/characters', {
                         method: 'PUT',
                         body: {
                             files: chunk,
@@ -114,7 +114,7 @@ async function uploadFiles() {
             }
         } else {
             try {
-                const { data } = await useFetch('/api/chars/character', {
+                const { data } = await useFetch('/api/chars/characters', {
                     method: 'PUT',
                     body: {
                         files: files.value,

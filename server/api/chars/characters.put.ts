@@ -32,7 +32,7 @@ export default defineEventHandler(async (event) => {
     let result: { id: number }[] = [];
     let hasDuplicates = false;
 
-    const { files, personalityToCreatorNotes } = await readBody<{ character: Character }>(event);
+    const { files, personalityToCreatorNotes } = await readBody<{ files: FileUpload[]; personalityToCreatorNotes: boolean }>(event);
 
     await db.transaction(async (tx) => {
         for (const file of files) {

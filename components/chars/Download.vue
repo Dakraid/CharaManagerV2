@@ -155,7 +155,7 @@ const onSubmit = handleSubmit(async (values) => {
 async function uploadFiles() {
     characterStore.loading = true;
     try {
-        const { data } = await useFetch('/api/chars/character', {
+        const { data } = await useFetch('/api/chars/characters', {
             method: 'PUT',
             body: {
                 files: files.value,

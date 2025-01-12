@@ -194,7 +194,6 @@ onMounted(async () => {
                     :quality="100"
                     width="384"
                     height="576"
-                    loading="lazy"
                     placeholder="Placeholder.png"
                     placeholder-class="h-[576ppx] w-[384px] bg-muted rounded-xl"
                     :class="cn('h-[576px] w-[384px] mx-auto object-cover rounded-xl transition-all', appStore.blurChars ? 'blur-2xl' : '')" />

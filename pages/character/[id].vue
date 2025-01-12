@@ -2,11 +2,16 @@
 import * as Cards from 'character-card-utils';
 
 const route = useRoute();
-const nuxtApp = useNuxtApp();
 const characterStore = useCharacterStore();
 
-await nuxtApp.hooks.callHook('characters:refresh');
-await characterStore.setActiveCharacter(Number(route.params.id));
+definePageMeta({
+    middleware() {
+        const { loggedIn, session } = useUserSession();
+        if (!loggedIn.value || !session.value.user) {
+            return navigateTo('/authenticate');
+        }
+    },
+});
 
 useRouteCache((helper) => {
     helper
@@ -15,15 +20,27 @@ useRouteCache((helper) => {
         .addTags([`character:${route.params.id}`]);
 });
 
-if (!characterStore.activeCharacter) {
-    throw createError({
+const activeCharacter = ref<Character>();
+const activeDefinition = ref<Cards.V2>();
+
+activeCharacter.value = characterStore.characters?.find((c) => c.id === Number(route.params.id));
+if (activeCharacter.value === undefined) {
+    const { data } = await useFetch<Character>('/api/chars/character', {
+        method: 'POST',
+        body: { id: route.params.id },
+    });
+
+    if (data.value) {
+        activeCharacter.value = data.value;
+    }
+}
+
+if (activeCharacter.value === undefined) {
+    showError({
         statusCode: 404,
         statusMessage: 'Character not found',
     });
 }
-
-const activeCharacter = ref<Character>(characterStore.activeCharacter);
-const activeDefinition = ref<Cards.V2>();
 
 const { data, status } = useFetch<DefinitionRow[]>('/api/defs/definition', {
     method: 'GET',
@@ -51,7 +68,7 @@ if (data.value && data.value[0]) {
     <div class="flex-1 max-h-[calc(100vh_-_theme(spacing.16))] overflow-hidden">
         <Transition>
             <CommonLoading v-if="status !== 'success'" loading-text="Processing..." />
-            <CharsDetails v-else-if="activeDefinition" :character="activeCharacter" :definition="activeDefinition" />
+            <CharsDetails v-else-if="activeDefinition" :character="activeCharacter!" :definition="activeDefinition" />
         </Transition>
     </div>
 </template>

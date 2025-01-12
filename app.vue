@@ -6,11 +6,12 @@ const nuxtApp = useNuxtApp();
 const appStore = useAppStore();
 const characterStore = useCharacterStore();
 
-async function refreshCharacter() {
+async function refreshCharacters() {
     characterStore.loading = true;
 
     let hasFailed = false;
     let retryCounter = 0;
+    const retryLimit = 5;
 
     try {
         const { data } = await useFetch<number>('/api/chars/count', {
@@ -19,11 +20,10 @@ async function refreshCharacter() {
 
         characterStore.count = data.value ?? 0;
     } catch (err: any) {
-        console.error(err);
         hasFailed = true;
     }
 
-    while (hasFailed && retryCounter < 3) {
+    while (hasFailed && retryCounter < retryLimit) {
         try {
             const { data } = await useFetch<number>('/api/chars/count', {
                 method: 'GET',
@@ -34,7 +34,7 @@ async function refreshCharacter() {
             hasFailed = false;
             retryCounter = 0;
         } catch (err: any) {
-            console.log(`Failed to fetch, retrying...${retryCounter + 1}/3`);
+            console.log(`Failed to fetch, retrying...${retryCounter + 1}/${retryLimit}`);
             retryCounter++;
             await Sleep(1000);
         }
@@ -51,11 +51,10 @@ async function refreshCharacter() {
 
         characterStore.characters = data.value ?? undefined;
     } catch (err: any) {
-        console.error(err);
         hasFailed = true;
     }
 
-    while (hasFailed && retryCounter < 3) {
+    while (hasFailed && retryCounter < retryLimit) {
         try {
             const { data } = await useFetch<Character[]>('/api/chars/characters', {
                 method: 'GET',
@@ -70,7 +69,7 @@ async function refreshCharacter() {
             hasFailed = false;
             retryCounter = 0;
         } catch (err: any) {
-            console.log(`Failed to fetch, retrying...${retryCounter + 1}/3`);
+            console.log(`Failed to fetch, retrying...${retryCounter + 1}/${retryLimit}`);
             retryCounter++;
             await Sleep(1000);
         }
@@ -80,20 +79,10 @@ async function refreshCharacter() {
 }
 
 nuxtApp.hooks.hook('characters:refresh', async () => {
-    await refreshCharacter();
+    await refreshCharacters();
 });
 
 nuxtApp.hooks.hook('characters:menu', async (id: number) => {
-    characterStore.activeCharacter = characterStore.characters?.find((c) => c.id === id);
-    if (!characterStore.activeCharacter) {
-        toast({
-            title: 'No character found!',
-            description: 'The requested ID was not found in the character array.',
-            variant: 'destructive',
-        });
-
-        return;
-    }
     await navigateTo({
         path: `/character/${id}`,
     });
