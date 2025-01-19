@@ -4,6 +4,7 @@ import { CircleX, LoaderCircle } from 'lucide-vue-next';
 import { useForm } from 'vee-validate';
 import * as z from 'zod';
 import { useToast } from '~/components/ui/toast';
+import { cn } from '~/lib/utils';
 import type { FileUpload } from '~/utils/Interfaces';
 
 const { toast } = useToast();
@@ -235,16 +236,17 @@ onMounted(async () => {
                     </div>
                 </div>
             </div>
+        </Transition>
+        <Transition>
             <div
-                v-if="files.length !== 0 && files.length <= 10 && !downloading"
                 id="previewContainerUpload"
-                class="flex flex-wrap overflow-y-scroll bg-card rounded-md border p-4"
+                :class="cn('flex flex-wrap overflow-y-scroll bg-card rounded-md border p-4', files.length !== 0 && files.length <= 10 && !downloading ? '' : 'hidden')"
                 :style="`max-height: ${maxHeight}px;`">
                 <div v-for="file in files" :key="file.name" class="Preview border rounded-md">
                     <CharsDisplayUpload :content="file.content" @remove="removeFile(file.name)" />
                 </div>
             </div>
-            <p v-else-if="files.length !== 0 && !downloading" class="text-sm text-center text-muted-foreground">Too many files selected for preview.</p>
+            <p v-if="files.length !== 0 && !downloading" class="text-sm text-center text-muted-foreground">Too many files selected for preview.</p>
         </Transition>
     </div>
 </template>
