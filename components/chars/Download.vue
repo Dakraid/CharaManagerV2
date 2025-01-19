@@ -237,15 +237,15 @@ onMounted(async () => {
                 </div>
             </div>
         </Transition>
-        <Transition>
-            <div
-                id="previewContainerUpload"
-                :class="cn('flex flex-wrap overflow-y-scroll bg-card rounded-md border p-4', files.length !== 0 && files.length <= 10 && !downloading ? '' : 'hidden')"
-                :style="`max-height: ${maxHeight}px;`">
-                <div v-for="file in files" :key="file.name" class="Preview border rounded-md">
-                    <CharsDisplayUpload :content="file.content" @remove="removeFile(file.name)" />
-                </div>
+        <div
+            id="previewContainerUpload"
+            :class="cn('flex flex-wrap overflow-y-scroll bg-card rounded-md border p-4', files.length !== 0 && files.length <= 10 && !downloading ? '' : 'hidden')"
+            :style="`max-height: ${maxHeight}px;`">
+            <div v-for="file in files" :key="file.name" class="Preview border rounded-md">
+                <CharsDisplayUpload :content="file.content" @remove="removeFile(file.name)" />
             </div>
+        </div>
+        <Transition>
             <p v-if="files.length !== 0 && !downloading" class="text-sm text-center text-muted-foreground">Too many files selected for preview.</p>
         </Transition>
     </div>
