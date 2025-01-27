@@ -27,7 +27,7 @@
         "@nomic-ai/atlas": "^0.12.0",
         "@nuxt/image": "^1.9.0",
         "@nuxt/kit": "^3.15.1",
-        "@nuxt/rspack-builder": "^3.15.1",
+        "@nuxt/rspack-builder": "^3.15.3",
         "@nuxtjs/color-mode": "^3.5.2",
         "@nuxtjs/device": "^3.2.4",
         "@nuxtjs/robots": "^5.1.0",
