@@ -246,7 +246,7 @@ onMounted(async () => {
             </div>
         </div>
         <Transition>
-            <p v-if="files.length !== 0 && !downloading" class="text-sm text-center text-muted-foreground">Too many files selected for preview.</p>
+            <p v-if="files.length !== 0 && files.length > 10 && !downloading" class="text-sm text-center text-muted-foreground">Too many files selected for preview.</p>
         </Transition>
     </div>
 </template>
