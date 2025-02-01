@@ -27,6 +27,7 @@ export default defineNuxtConfig({
         '@nuxtjs/color-mode',
         '@nuxtjs/device',
         '@nuxtjs/robots',
+        '@nuxtjs/tailwindcss',
         '@pinia/nuxt',
         '@vite-pwa/nuxt',
         '@vueuse/motion/nuxt',
@@ -42,10 +43,6 @@ export default defineNuxtConfig({
         'pinia-plugin-persistedstate/nuxt',
         'shadcn-nuxt',
     ],
-    css: ['~/assets/css/main.css'],
-    vite: {
-        plugins: [tailwindcss()],
-    },
     nitro: {
         experimental: {
             tasks: true,
