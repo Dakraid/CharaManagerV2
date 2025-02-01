@@ -1,6 +1,4 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
-import tailwindcss from '@tailwindcss/vite';
-
 export default defineNuxtConfig({
     compatibilityDate: '2024-04-03',
     app: {
@@ -77,10 +75,10 @@ export default defineNuxtConfig({
     },
     multiCache: {
         component: {
-            enabled: true,
+            enabled: false,
         },
         route: {
-            enabled: true,
+            enabled: false,
         },
         data: {
             // This seems to be broken right now, so it is disabled.
