@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useIntersectionObserver } from '@vueuse/core';
 import dayjs from 'dayjs';
-import { Download, Pencil, Trash } from 'lucide-vue-next';
+import { Download, LoaderCircle, Pencil, Trash } from 'lucide-vue-next';
 import { cn } from '~/lib/utils';
 
 const props = defineProps<{
@@ -11,13 +11,11 @@ const props = defineProps<{
 const runtimeConfig = useRuntimeConfig();
 const appStore = useAppStore();
 
-const error = ref(false);
-const retryCount = ref(0);
-
 const imageUri = runtimeConfig.public.imageDomain.endsWith('/')
     ? `${runtimeConfig.public.imageDomain}thumb/${props.character.id}.png`
     : `${runtimeConfig.public.imageDomain}/thumb/${props.character.id}.png`;
 
+const isDownloading = ref(false);
 const isHovered = ref(false);
 const hoveredRating = ref(0);
 
@@ -29,6 +27,13 @@ const targetIsVisible = ref(false);
 useIntersectionObserver(target, ([{ isIntersecting }]) => {
     targetIsVisible.value = isIntersecting;
 });
+
+async function triggerDownload(character: Character) {
+    isDownloading.value = true;
+    downloadCharacter(character).then(() => {
+        isDownloading.value = false;
+    });
+}
 </script>
 
 <template>
@@ -113,9 +118,12 @@ useIntersectionObserver(target, ([{ isIntersecting }]) => {
                             <span>Edit</span>
                         </div>
                     </Button>
-                    <Button class="flex-1 h-8" @click="downloadCharacter(character)">
+                    <Button class="flex-1 h-8" :disabled="isDownloading" @click="triggerDownload(character)">
                         <div class="flex gap-2 items-center justify-center">
-                            <Download class="h-4 w-4" />
+                            <Transition>
+                                <LoaderCircle v-if="isDownloading" class="h-4 w-4 mx-auto motion-safe:animate-spin" />
+                                <Download v-else class="h-4 w-4" />
+                            </Transition>
                             <span>Download</span>
                         </div>
                     </Button>
