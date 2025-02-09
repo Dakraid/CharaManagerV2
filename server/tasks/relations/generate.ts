@@ -97,7 +97,7 @@ export default defineTask({
             await db.insert(relations).values(charRelations);
         }
 
-        console.log(`Found ${db.$count(relations)} relations...`);
+        console.log(`Found ${await db.$count(relations)} relations...`);
         console.log('Completed relation generation task...');
 
         return { result: 'Success' };

@@ -22,19 +22,19 @@ export default defineTask({
 
         const db = drizzle({ client: pool });
 
-        let embedderProvider: any;
+        let embeddingProvider: any;
         switch (runtimeConfig.embeddingProvider) {
             case 'openai':
-                embedderProvider = new OpenAiEmbedder(runtimeConfig.oaiKey, runtimeConfig.oaiBaseUrl, runtimeConfig.oaiModel);
-                await embedderProvider.initialize();
+                embeddingProvider = new OpenAiEmbedder(runtimeConfig.oaiKey, runtimeConfig.oaiBaseUrl, runtimeConfig.oaiModel);
+                await embeddingProvider.initialize();
                 break;
             case 'mistral':
-                embedderProvider = new MistralEmbedder(runtimeConfig.mistralKey, runtimeConfig.mistralModel);
-                await embedderProvider.initialize();
+                embeddingProvider = new MistralEmbedder(runtimeConfig.mistralKey, runtimeConfig.mistralModel);
+                await embeddingProvider.initialize();
                 break;
             case 'nomic':
-                embedderProvider = new NomicEmbedder(runtimeConfig.nomicKey, runtimeConfig.nomicModel);
-                await embedderProvider.initialize();
+                embeddingProvider = new NomicEmbedder(runtimeConfig.nomicKey, runtimeConfig.nomicModel);
+                await embeddingProvider.initialize();
                 break;
             default:
                 throw new Error('Invalid embedding provider');
@@ -54,7 +54,7 @@ export default defineTask({
 
             promises.push({
                 id: missingEmbedding.id,
-                promise: embedderProvider.embed(json.data.description),
+                promise: embeddingProvider.embed(json.data.description),
             });
         }
 
