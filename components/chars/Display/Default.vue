@@ -120,7 +120,7 @@ async function triggerDownload(character: Character) {
                     </Button>
                     <Button class="flex-1 h-8" :disabled="isDownloading" @click="triggerDownload(character)">
                         <div class="flex gap-2 items-center justify-center">
-                            <Transition>
+                            <Transition name="fade" mode="out-in">
                                 <LoaderCircle v-if="isDownloading" class="h-4 w-4 mx-auto motion-safe:animate-spin" />
                                 <Download v-else class="h-4 w-4" />
                             </Transition>
