@@ -101,22 +101,17 @@ export default defineTask({
 
             highestNumbers = await Promise.all([GetHighestIdInBucket(fullImages), GetHighestIdInBucket(thumbImages)]);
         } else {
-            // Verify that the folders exist on disk, otherwise create them. Executed in parallel for full and thumb images.
             await Promise.all([VerifyFolder(path.join(runtimeConfig.imageFolder, '/full')), VerifyFolder(path.join(runtimeConfig.imageFolder, '/thumb'))]);
-
-            // As images are saved using their ID, we check what the highest ID in each folder is.
             highestNumbers = await Promise.all([
                 GetHighestIdInFolder(path.join(runtimeConfig.imageFolder, '/full')),
                 GetHighestIdInFolder(path.join(runtimeConfig.imageFolder, '/thumb')),
             ]);
         }
 
-        // We pick the lowest number between the two highest numbers and regenerate all images beyond that ID.
         const lowestNumber = highestNumbers.length > 0 ? Math.min(...highestNumbers) : 0;
         const missingImages = await db.select().from(characters).where(gte(characters.id, lowestNumber));
         console.log('Generating images for ', missingImages.length, ' characters...');
 
-        // In case we have a lot of images to regenerate, we split them into chunks to avoid OOM errors.
         const chunkSize = 50;
         const skippedImages: number[] = [];
         const returns: number[] = [];

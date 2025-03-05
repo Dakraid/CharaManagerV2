@@ -1,7 +1,7 @@
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import Jimp from 'jimp-compact';
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import sharp from 'sharp';
 
 async function processImage(id: number, imageIn: string, sizeLimit: number = 10): Promise<number> {
     console.log(`Processing Image #${id}`);
@@ -11,25 +11,23 @@ async function processImage(id: number, imageIn: string, sizeLimit: number = 10)
 
     if (size.megabytes > sizeLimit) {
         console.log(`Image #${id} exceeded the size limit of ${sizeLimit}mb.`);
-        return id;
     }
 
     const buffer = Buffer.from(splitBase64(pureImage), 'base64');
-    const image = await Jimp.read(buffer);
-    const pngBuffer = await image.getBufferAsync(Jimp.MIME_PNG);
-    const thumbnail = await image.resize(Jimp.AUTO, 384).getBufferAsync(Jimp.MIME_PNG);
 
-    if (runtimeConfig.expUseS3ImageStore) {
-        const s3client = new S3Client({
-            region: 'auto',
-            endpoint: runtimeConfig.S3Endpoint,
-            credentials: {
-                accessKeyId: runtimeConfig.S3KeyID,
-                secretAccessKey: runtimeConfig.S3KeySecret,
-            },
-        });
+    const [pngBuffer, thumbnail] = await Promise.all([sharp(buffer).png().toBuffer(), sharp(buffer).resize({ height: 384, withoutEnlargement: true }).png().toBuffer()]);
 
-        try {
+    try {
+        if (runtimeConfig.expUseS3ImageStore) {
+            const s3client = new S3Client({
+                region: 'auto',
+                endpoint: runtimeConfig.S3Endpoint,
+                credentials: {
+                    accessKeyId: runtimeConfig.S3KeyID,
+                    secretAccessKey: runtimeConfig.S3KeySecret,
+                },
+            });
+
             await Promise.all([
                 s3client.send(
                     new PutObjectCommand({
@@ -48,15 +46,15 @@ async function processImage(id: number, imageIn: string, sizeLimit: number = 10)
                     })
                 ),
             ]);
-        } catch (err: any) {
-            console.log(`Image #${id} could not be uploaded to S3.`);
-            console.error(err);
+        } else {
+            await Promise.all([
+                fs.writeFile(path.join(runtimeConfig.imageFolder, `/full/${id}.png`), pngBuffer),
+                fs.writeFile(path.join(runtimeConfig.imageFolder, `/thumb/${id}.png`), thumbnail),
+            ]);
         }
-    } else {
-        await Promise.all([
-            fs.writeFile(path.join(runtimeConfig.imageFolder, `/full/${id}.png`), pngBuffer),
-            fs.writeFile(path.join(runtimeConfig.imageFolder, `/thumb/${id}.png`), thumbnail),
-        ]);
+    } catch (err) {
+        console.log(`Image #${id} could not be processed/saved.`);
+        console.error(err);
     }
 
     return -1;

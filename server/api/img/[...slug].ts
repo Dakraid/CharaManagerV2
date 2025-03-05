@@ -12,7 +12,7 @@ const imageCache = createStorage({
 });
 
 const fsCache = createStorage({
-    driver: fsDriver({ base: '.nuxt/image-cache' }),
+    driver: fsDriver({ base: './image-cache' }),
 });
 
 // noinspection JSUnusedGlobalSymbols
@@ -41,11 +41,12 @@ export default defineEventHandler(async (event) => {
     const cacheKey = `${variant}/${id}.png`;
 
     try {
-        const cachedImage = await imageCache.getItem<Uint8Array>(cacheKey);
+        const cachedImage = await imageCache.getItem<string>(cacheKey);
         if (cachedImage) {
+            const imageBuffer = Buffer.from(cachedImage, 'base64');
             event.node.res.setHeader('Content-Type', 'image/png');
             event.node.res.setHeader('Cache-Control', 'public, max-age=3600');
-            event.node.res.write(Buffer.from(cachedImage));
+            event.node.res.write(imageBuffer);
             event.node.res.end();
             return;
         }
@@ -68,7 +69,8 @@ export default defineEventHandler(async (event) => {
                 throw new Error('Image not found');
             }
 
-            await imageCache.setItem<Uint8Array>(cacheKey, imageBuffer);
+            const base64Image = Buffer.from(imageBuffer).toString('base64');
+            await imageCache.setItem(cacheKey, base64Image);
 
             event.node.res.setHeader('Content-Type', 'image/png');
             event.node.res.setHeader('Cache-Control', 'public, max-age=3600');
@@ -84,13 +86,15 @@ export default defineEventHandler(async (event) => {
     }
 
     try {
-        let data: Uint8Array | null;
+        let data: Buffer | null;
         try {
-            data = await fsCache.getItem<Uint8Array>(cacheKey);
+            const cachedData = await fsCache.getItem<string>(cacheKey);
+            data = cachedData ? Buffer.from(cachedData, 'base64') : null;
         } catch (cacheError) {
             data = await fs.readFile(path.join(runtimeConfig.imageFolder, variant, `${id}.png`));
-            await fsCache.setItem<Uint8Array>(cacheKey, data);
-            await imageCache.setItem<Uint8Array>(cacheKey, data);
+            const base64Data = data.toString('base64');
+            await fsCache.setItem(cacheKey, base64Data);
+            await imageCache.setItem(cacheKey, base64Data);
         }
 
         if (!data) {
@@ -102,7 +106,7 @@ export default defineEventHandler(async (event) => {
 
         event.node.res.setHeader('Content-Type', 'image/png');
         event.node.res.setHeader('Cache-Control', 'public, max-age=3600');
-        event.node.res.write(Buffer.from(data));
+        event.node.res.write(data);
         event.node.res.end();
     } catch (error) {
         throw createError({
