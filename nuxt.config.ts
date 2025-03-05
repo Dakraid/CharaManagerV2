@@ -32,7 +32,6 @@ export default defineNuxtConfig({
         'nuxt-auth-utils',
         'nuxt-booster',
         'nuxt-echarts',
-        'nuxt-file-storage',
         'nuxt-lodash',
         'nuxt-monaco-editor',
         'nuxt-multi-cache',
