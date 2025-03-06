@@ -75,14 +75,13 @@ export default defineNuxtConfig({
     },
     multiCache: {
         component: {
-            enabled: false,
-        },
-        route: {
-            enabled: false,
+            enabled: true,
         },
         data: {
-            // This seems to be broken right now, so it is disabled.
-            enabled: false,
+            enabled: true,
+        },
+        route: {
+            enabled: true,
         },
         cdn: {
             enabled: false,

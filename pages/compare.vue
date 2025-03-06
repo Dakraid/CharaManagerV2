@@ -74,7 +74,15 @@ async function closeCompare() {
                     :original="parentCharJson"
                     lang="json"
                     class="w-full h-full"
-                    :options="{ theme: 'vs-dark', autoIndent: 'full', wordWrap: 'on' }" />
+                    :options="{
+                        theme: 'vs-dark',
+                        autoIndent: 'full',
+                        wordWrap: 'on',
+                        smoothScrolling: true,
+                        experimental: {
+                            showMoves: true,
+                        },
+                    }" />
             </div>
         </div>
         <div v-else class="Container w-full h-full">
