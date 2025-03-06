@@ -12,10 +12,4 @@ export default defineMultiCacheOptions({
             driver: lruCacheDriver({}),
         },
     },
-    api: {
-        authorization: async function (event) {
-            const session = await getUserSession(event);
-            return session.user != undefined;
-        },
-    },
 });

@@ -40,12 +40,12 @@ async function triggerDownload(character: Character) {
     <inspiraGlowBorder
         id="target"
         ref="target"
-        :class="cn('m-0 p-0 h-[596px] transition-transform hover:scale-103')"
+        :class="cn('m-0 p-0 h-[468px] transition-transform hover:scale-103')"
         :border-width="isHovered ? 2 : 0"
         :color="['#A07CFE', '#FE8FB5', '#FFBE7B']"
         @mouseenter="isHovered = true"
         @mouseleave="isHovered = false">
-        <Card class="flex flex-col w-80 h-[596px] border-0 p-4 px-4 gap-4">
+        <Card class="flex flex-col w-80 h-[468px] border-0 p-4 px-4 gap-4">
             <CardHeader class="flex flex-col justify-center gap-4 p-0 z-10">
                 <CardTitle class="grid grid-cols-[48px_1fr_48px] max-w-[288px] justify-between max-h-8 gap-4">
                     <Badge variant="outline" class="h-10 w-12 flex justify-center rounded-md">#{{ character.id }}</Badge>
@@ -92,7 +92,7 @@ async function triggerDownload(character: Character) {
                 </TooltipProvider>
             </CardHeader>
             <CardContent class="Image-Grid w-[256px] mx-auto p-0 z-10 rounded-xl overflow-hidden transition-all">
-                <Skeleton v-if="!targetIsVisible" class="Image-Container h-[384px] w-[256px] rounded-xl" />
+                <Skeleton v-if="!targetIsVisible" class="Image-Container h-[256px] w-[256px] rounded-xl" />
                 <NuxtImg
                     v-else
                     :id="character.etag"
@@ -102,10 +102,10 @@ async function triggerDownload(character: Character) {
                     format="webp"
                     :quality="appStore.imageQuality"
                     width="256"
-                    height="384"
+                    height="256"
                     loading="lazy"
                     placeholder="Placeholder.png"
-                    placeholder-class="h-[384px] w-[256px] bg-muted rounded-xl"
+                    placeholder-class="h-[256px] w-[256px] bg-muted rounded-xl object-contain"
                     :class="cn('Image-Container border rounded-xl transition-all mx-auto', appStore.blurChars ? 'blur-2xl rotate-180 grayscale' : '')" />
                 <Badge variant="secondary" class="Token-Permanent-Container rounded-xl rounded-tl-none rounded-br-none"> Permanent: {{ character.tokensPermanent ?? -1 }}</Badge>
                 <Badge variant="secondary" class="Token-Total-Container rounded-xl rounded-tr-none rounded-bl-none"> Total: {{ character.tokensTotal ?? -1 }}</Badge>
