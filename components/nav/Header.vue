@@ -93,12 +93,16 @@ async function updateImageQuality(quality: number) {
                     <DropdownMenuSeparator />
                     <DropdownMenuLabel>Card Size</DropdownMenuLabel>
                     <DropdownMenuItem class="flex gap-2" @click="appStore.cardSize = CardSize.Default">
-                        <Check v-if="appStore.cardSize == CardSize.Default" class="h-[1.2rem] w-[1.2rem]" />
+                        <Check v-if="appStore.cardSize == 0" class="h-[1.2rem] w-[1.2rem]" />
                         <h1>Card Default</h1>
                     </DropdownMenuItem>
                     <DropdownMenuItem class="flex gap-2" @click="appStore.cardSize = CardSize.Square">
-                        <Check v-if="appStore.cardSize == CardSize.Square" class="h-[1.2rem] w-[1.2rem]" />
+                        <Check v-if="appStore.cardSize == 1" class="h-[1.2rem] w-[1.2rem]" />
                         <h1>Card Square</h1>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem class="flex gap-2" @click="appStore.cardSize = CardSize.Parallax">
+                        <Check v-if="appStore.cardSize == 2" class="h-[1.2rem] w-[1.2rem]" />
+                        <h1>Card Parallax</h1>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuLabel>Image Quality (1 Worst - 100 Best)</DropdownMenuLabel>

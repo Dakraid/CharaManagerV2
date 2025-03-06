@@ -1,5 +1,5 @@
 export const enum CardSize {
     Default = 0,
-    Compact = 1,
-    Square = 2,
+    Square = 1,
+    Parallax = 2,
 }

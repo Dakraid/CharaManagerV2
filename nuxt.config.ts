@@ -42,8 +42,20 @@ export default defineNuxtConfig({
         'shadcn-nuxt',
     ],
     nitro: {
+        openAPI: {
+            meta: {
+                title: 'CharaManagerV2',
+                description: 'An application to manage your TavernV2 cards.',
+                version: '1.0',
+            },
+        },
         experimental: {
+            openAPI: true,
             tasks: true,
+        },
+        compressPublicAssets: {
+            gzip: true,
+            brotli: true,
         },
     },
     typescript: {
@@ -53,12 +65,15 @@ export default defineNuxtConfig({
         transpile: ['dayjs/plugin/customParseFormat'],
     },
     experimental: {
-        watcher: 'parcel',
-        crossOriginPrefetch: true,
+        asyncContext: true,
         asyncEntry: true,
-        writeEarlyHints: true,
-        sharedPrerenderData: true,
         buildCache: true,
+        crossOriginPrefetch: true,
+        restoreState: true,
+        sharedPrerenderData: true,
+        viewTransition: true,
+        watcher: 'parcel',
+        writeEarlyHints: true,
     },
     future: {
         typescriptBundlerResolution: true,

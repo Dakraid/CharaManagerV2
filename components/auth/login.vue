@@ -56,7 +56,7 @@ async function onSubmit(values: any) {
                 <FormItem>
                     <FormLabel>Username</FormLabel>
                     <FormControl>
-                        <Input type="text" placeholder="Username" required v-bind="componentField" />
+                        <Input type="text" placeholder="Username" required v-bind="componentField" autocomplete="on" />
                     </FormControl>
                     <FormMessage />
                 </FormItem>
@@ -65,7 +65,7 @@ async function onSubmit(values: any) {
                 <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                        <Input type="password" placeholder="********" required v-bind="componentField" />
+                        <Input type="password" placeholder="********" required v-bind="componentField" autocomplete="on" />
                     </FormControl>
                     <FormMessage />
                 </FormItem>

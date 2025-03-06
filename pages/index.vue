@@ -130,7 +130,10 @@ async function onElementVisibility(state: boolean) {
                 class="max-h-[calc(100vh_-_12.5rem)] rounded-md overflow-y-hidden scroll-smooth"
                 style="grid-column-start: 1; grid-row-start: 2">
                 <ClientOnly>
-                    <RenderCacheable v-if="appStore.cardSize == 2" class="flex justify-around flex-wrap gap-2 m-4">
+                    <RenderCacheable v-if="appStore.cardSize == 2" class="flex justify-around flex-wrap gap-0 m-4">
+                        <LazyCharsDisplayParallax v-for="character in characterStore.characters" :key="character.id" :character="character" />
+                    </RenderCacheable>
+                    <RenderCacheable v-else-if="appStore.cardSize == 1" class="flex justify-around flex-wrap gap-2 m-4">
                         <LazyCharsDisplaySquare v-for="character in characterStore.characters" :key="character.id" :character="character" />
                     </RenderCacheable>
                     <RenderCacheable v-else class="flex justify-around flex-wrap gap-2 m-4">
