@@ -11,7 +11,7 @@ async function refreshCharacters() {
 
     let hasFailed = false;
     let retryCounter = 0;
-    const retryLimit = 5;
+    const retryLimit = 3;
 
     try {
         const { data } = await useFetch<number>('/api/chars/count', {
