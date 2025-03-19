@@ -57,7 +57,7 @@
         "ioredis": "^5.6.0",
         "jimp-compact": "^0.16.1-2",
         "lucide-vue-next": "^0.477.0",
-        "nuxt": "^3.15.4",
+        "nuxt": "^3.16.0",
         "nuxt-auth-utils": "^0.5.16",
         "nuxt-booster": "^3.2.0",
         "nuxt-echarts": "^0.2.6",
