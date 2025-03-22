@@ -8,6 +8,7 @@ export const useAppStore = defineStore('app', {
         cardSize: CardSize.Default,
         perPage: 30,
         imageQuality: 70,
+        zoomLevel: 1.5,
     }),
     getters: {},
     actions: {

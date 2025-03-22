@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import '~/assets/css/site.css';
-import { toast } from '~/components/ui/toast';
 
 const nuxtApp = useNuxtApp();
 const appStore = useAppStore();
@@ -9,70 +8,28 @@ const characterStore = useCharacterStore();
 async function refreshCharacters() {
     characterStore.loading = true;
 
-    let hasFailed = false;
-    let retryCounter = 0;
-    const retryLimit = 3;
-
     try {
-        const { data } = await useFetch<number>('/api/chars/count', {
-            method: 'GET',
-        });
+        const { data } = await useCachedAsyncData<number>('charCount', () => $fetch<number>('/api/chars/count', { method: 'GET' }));
 
         characterStore.count = data.value ?? 0;
     } catch (err: any) {
-        hasFailed = true;
-    }
-
-    while (hasFailed && retryCounter < retryLimit) {
-        try {
-            const { data } = await useFetch<number>('/api/chars/count', {
-                method: 'GET',
-            });
-
-            characterStore.count = data.value ?? 0;
-
-            hasFailed = false;
-            retryCounter = 0;
-        } catch (err: any) {
-            console.log(`Failed to fetch, retrying...${retryCounter + 1}/${retryLimit}`);
-            retryCounter++;
-            await Sleep(1000);
-        }
+        console.warn('Failed to fetch the character count: %s', err);
     }
 
     try {
-        const { data } = await useFetch<Character[]>('/api/chars/characters', {
-            method: 'GET',
-            query: {
-                page: characterStore.currentPage,
-                perPage: appStore.perPage,
-            },
-        });
-
-        characterStore.characters = data.value ?? undefined;
-    } catch (err: any) {
-        hasFailed = true;
-    }
-
-    while (hasFailed && retryCounter < retryLimit) {
-        try {
-            const { data } = await useFetch<Character[]>('/api/chars/characters', {
+        const { data } = await useCachedAsyncData<Character[]>('charactersArray', () =>
+            $fetch<Character[]>('/api/chars/characters', {
                 method: 'GET',
                 query: {
                     page: characterStore.currentPage,
                     perPage: appStore.perPage,
                 },
-            });
+            })
+        );
 
-            characterStore.characters = data.value ?? undefined;
-
-            hasFailed = false;
-            retryCounter = 0;
-        } catch (err: any) {
-            console.log(`Failed to fetch, retrying...${retryCounter + 1}/${retryLimit}`);
-            retryCounter++;
-            await Sleep(1000);
-        }
+        characterStore.characters = data.value ?? undefined;
+    } catch (err: any) {
+        console.warn('Failed to fetch the characters: %s', err);
     }
 
     characterStore.loading = false;

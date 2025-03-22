@@ -7,6 +7,10 @@ const appStore = useAppStore();
 async function updateImageQuality(quality: number) {
     appStore.imageQuality = quality;
 }
+
+async function updateZoomLevel(zoomLevel: number) {
+    appStore.zoomLevel = zoomLevel;
+}
 </script>
 
 <template>
@@ -92,23 +96,40 @@ async function updateImageQuality(quality: number) {
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuLabel>Card Size</DropdownMenuLabel>
-                    <DropdownMenuItem class="flex gap-2" @click="appStore.cardSize = CardSize.Default">
+                    <DropdownMenuItem class="flex gap-2" @click="appStore.cardSize = 0">
                         <Check v-if="appStore.cardSize == 0" class="h-[1.2rem] w-[1.2rem]" />
                         <h1>Card Default</h1>
                     </DropdownMenuItem>
-                    <DropdownMenuItem class="flex gap-2" @click="appStore.cardSize = CardSize.Square">
+                    <DropdownMenuItem class="flex gap-2" @click="appStore.cardSize = 1">
                         <Check v-if="appStore.cardSize == 1" class="h-[1.2rem] w-[1.2rem]" />
                         <h1>Card Square</h1>
                     </DropdownMenuItem>
-                    <DropdownMenuItem class="flex gap-2" @click="appStore.cardSize = CardSize.Parallax">
+                    <DropdownMenuItem class="flex gap-2" @click="appStore.cardSize = 2">
                         <Check v-if="appStore.cardSize == 2" class="h-[1.2rem] w-[1.2rem]" />
                         <h1>Card Parallax</h1>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem class="flex gap-2" @click="appStore.cardSize = 3">
+                        <Check v-if="appStore.cardSize == 3" class="h-[1.2rem] w-[1.2rem]" />
+                        <h1>Card Canvas</h1>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuLabel>Image Quality (1 Worst - 100 Best)</DropdownMenuLabel>
                     <DropdownMenuLabel>
                         <div class="flex w-full max-w-sm items-top gap-2">
                             <NumberField id="imageQuality" :default-value="appStore.imageQuality" :min="1" :max="100" @update:model-value="updateImageQuality">
+                                <NumberFieldContent>
+                                    <NumberFieldDecrement />
+                                    <NumberFieldInput />
+                                    <NumberFieldIncrement />
+                                </NumberFieldContent>
+                            </NumberField>
+                        </div>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuLabel>Zoom Level (0.5 Zoom out - 2 Zoom In)</DropdownMenuLabel>
+                    <DropdownMenuLabel>
+                        <div class="flex w-full max-w-sm items-top gap-2">
+                            <NumberField id="zoomLevel" :default-value="appStore.zoomLevel" :min="0.5" :max="2" :step="0.5" @update:model-value="updateZoomLevel">
                                 <NumberFieldContent>
                                     <NumberFieldDecrement />
                                     <NumberFieldInput />
