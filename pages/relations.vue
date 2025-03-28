@@ -88,7 +88,7 @@ async function showCompare(parent: Character, child: Character) {
 
 <template>
     <Transition>
-        <CommonLoading v-if="loading" loading-text="Loading relations" />
+        <CommonLoading v-if="loading" loading-text="Loading relations" class="rounded-xl" />
         <ScrollArea
             v-else-if="!loading && parentCharacters.length > 0"
             v-element-visibility="onElementVisibility"
@@ -105,7 +105,7 @@ async function showCompare(parent: Character, child: Character) {
                                 :character="childCharacter"
                                 @compare="showCompare(parentCharacter, childCharacter)" />
                         </div>
-                        <CommonLoading v-else class="Child" />
+                        <CommonLoading v-else class="Child rounded-xl" />
                     </Transition>
                     <Separator orientation="horizontal" class="SeparatorX w-full mt-1" />
                 </div>

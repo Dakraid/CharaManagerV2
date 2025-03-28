@@ -1,9 +1,12 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+const characterStore = useCharacterStore();
+</script>
 
 <template>
-    <div class="flex flex-col gap-2">
-        <Button type="submit" class="w-full mt-2">Create New</Button>
-        <Tabs id="control-tabs" default-value="file" class="w-full h-[calc(100vh_-_theme(spacing.36))]">
+    <div class="Container gap-2 h-[calc(100vh_-_theme(spacing.36))]">
+        <Button type="submit" class="Button w-full mt-2">Create New</Button>
+        <CommonLoading v-if="characterStore.loading" class="Controls rounded-md" />
+        <Tabs id="control-tabs" default-value="file" class="Controls w-full">
             <TabsList class="grid w-full grid-cols-2 mb-2">
                 <TabsTrigger value="file"> File Upload</TabsTrigger>
                 <TabsTrigger value="url"> URL Download</TabsTrigger>
@@ -14,7 +17,7 @@
                         <CardTitle class="text-center">File Upload</CardTitle>
                     </CardHeader>
                     <CardContent class="flex-1">
-                        <CharsUpload />
+                        <CharsLocal />
                     </CardContent>
                 </Card>
             </TabsContent>
@@ -24,7 +27,7 @@
                         <CardTitle class="text-center">Remote Char Download</CardTitle>
                     </CardHeader>
                     <CardContent class="flex-1">
-                        <CharsDownload />
+                        <CharsRemote />
                     </CardContent>
                 </Card>
             </TabsContent>
@@ -32,4 +35,22 @@
     </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.Container {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: min-content 1fr;
+    gap: 0.5rem;
+    grid-template-areas:
+        'Button'
+        'Controls';
+}
+
+.Button {
+    grid-area: Button;
+}
+
+.Controls {
+    grid-area: Controls;
+}
+</style>

@@ -58,7 +58,7 @@ async function closeCompare() {
 <template>
     <Transition>
         <div v-if="loading" class="Container w-full h-full">
-            <CommonLoading class="Editor w-full h-full" loading-text="Loading characters..." />
+            <CommonLoading class="Editor w-full h-full rounded-xl" loading-text="Loading characters..." />
         </div>
         <div v-else-if="!loading && parentChar && childChar" class="Container w-full h-full">
             <Button variant="destructive" size="icon" class="Button w-full h-full z-10" @click="closeCompare">

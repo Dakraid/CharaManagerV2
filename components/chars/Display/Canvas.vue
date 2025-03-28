@@ -254,8 +254,8 @@ watch(
                     @mouseleave="handleMouseLeave"
                     @mousemove="handleMouseMove">
                     <canvas
-                        ref="canvasRef"
                         :id="character.etag"
+                        ref="canvasRef"
                         width="256"
                         height="384"
                         :class="cn('border rounded-xl transition-all mx-auto')"

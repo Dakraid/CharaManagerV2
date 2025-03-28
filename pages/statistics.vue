@@ -60,7 +60,7 @@ onMounted(async () => {
 
 <template>
     <Transition>
-        <CommonLoading v-if="loading" loading-text="Compiling statistics..." />
+        <CommonLoading v-if="loading" loading-text="Compiling statistics..." class="rounded-xl" />
         <ScrollArea v-else-if="!error" class="max-h-[calc(100vh_-_theme(spacing.36))] rounded-md overflow-y-hidden scroll-smooth pr-4">
             <div v-if="datesAsRecords.length > 0" class="flex flex-col gap-4 mb-24 last:mb-0">
                 <Label>Character Downloads per Date (Count > 0)</Label>

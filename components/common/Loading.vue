@@ -10,7 +10,7 @@ defineProps<{
 </script>
 
 <template>
-    <div :class="cn('w-full h-full flex flex-1 flex-col gap-8 items-center justify-center backdrop-blur-sm bg-background/75 rounded-xl z-20', cssClass)">
+    <div :class="cn('w-full h-full flex flex-1 flex-col gap-8 items-center justify-center backdrop-blur-sm bg-background/75 z-20', cssClass)">
         <LoaderCircle class="h-20 w-20 mx-auto motion-safe:animate-spin" />
         <h1 v-if="showTest || showTest === undefined" class="text-4xl font-bold motion-safe:animate-pulse">{{ loadingText ?? 'Loading...' }}</h1>
     </div>

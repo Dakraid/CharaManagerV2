@@ -67,7 +67,7 @@ if (data.value && data.value[0]) {
 <template>
     <div class="flex-1 max-h-[calc(100vh_-_theme(spacing.16))] overflow-hidden">
         <Transition>
-            <CommonLoading v-if="status !== 'success'" loading-text="Processing..." />
+            <CommonLoading v-if="status !== 'success'" loading-text="Processing..." class="rounded-xl" />
             <CharsDetails v-else-if="activeDefinition" :character="activeCharacter!" :definition="activeDefinition" />
         </Transition>
     </div>

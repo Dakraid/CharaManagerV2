@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { CircleX } from 'lucide-vue-next';
 import { useToast } from '~/components/ui/toast';
 import { cn } from '~/lib/utils';
 
