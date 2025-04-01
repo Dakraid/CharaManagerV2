@@ -66,7 +66,9 @@ export default defineTask({
         }));
 
         for (const embeddingWithId of embeddingsWithIds) {
-            await db.update(definitions).set({ embedding: embeddingWithId.embedding }).where(eq(definitions.id, embeddingWithId.id));
+            if (embeddingWithId.embedding?.length && embeddingWithId.embedding?.length > 1) {
+                await db.update(definitions).set({ embedding: embeddingWithId.embedding }).where(eq(definitions.id, embeddingWithId.id));
+            }
         }
 
         console.log('Completed embedding generation task...');

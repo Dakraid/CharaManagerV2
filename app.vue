@@ -27,7 +27,17 @@ async function refreshCharacters() {
             })
         );
 
-        characterStore.characters = data.value ?? undefined;
+        if (!data || !data.value) {
+            characterStore.characters = await $fetch<Character[]>('/api/chars/characters', {
+                method: 'GET',
+                query: {
+                    page: characterStore.currentPage,
+                    perPage: appStore.perPage,
+                },
+            });
+        } else {
+            characterStore.characters = data.value;
+        }
     } catch (err: any) {
         console.warn('Failed to fetch the characters: %s', err);
     }

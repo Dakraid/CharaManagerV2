@@ -26,7 +26,9 @@ async function insertMissingDefinition(db: NodePgDatabase, embeddingProvider: an
             embedding = await embeddingProvider.embed(card.data.description);
         }
 
-        await db.insert(definitions).values({ id: id, definition: cardJson, hash: hash, embedding: embedding, tokensTotal: tokensTotal, tokensPermanent: tokensPermanent });
+        if (embedding?.length && embedding?.length > 1) {
+            await db.insert(definitions).values({ id: id, definition: cardJson, hash: hash, embedding: embedding, tokensTotal: tokensTotal, tokensPermanent: tokensPermanent });
+        }
     } catch (err: any) {
         console.error(err);
     }

@@ -137,6 +137,10 @@ export default defineEventHandler(async (event) => {
                     embedding = await embedderProvider.embed(card.data.description);
                 }
 
+                if (embedding?.length && embedding?.length <= 1) {
+                    embedding = undefined;
+                }
+
                 definitionRows.push({ id: update.id, definition: cardJson, hash: hash, embedding: embedding, tokensTotal: tokensTotal, tokensPermanent: tokensPermanent });
 
                 await db.update(characters).set({ charName: card.data.name }).where(eq(characters.id, update.id));
