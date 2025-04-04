@@ -116,9 +116,6 @@ async function onElementVisibility(state: boolean) {
             </div>
         </div>
         <Transition>
-            <CommonLoading v-if="!characterStore.characters || characterStore.loading" loading-text="Loading..." class="col-start-1 row-start-2 rounded-xl" />
-        </Transition>
-        <Transition>
             <h1
                 v-if="!characterStore.loading && characterStore.characters && characterStore.characters.length === 0"
                 class="col-start-1 row-start-2 text-2xl text-center font-bold">

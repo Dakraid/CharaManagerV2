@@ -12,9 +12,11 @@ definePageMeta({
     },
 });
 
+const characterStore = useCharacterStore();
 const logSelected = ref<string | null>();
 const logContent = ref<LogEntry[]>([]);
 
+characterStore.loading = true;
 const { data } = await useFetch<string[]>('/api/logs/list', {
     method: 'GET',
 });
@@ -69,6 +71,8 @@ function getLogLevelColor(level: string) {
             return 'bg-gray-900/50';
     }
 }
+
+characterStore.loading = false;
 </script>
 
 <template>

@@ -9,35 +9,21 @@ async function refreshCharacters() {
     characterStore.loading = true;
 
     try {
-        const { data } = await useCachedAsyncData<number>('charCount', () => $fetch<number>('/api/chars/count', { method: 'GET' }));
-
-        characterStore.count = data.value ?? 0;
+        characterStore.count = await $fetch<number>('/api/chars/count', {
+            method: 'GET',
+        });
     } catch (err: any) {
         console.warn('Failed to fetch the character count: %s', err);
     }
 
     try {
-        const { data } = await useCachedAsyncData<Character[]>('charactersArray', () =>
-            $fetch<Character[]>('/api/chars/characters', {
-                method: 'GET',
-                query: {
-                    page: characterStore.currentPage,
-                    perPage: appStore.perPage,
-                },
-            })
-        );
-
-        if (!data || !data.value) {
-            characterStore.characters = await $fetch<Character[]>('/api/chars/characters', {
-                method: 'GET',
-                query: {
-                    page: characterStore.currentPage,
-                    perPage: appStore.perPage,
-                },
-            });
-        } else {
-            characterStore.characters = data.value;
-        }
+        characterStore.characters = await $fetch<Character[]>('/api/chars/characters', {
+            method: 'GET',
+            query: {
+                page: characterStore.currentPage,
+                perPage: appStore.perPage,
+            },
+        });
     } catch (err: any) {
         console.warn('Failed to fetch the characters: %s', err);
     }
@@ -58,14 +44,37 @@ nuxtApp.hooks.hook('characters:menu', async (id: number) => {
 
 <template>
     <NuxtPwaManifest />
-    <div class="flex h-screen min-h-screen max-h-screen min-w-screen max-w-screen flex-col">
-        <NavHeader />
+    <Toaster />
+    <div class="PageContainer h-screen min-h-screen max-h-screen min-w-screen max-w-screen">
+        <Transition>
+            <CommonLoading v-if="characterStore.loading" loading-text="Loading..." class="Overlay" />
+        </Transition>
+        <NavHeader class="Header" />
         <main
-            class="flex flex-1 flex-col h-[calc(100vh_-_theme(spacing.16))] min-h-[calc(100vh_-_theme(spacing.16))] max-h-[calc(100vh_-_theme(spacing.16))] bg-muted/40 p-4 gap-4 md:gap-8 md:p-10">
+            class="Content flex flex-1 flex-col h-[calc(100vh_-_theme(spacing.16))] min-h-[calc(100vh_-_theme(spacing.16))] max-h-[calc(100vh_-_theme(spacing.16))] bg-muted/40 p-4 gap-4 md:gap-8 md:p-10">
             <NuxtPage />
         </main>
-        <Toaster />
     </div>
 </template>
 
-<style></style>
+<style scoped>
+.PageContainer {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: min-content 1fr;
+    gap: 0;
+    grid-auto-flow: row;
+}
+
+.Header {
+    grid-area: 1 / 1 / 2 / 2;
+}
+
+.Content {
+    grid-area: 2 / 1 / 3 / 2;
+}
+
+.Overlay {
+    grid-area: 1 / 1 / 3 / 2;
+}
+</style>

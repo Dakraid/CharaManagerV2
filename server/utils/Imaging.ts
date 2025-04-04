@@ -10,7 +10,7 @@ async function processImage(id: number, imageIn: string, sizeLimit: number = 10)
     const size = estimateBase64ImageSize(pureImage);
 
     if (size.megabytes > sizeLimit) {
-        console.log(`Image #${id} exceeded the size limit of ${sizeLimit}mb.`);
+        console.warn(`Image #${id} exceeded the size limit of ${sizeLimit}mb.`);
     }
 
     const buffer = Buffer.from(splitBase64(pureImage), 'base64');

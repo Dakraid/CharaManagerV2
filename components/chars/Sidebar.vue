@@ -5,7 +5,6 @@ const characterStore = useCharacterStore();
 <template>
     <div class="Container gap-2 h-[calc(100vh_-_theme(spacing.36))]">
         <Button type="submit" class="Button w-full mt-2">Create New</Button>
-        <CommonLoading v-if="characterStore.loading" class="Controls rounded-md" />
         <Tabs id="control-tabs" default-value="file" class="Controls w-full">
             <TabsList class="grid w-full grid-cols-2 mb-2">
                 <TabsTrigger value="file"> File Upload</TabsTrigger>

@@ -2,6 +2,7 @@
 import { useToast } from '~/components/ui/toast';
 
 const { toast } = useToast();
+const characterStore = useCharacterStore();
 
 definePageMeta({
     middleware() {
@@ -12,7 +13,6 @@ definePageMeta({
     },
 });
 
-const loading = ref<boolean>(true);
 const error = ref<boolean>(false);
 
 const tags = ref<[string, number][]>([]);
@@ -23,6 +23,8 @@ const tokens = ref<[string, number][]>([]);
 const datesAsRecords = ref<Record<string, any>[]>([]);
 const authorsAsRecords = ref<Record<string, any>[]>([]);
 const tokensAsRecords = ref<Record<string, any>[]>([]);
+
+characterStore.loading = true;
 
 onMounted(async () => {
     try {
@@ -54,14 +56,13 @@ onMounted(async () => {
         error.value = true;
     }
 
-    loading.value = false;
+    characterStore.loading = false;
 });
 </script>
 
 <template>
     <Transition>
-        <CommonLoading v-if="loading" loading-text="Compiling statistics..." class="rounded-xl" />
-        <ScrollArea v-else-if="!error" class="max-h-[calc(100vh_-_theme(spacing.36))] rounded-md overflow-y-hidden scroll-smooth pr-4">
+        <ScrollArea v-if="!error" class="max-h-[calc(100vh_-_theme(spacing.36))] rounded-md overflow-y-hidden scroll-smooth pr-4">
             <div v-if="datesAsRecords.length > 0" class="flex flex-col gap-4 mb-24 last:mb-0">
                 <Label>Character Downloads per Date (Count > 0)</Label>
                 <LineChart :data="datesAsRecords" index="Date" :categories="['Downloads']" />

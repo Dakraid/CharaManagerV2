@@ -23,7 +23,8 @@ useRouteCache((helper) => {
 });
 
 const hasError = ref<boolean>(false);
-const loading = ref<boolean>(true);
+
+characterStore.loading = true;
 
 let relations: Relation[] = [];
 try {
@@ -72,7 +73,7 @@ try {
     hasError.value = true;
 }
 
-loading.value = hasError.value;
+characterStore.loading = hasError.value;
 
 async function onElementVisibility(state: boolean) {
     characterStore.loading = !state;
@@ -88,9 +89,8 @@ async function showCompare(parent: Character, child: Character) {
 
 <template>
     <Transition>
-        <CommonLoading v-if="loading" loading-text="Loading relations" class="rounded-xl" />
         <ScrollArea
-            v-else-if="!loading && parentCharacters.length > 0"
+            v-if="parentCharacters.length > 0"
             v-element-visibility="onElementVisibility"
             class="max-h-[calc(100vh_-_theme(spacing.36))] rounded-md overflow-y-hidden scroll-smooth">
             <div class="w-full flex flex-col wrap gap-4 m-4">
