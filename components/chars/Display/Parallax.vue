@@ -86,7 +86,7 @@ async function triggerDownload(character: Character) {
                     </TooltipProvider>
                 </CardHeader>
             </InspiraCardItem>
-            <InspiraCardItem :translate-z="75" class="w-full">
+            <InspiraCardItem :translate-z="100" class="w-full">
                 <CardContent class="Image-Grid w-[256px] mx-auto p-0 z-10 rounded-xl overflow-hidden transition-all">
                     <Skeleton v-if="!targetIsVisible" class="Image-Container h-[384px] w-[256px] rounded-xl" />
                     <NuxtImg
@@ -109,7 +109,7 @@ async function triggerDownload(character: Character) {
                     <Badge variant="secondary" class="Token-Total-Container rounded-xl rounded-tr-none rounded-bl-none"> Total: {{ character.tokensTotal ?? -1 }}</Badge>
                 </CardContent>
             </InspiraCardItem>
-            <InspiraCardItem :translate-z="25" class="w-full">
+            <InspiraCardItem :translate-z="50" class="w-full">
                 <CardFooter class="flex flex-col p-0 mt-2 gap-4 z-10">
                     <div class="w-full flex justify-between gap-8">
                         <Button class="flex-1 h-8" @click="showCharacter(character)">

@@ -41,8 +41,8 @@ async function triggerDownload(character: Character) {
         id="target"
         ref="target"
         :class="cn('m-0 p-0 h-[468px] transition-transform hover:scale-103')"
-        :border-width="isHovered ? 2 : 0"
-        :color="['#A07CFE', '#FE8FB5', '#FFBE7B']"
+        :border-width="isHovered ? 3 : 1"
+        :color="isHovered ? ['#A07CFE', '#FE8FB5', '#FFBE7B'] : '#666666'"
         @mouseenter="isHovered = true"
         @mouseleave="isHovered = false">
         <Card class="flex flex-col w-80 h-[468px] border-0 p-4 px-4 gap-4">

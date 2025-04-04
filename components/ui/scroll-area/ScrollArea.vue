@@ -5,6 +5,7 @@ import { type HTMLAttributes, computed } from 'vue';
 
 import ScrollBar from './ScrollBar.vue';
 
+defineEmits(['onScroll']);
 const props = defineProps<ScrollAreaRootProps & { class?: HTMLAttributes['class'] }>();
 
 const delegatedProps = computed(() => {
@@ -16,7 +17,7 @@ const delegatedProps = computed(() => {
 
 <template>
     <ScrollAreaRoot v-bind="delegatedProps" :class="cn('relative overflow-hidden', props.class)">
-        <ScrollAreaViewport class="h-full w-full rounded-[inherit]">
+        <ScrollAreaViewport class="h-full w-full rounded-[inherit] reka-scroll-area-viewport scroll-smooth" @scroll="$emit('onScroll')">
             <slot />
         </ScrollAreaViewport>
         <ScrollBar />
