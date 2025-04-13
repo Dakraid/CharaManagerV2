@@ -43,7 +43,8 @@ export default defineNitroPlugin(async (nitroApp) => {
     const p3 = runTask('embeddings:generate', { payload: {} });
     const p4 = runTask('definitions:migrate', { payload: {} });
     const p5 = runTask('relations:generate', { payload: {} });
-    await Promise.all([p1, p2, p3, p4, p5]);
+    const p6 = runTask('ratings:generate', { payload: {} });
+    await Promise.all([p1, p2, p3, p4, p5, p6]);
 
     await storage.setItem<number>('startup:timestamp', dayjs().unix());
 

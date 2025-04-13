@@ -17,7 +17,6 @@ const imageUri = runtimeConfig.public.imageDomain.endsWith('/')
 
 const isDownloading = ref(false);
 const isHovered = ref(false);
-const hoveredRating = ref(0);
 
 const replaceLettersWithHash = (str: string): string => str.replace(/\S/g, '#');
 
@@ -67,29 +66,7 @@ async function triggerDownload(character: Character) {
                         <Trash class="h-4 w-4" />
                     </Button>
                 </CardTitle>
-                <TooltipProvider>
-                    <Tooltip>
-                        <TooltipTrigger>
-                            <NuxtRating
-                                :read-only="false"
-                                :rating-value="character.rating ?? 0"
-                                :rating-count="9"
-                                :rating-step="1"
-                                :rating-content="[28, 90, 90, 28, 152, 90, 90, 152]"
-                                active-color="hsl(var(--primary))"
-                                inactive-color="hsl(var(--secondary))"
-                                class="flex justify-center z-20"
-                                rating-size="24px"
-                                @rating-selected="updateRating(character, hoveredRating)"
-                                @rating-hovered="(event) => (hoveredRating = event)" />
-                        </TooltipTrigger>
-                        <TooltipContent side="bottom">
-                            <div class="flex justify-between gap-2">
-                                <p>Click to set rating</p>
-                            </div>
-                        </TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
+                <CharsRatingOverallScore :character="character" />
             </CardHeader>
             <CardContent class="Image-Grid w-[256px] mx-auto p-0 z-10 rounded-xl overflow-hidden transition-all">
                 <Skeleton v-if="!targetIsVisible" class="Image-Container h-[384px] w-[256px] rounded-xl" />

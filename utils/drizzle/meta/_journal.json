@@ -8,6 +8,13 @@
             "when": 1733685413270,
             "tag": "0000_clever_dakota_north",
             "breakpoints": true
+        },
+        {
+            "idx": 1,
+            "version": "7",
+            "when": 1744550985766,
+            "tag": "0001_spotty_champions",
+            "breakpoints": true
         }
     ]
 }

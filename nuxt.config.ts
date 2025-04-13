@@ -134,6 +134,9 @@ export default defineNuxtConfig({
         mistralModel: 'mistral-embed',
         nomicKey: '',
         nomicModel: 'nomic-embed-text-v1.5',
+        // AI Scoring
+        openRouterKey: '',
+        openRouterModel: 'mistralai/mistral-small-3.1-24b-instruct',
         // 2Captcha Solver
         captchaSolverKey: '',
         // Image File Settings

@@ -55,6 +55,20 @@ export const ratings = pgTable(
     {
         id: integer().primaryKey().notNull(),
         rating: integer().default(0).notNull(),
+        aiGrammarAndSpellingScore: integer(),
+        aiGrammarAndSpellingReason: text(),
+        aiAppearanceScore: integer(),
+        aiAppearanceReason: text(),
+        aiPersonalityScore: integer(),
+        aiPersonalityReason: text(),
+        aiBackgroundScore: integer(),
+        aiBackgroundReason: text(),
+        aiCreativeElementsScore: integer(),
+        aiCreativeElementsReason: text(),
+        aiConsistencyScore: integer(),
+        aiConsistencyReason: text(),
+        aiStructureScore: integer(),
+        aiStructureReason: text(),
     },
     (table) => {
         return {
@@ -109,7 +123,7 @@ export const lorebooks = pgTable(
     },
     (table) => {
         return {
-            embeddingIndex: index('embeddingIndex').using('hnsw', table.embedding.asc().nullsLast().op('vector_cosine_ops')),
+            lorebookEmbeddingIndex: index('lorebookEmbeddingIndex').using('hnsw', table.embedding.asc().nullsLast().op('vector_cosine_ops')),
             lorebooksIdCharactersIdFk: foreignKey({
                 columns: [table.id],
                 foreignColumns: [characters.id],
