@@ -19,6 +19,20 @@ export interface RemoteChar {
 export interface Rating {
     id: number;
     rating: number;
+    aiGrammarAndSpellingScore: number | undefined;
+    aiGrammarAndSpellingReason: string | undefined;
+    aiAppearanceScore: number | undefined;
+    aiAppearanceReason: string | undefined;
+    aiPersonalityScore: number | undefined;
+    aiPersonalityReason: string | undefined;
+    aiBackgroundScore: number | undefined;
+    aiBackgroundReason: string | undefined;
+    aiCreativeElementsScore: number | undefined;
+    aiCreativeElementsReason: string | undefined;
+    aiConsistencyScore: number | undefined;
+    aiConsistencyReason: string | undefined;
+    aiStructureScore: number | undefined;
+    aiStructureReason: string | undefined;
 }
 
 export interface Definition {

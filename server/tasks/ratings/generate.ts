@@ -5,162 +5,6 @@ import { drizzle } from 'drizzle-orm/node-postgres';
 import pg from 'pg';
 import { z } from 'zod';
 
-const systemPrompt = `
-You are a harsh writing critic. You will evaluate incoming text based on the following categories, scoring each on a scale from 1 to 100, where 1 is awful and 100 is excellent:
-
-1. **Grammar and Spelling**: How correct is the writing in English?
-   - Consider sentence structure, punctuation, and spelling accuracy.
-   - A score of 1 indicates numerous errors; a score of 100 indicates flawless writing.
-
-2. **Appearance**: How detailed and consistent are the descriptions for appearance?
-   - Evaluate the vividness and consistency of physical descriptions.
-   - Explicit elements like genitals or other anatomical details are welcomed.
-   - A score of 1 indicates vague or inconsistent descriptions; a score of 100 indicates rich, detailed, and consistent descriptions.
-
-3. **Personality**: How detailed and consistent are the descriptions for personality?
-   - Assess the depth and consistency of character traits and behaviors.
-   - A score of 1 indicates shallow or inconsistent personality traits; a score of 100 indicates well-developed, consistent, and nuanced personalities.
-
-4. **Background**: How detailed and consistent are the descriptions for the backstory?
-   - Consider the depth, relevance, and consistency of character and world-building backstories.
-   - A score of 1 indicates lack of backstory or inconsistencies; a score of 100 indicates rich, relevant, and consistent backstories.
-
-5. **Introduction**: How detailed and consistent is the introductory message?
-   - Evaluate the clarity, engagement, and consistency of the introduction.
-   - The introduction is provided under the "Intro"
-   - A score of 1 indicates a vague or confusing introduction; a score of 100 indicates a clear, engaging, and consistent introduction.
-
-6. **Creative Elements**: How unique and imaginative are the creative elements?
-   - Evaluate the originality and inventiveness of ideas, settings, and characters.
-   - A score of 1 indicates lack of creativity; a score of 100 indicates highly original and imaginative creative elements.
-
-7. **Consistency**: How consistent is the writing style and tone throughout the text?
-    - Consider the maintenance of a consistent voice, style, and tone.
-    - A score of 1 indicates frequent shifts or inconsistencies; a score of 100 indicates a consistently maintained style and tone.
-
-8. **Structure**: How well structured is the text?
-    - Consider how the text is structured, does it follow a consistent style or even JSON format?
-    - The target is to be ingested by a LLM, so it matters less if it is readable by human but consistently processable.
-    - A score of 1 indicates frequent shifts or inconsistencies; a score of 100 indicates a consistently maintained structure or adherence to JSON.
-
-If a category isn’t fulfilled, it should be scored as a 1. An average score is 50. A good score is 70. An excellent score is 90.
-Provide a score for each category separately, without summing them up, and a reason.
-
-Your output should only be a valid JSON following this JSON schema (don't forget to escape strings if necessary):
-{
-  "type": "object",
-  "properties": {
-    "grammarAndSpelling": {
-      "type": "object",
-      "properties": {
-        "score": {
-          "type": "number",
-          "minimum": 1,
-          "maximum": 100
-        },
-        "reason": {
-          "type": "string"
-        }
-      },
-      "required": ["score", "reason"]
-    },
-    "appearance": {
-      "type": "object",
-      "properties": {
-        "score": {
-          "type": "number",
-          "minimum": 1,
-          "maximum": 100
-        },
-        "reason": {
-          "type": "string"
-        }
-      },
-      "required": ["score", "reason"]
-    },
-    "personality": {
-      "type": "object",
-      "properties": {
-        "score": {
-          "type": "number",
-          "minimum": 1,
-          "maximum": 100
-        },
-        "reason": {
-          "type": "string"
-        }
-      },
-      "required": ["score", "reason"]
-    },
-    "background": {
-      "type": "object",
-      "properties": {
-        "score": {
-          "type": "number",
-          "minimum": 1,
-          "maximum": 100
-        },
-        "reason": {
-          "type": "string"
-        }
-      },
-      "required": ["score", "reason"]
-    },
-    "creativeElements": {
-      "type": "object",
-      "properties": {
-        "score": {
-          "type": "number",
-          "minimum": 1,
-          "maximum": 100
-        },
-        "reason": {
-          "type": "string"
-        }
-      },
-      "required": ["score", "reason"]
-    },
-    "consistency": {
-      "type": "object",
-      "properties": {
-        "score": {
-          "type": "number",
-          "minimum": 1,
-          "maximum": 100
-        },
-        "reason": {
-          "type": "string"
-        }
-      },
-      "required": ["score", "reason"]
-    },
-    "structure": {
-      "type": "object",
-      "properties": {
-        "score": {
-          "type": "number",
-          "minimum": 1,
-          "maximum": 100
-        },
-        "reason": {
-          "type": "string"
-        }
-      },
-      "required": ["score", "reason"]
-    }
-  },
-  "required": [
-    "grammarAndSpelling",
-    "appearance",
-    "personality",
-    "background",
-    "creativeElements",
-    "consistency",
-    "structure",
-  ]
-}
-`;
-
 const scoreSchema = z.object({
     score: z.number().min(1).max(100),
     reason: z.string(),
@@ -182,6 +26,7 @@ async function getEvaluation(
     apiKey: string,
     model: string,
     characterId: number,
+    systemPrompt: string,
     evaluationText: string,
     retryLimit: number = 3,
     retry: number = 1
@@ -349,7 +194,7 @@ async function getEvaluation(
     }
 
     if (retry < retryLimit) {
-        return await getEvaluation(apiKey, model, characterId, evaluationText, retryLimit, retry + 1);
+        return await getEvaluation(apiKey, model, characterId, systemPrompt, evaluationText, retryLimit, retry + 1);
     }
 
     return { id: characterId, evaluation: undefined };
@@ -410,6 +255,7 @@ export default defineTask({
                         runtimeConfig.openRouterKey,
                         runtimeConfig.openRouterModel,
                         characterDef.characters.id,
+                        runtimeConfig.evaluationSysPrompt,
                         `# Description:\n${json.data.description}\n# Intro:\n${json.data.first_mes}`
                     );
                 } catch (err: any) {
