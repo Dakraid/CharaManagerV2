@@ -46,7 +46,7 @@ You are a harsh writing critic. You will evaluate incoming text based on the fol
 If a category isn’t fulfilled, it should be scored as a 1. An average score is 50. A good score is 70. An excellent score is 90.
 Provide a score for each category separately, without summing them up, and a reason.
 
-Your output should only be a valid JSON following this JSON schema:
+Your output should only be a valid JSON following this JSON schema (don't forget to escape strings if necessary):
 {
   "type": "object",
   "properties": {
@@ -433,8 +433,9 @@ export default defineTask({
 
         for (const successfulEvaluation of successfulEvaluations) {
             await db
-                .update(ratings)
-                .set({
+                .insert(ratings)
+                .values({
+                    id: successfulEvaluation.id,
                     aiGrammarAndSpellingScore: successfulEvaluation.evaluation.grammarAndSpelling.score,
                     aiGrammarAndSpellingReason: successfulEvaluation.evaluation.grammarAndSpelling.reason,
                     aiAppearanceScore: successfulEvaluation.evaluation.appearance.score,
@@ -450,7 +451,25 @@ export default defineTask({
                     aiStructureScore: successfulEvaluation.evaluation.structure.score,
                     aiStructureReason: successfulEvaluation.evaluation.structure.reason,
                 })
-                .where(eq(ratings.id, successfulEvaluation.id));
+                .onConflictDoUpdate({
+                    target: ratings.id,
+                    set: {
+                        aiGrammarAndSpellingScore: successfulEvaluation.evaluation.grammarAndSpelling.score,
+                        aiGrammarAndSpellingReason: successfulEvaluation.evaluation.grammarAndSpelling.reason,
+                        aiAppearanceScore: successfulEvaluation.evaluation.appearance.score,
+                        aiAppearanceReason: successfulEvaluation.evaluation.appearance.reason,
+                        aiPersonalityScore: successfulEvaluation.evaluation.personality.score,
+                        aiPersonalityReason: successfulEvaluation.evaluation.personality.reason,
+                        aiBackgroundScore: successfulEvaluation.evaluation.background.score,
+                        aiBackgroundReason: successfulEvaluation.evaluation.background.reason,
+                        aiCreativeElementsScore: successfulEvaluation.evaluation.creativeElements.score,
+                        aiCreativeElementsReason: successfulEvaluation.evaluation.creativeElements.reason,
+                        aiConsistencyScore: successfulEvaluation.evaluation.consistency.score,
+                        aiConsistencyReason: successfulEvaluation.evaluation.consistency.reason,
+                        aiStructureScore: successfulEvaluation.evaluation.structure.score,
+                        aiStructureReason: successfulEvaluation.evaluation.structure.reason,
+                    },
+                });
         }
 
         if (failedEvaluations.length > 0) {
