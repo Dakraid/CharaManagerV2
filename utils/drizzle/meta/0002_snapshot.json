@@ -1,630 +1,597 @@
 {
-  "id": "5fc330e3-cf72-423e-90dd-35f8a320d9d6",
-  "prevId": "1b604e47-d993-46bb-bb15-3b0b0aef9e3f",
-  "version": "7",
-  "dialect": "postgresql",
-  "tables": {
-    "public.characters": {
-      "name": "characters",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
+    "id": "5fc330e3-cf72-423e-90dd-35f8a320d9d6",
+    "prevId": "1b604e47-d993-46bb-bb15-3b0b0aef9e3f",
+    "version": "7",
+    "dialect": "postgresql",
+    "tables": {
+        "public.characters": {
+            "name": "characters",
+            "schema": "",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "serial",
+                    "primaryKey": true,
+                    "notNull": true
+                },
+                "file": {
+                    "name": "file",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "source_uri": {
+                    "name": "source_uri",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "default": "'NULL'"
+                },
+                "file_name": {
+                    "name": "file_name",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "char_name": {
+                    "name": "char_name",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "default": "'NULL'"
+                },
+                "etag": {
+                    "name": "etag",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "default": "'NULL'"
+                },
+                "upload_date": {
+                    "name": "upload_date",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "hash": {
+                    "name": "hash",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "public": {
+                    "name": "public",
+                    "type": "boolean",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": false
+                },
+                "owner_id": {
+                    "name": "owner_id",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": false
+                }
+            },
+            "indexes": {
+                "id_idx": {
+                    "name": "id_idx",
+                    "columns": [
+                        {
+                            "expression": "id",
+                            "isExpression": false,
+                            "asc": true,
+                            "nulls": "last",
+                            "opclass": "int4_ops"
+                        }
+                    ],
+                    "isUnique": true,
+                    "concurrently": false,
+                    "method": "btree",
+                    "with": {}
+                }
+            },
+            "foreignKeys": {
+                "characters_owner_id_users_id_fk": {
+                    "name": "characters_owner_id_users_id_fk",
+                    "tableFrom": "characters",
+                    "tableTo": "users",
+                    "columnsFrom": ["owner_id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "restrict",
+                    "onUpdate": "restrict"
+                }
+            },
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {},
+            "policies": {},
+            "checkConstraints": {},
+            "isRLSEnabled": false
         },
-        "file": {
-          "name": "file",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
+        "public.definition_history": {
+            "name": "definition_history",
+            "schema": "",
+            "columns": {
+                "definition_id": {
+                    "name": "definition_id",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "prev_definition": {
+                    "name": "prev_definition",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "changed_date": {
+                    "name": "changed_date",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "id": {
+                    "name": "id",
+                    "type": "serial",
+                    "primaryKey": true,
+                    "notNull": true
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "definition_history_definition_id_definitions_id_fk": {
+                    "name": "definition_history_definition_id_definitions_id_fk",
+                    "tableFrom": "definition_history",
+                    "tableTo": "definitions",
+                    "columnsFrom": ["definition_id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "cascade",
+                    "onUpdate": "cascade"
+                }
+            },
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {},
+            "policies": {},
+            "checkConstraints": {},
+            "isRLSEnabled": false
         },
-        "source_uri": {
-          "name": "source_uri",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "'NULL'"
+        "public.definitions": {
+            "name": "definitions",
+            "schema": "",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "integer",
+                    "primaryKey": true,
+                    "notNull": true
+                },
+                "definition": {
+                    "name": "definition",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "hash": {
+                    "name": "hash",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "embedding": {
+                    "name": "embedding",
+                    "type": "vector(768)",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "tokens_permanent": {
+                    "name": "tokens_permanent",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "tokens_total": {
+                    "name": "tokens_total",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": false
+                }
+            },
+            "indexes": {
+                "embeddingIndex": {
+                    "name": "embeddingIndex",
+                    "columns": [
+                        {
+                            "expression": "embedding",
+                            "isExpression": false,
+                            "asc": true,
+                            "nulls": "last",
+                            "opclass": "vector_cosine_ops"
+                        }
+                    ],
+                    "isUnique": false,
+                    "concurrently": false,
+                    "method": "hnsw",
+                    "with": {}
+                }
+            },
+            "foreignKeys": {
+                "definitions_id_characters_id_fk": {
+                    "name": "definitions_id_characters_id_fk",
+                    "tableFrom": "definitions",
+                    "tableTo": "characters",
+                    "columnsFrom": ["id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "cascade",
+                    "onUpdate": "cascade"
+                }
+            },
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {},
+            "policies": {},
+            "checkConstraints": {},
+            "isRLSEnabled": false
         },
-        "file_name": {
-          "name": "file_name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
+        "public.lorebooks": {
+            "name": "lorebooks",
+            "schema": "",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "integer",
+                    "primaryKey": true,
+                    "notNull": true
+                },
+                "lorebook": {
+                    "name": "lorebook",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "hash": {
+                    "name": "hash",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "embedding": {
+                    "name": "embedding",
+                    "type": "vector(768)",
+                    "primaryKey": false,
+                    "notNull": false
+                }
+            },
+            "indexes": {
+                "lorebookEmbeddingIndex": {
+                    "name": "lorebookEmbeddingIndex",
+                    "columns": [
+                        {
+                            "expression": "embedding",
+                            "isExpression": false,
+                            "asc": true,
+                            "nulls": "last",
+                            "opclass": "vector_cosine_ops"
+                        }
+                    ],
+                    "isUnique": false,
+                    "concurrently": false,
+                    "method": "hnsw",
+                    "with": {}
+                }
+            },
+            "foreignKeys": {
+                "lorebooks_id_characters_id_fk": {
+                    "name": "lorebooks_id_characters_id_fk",
+                    "tableFrom": "lorebooks",
+                    "tableTo": "characters",
+                    "columnsFrom": ["id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "cascade",
+                    "onUpdate": "cascade"
+                }
+            },
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {},
+            "policies": {},
+            "checkConstraints": {},
+            "isRLSEnabled": false
         },
-        "char_name": {
-          "name": "char_name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "'NULL'"
+        "public.ratings": {
+            "name": "ratings",
+            "schema": "",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "integer",
+                    "primaryKey": true,
+                    "notNull": true
+                },
+                "rating": {
+                    "name": "rating",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": 0
+                },
+                "aiLastEvaluated": {
+                    "name": "aiLastEvaluated",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "aiGrammarAndSpellingScore": {
+                    "name": "aiGrammarAndSpellingScore",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "aiGrammarAndSpellingReason": {
+                    "name": "aiGrammarAndSpellingReason",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "aiAppearanceScore": {
+                    "name": "aiAppearanceScore",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "aiAppearanceReason": {
+                    "name": "aiAppearanceReason",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "aiPersonalityScore": {
+                    "name": "aiPersonalityScore",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "aiPersonalityReason": {
+                    "name": "aiPersonalityReason",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "aiBackgroundScore": {
+                    "name": "aiBackgroundScore",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "aiBackgroundReason": {
+                    "name": "aiBackgroundReason",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "aiCreativeElementsScore": {
+                    "name": "aiCreativeElementsScore",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "aiCreativeElementsReason": {
+                    "name": "aiCreativeElementsReason",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "aiConsistencyScore": {
+                    "name": "aiConsistencyScore",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "aiConsistencyReason": {
+                    "name": "aiConsistencyReason",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "aiStructureScore": {
+                    "name": "aiStructureScore",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "aiStructureReason": {
+                    "name": "aiStructureReason",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": false
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "ratings_id_characters_id_fk": {
+                    "name": "ratings_id_characters_id_fk",
+                    "tableFrom": "ratings",
+                    "tableTo": "characters",
+                    "columnsFrom": ["id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "cascade",
+                    "onUpdate": "cascade"
+                }
+            },
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {},
+            "policies": {},
+            "checkConstraints": {},
+            "isRLSEnabled": false
         },
-        "etag": {
-          "name": "etag",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "'NULL'"
+        "public.relations": {
+            "name": "relations",
+            "schema": "",
+            "columns": {
+                "parent_id": {
+                    "name": "parent_id",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "child_id": {
+                    "name": "child_id",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": true
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "relations_parent_id_characters_id_fk": {
+                    "name": "relations_parent_id_characters_id_fk",
+                    "tableFrom": "relations",
+                    "tableTo": "characters",
+                    "columnsFrom": ["parent_id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "cascade",
+                    "onUpdate": "cascade"
+                },
+                "relations_child_id_characters_id_fk": {
+                    "name": "relations_child_id_characters_id_fk",
+                    "tableFrom": "relations",
+                    "tableTo": "characters",
+                    "columnsFrom": ["child_id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "cascade",
+                    "onUpdate": "cascade"
+                }
+            },
+            "compositePrimaryKeys": {
+                "relations_parent_id_child_id_pk": {
+                    "name": "relations_parent_id_child_id_pk",
+                    "columns": ["parent_id", "child_id"]
+                }
+            },
+            "uniqueConstraints": {},
+            "policies": {},
+            "checkConstraints": {},
+            "isRLSEnabled": false
         },
-        "upload_date": {
-          "name": "upload_date",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true
+        "public.tags": {
+            "name": "tags",
+            "schema": "",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "serial",
+                    "primaryKey": true,
+                    "notNull": true
+                },
+                "tag": {
+                    "name": "tag",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "count": {
+                    "name": "count",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": 0
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {},
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {},
+            "policies": {},
+            "checkConstraints": {},
+            "isRLSEnabled": false
         },
-        "hash": {
-          "name": "hash",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "public": {
-          "name": "public",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
-        "owner_id": {
-          "name": "owner_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
+        "public.users": {
+            "name": "users",
+            "schema": "",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "serial",
+                    "primaryKey": true,
+                    "notNull": true
+                },
+                "username": {
+                    "name": "username",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "password": {
+                    "name": "password",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": true
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {},
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {
+                "users_username_unique": {
+                    "name": "users_username_unique",
+                    "nullsNotDistinct": false,
+                    "columns": ["username"]
+                }
+            },
+            "policies": {},
+            "checkConstraints": {},
+            "isRLSEnabled": false
         }
-      },
-      "indexes": {
-        "id_idx": {
-          "name": "id_idx",
-          "columns": [
-            {
-              "expression": "id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last",
-              "opclass": "int4_ops"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "characters_owner_id_users_id_fk": {
-          "name": "characters_owner_id_users_id_fk",
-          "tableFrom": "characters",
-          "tableTo": "users",
-          "columnsFrom": [
-            "owner_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "restrict",
-          "onUpdate": "restrict"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
     },
-    "public.definition_history": {
-      "name": "definition_history",
-      "schema": "",
-      "columns": {
-        "definition_id": {
-          "name": "definition_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "prev_definition": {
-          "name": "prev_definition",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "changed_date": {
-          "name": "changed_date",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "definition_history_definition_id_definitions_id_fk": {
-          "name": "definition_history_definition_id_definitions_id_fk",
-          "tableFrom": "definition_history",
-          "tableTo": "definitions",
-          "columnsFrom": [
-            "definition_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.definitions": {
-      "name": "definitions",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "definition": {
-          "name": "definition",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "hash": {
-          "name": "hash",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "embedding": {
-          "name": "embedding",
-          "type": "vector(768)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "tokens_permanent": {
-          "name": "tokens_permanent",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "tokens_total": {
-          "name": "tokens_total",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {
-        "embeddingIndex": {
-          "name": "embeddingIndex",
-          "columns": [
-            {
-              "expression": "embedding",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last",
-              "opclass": "vector_cosine_ops"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "hnsw",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "definitions_id_characters_id_fk": {
-          "name": "definitions_id_characters_id_fk",
-          "tableFrom": "definitions",
-          "tableTo": "characters",
-          "columnsFrom": [
-            "id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.lorebooks": {
-      "name": "lorebooks",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "lorebook": {
-          "name": "lorebook",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "hash": {
-          "name": "hash",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "embedding": {
-          "name": "embedding",
-          "type": "vector(768)",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {
-        "lorebookEmbeddingIndex": {
-          "name": "lorebookEmbeddingIndex",
-          "columns": [
-            {
-              "expression": "embedding",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last",
-              "opclass": "vector_cosine_ops"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "hnsw",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "lorebooks_id_characters_id_fk": {
-          "name": "lorebooks_id_characters_id_fk",
-          "tableFrom": "lorebooks",
-          "tableTo": "characters",
-          "columnsFrom": [
-            "id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.ratings": {
-      "name": "ratings",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "rating": {
-          "name": "rating",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "aiLastEvaluated": {
-          "name": "aiLastEvaluated",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "aiGrammarAndSpellingScore": {
-          "name": "aiGrammarAndSpellingScore",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "aiGrammarAndSpellingReason": {
-          "name": "aiGrammarAndSpellingReason",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "aiAppearanceScore": {
-          "name": "aiAppearanceScore",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "aiAppearanceReason": {
-          "name": "aiAppearanceReason",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "aiPersonalityScore": {
-          "name": "aiPersonalityScore",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "aiPersonalityReason": {
-          "name": "aiPersonalityReason",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "aiBackgroundScore": {
-          "name": "aiBackgroundScore",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "aiBackgroundReason": {
-          "name": "aiBackgroundReason",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "aiCreativeElementsScore": {
-          "name": "aiCreativeElementsScore",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "aiCreativeElementsReason": {
-          "name": "aiCreativeElementsReason",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "aiConsistencyScore": {
-          "name": "aiConsistencyScore",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "aiConsistencyReason": {
-          "name": "aiConsistencyReason",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "aiStructureScore": {
-          "name": "aiStructureScore",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "aiStructureReason": {
-          "name": "aiStructureReason",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "ratings_id_characters_id_fk": {
-          "name": "ratings_id_characters_id_fk",
-          "tableFrom": "ratings",
-          "tableTo": "characters",
-          "columnsFrom": [
-            "id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.relations": {
-      "name": "relations",
-      "schema": "",
-      "columns": {
-        "parent_id": {
-          "name": "parent_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "child_id": {
-          "name": "child_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "relations_parent_id_characters_id_fk": {
-          "name": "relations_parent_id_characters_id_fk",
-          "tableFrom": "relations",
-          "tableTo": "characters",
-          "columnsFrom": [
-            "parent_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        },
-        "relations_child_id_characters_id_fk": {
-          "name": "relations_child_id_characters_id_fk",
-          "tableFrom": "relations",
-          "tableTo": "characters",
-          "columnsFrom": [
-            "child_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "cascade"
-        }
-      },
-      "compositePrimaryKeys": {
-        "relations_parent_id_child_id_pk": {
-          "name": "relations_parent_id_child_id_pk",
-          "columns": [
-            "parent_id",
-            "child_id"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.tags": {
-      "name": "tags",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "tag": {
-          "name": "tag",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "count": {
-          "name": "count",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.users": {
-      "name": "users",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "username": {
-          "name": "username",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "password": {
-          "name": "password",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "users_username_unique": {
-          "name": "users_username_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "username"
-          ]
-        }
-      },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    }
-  },
-  "enums": {},
-  "schemas": {},
-  "sequences": {},
-  "roles": {},
-  "policies": {},
-  "views": {
-    "public.definition_tags": {
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "tags": {
-          "name": "tags",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "definition": "SELECT id, array_agg(TRIM(BOTH '\"'::text FROM tag)) AS tags\n        FROM (SELECT definitions.id, unnest(regexp_split_to_array(\"substring\"(definitions.definition, '\"tags\":[(.*?)]'::text), ',s*'::text)) AS tag\n              FROM definitions\n              WHERE definitions.definition ~~ '%\"tags\":%'::text) sub\n        GROUP BY id",
-      "name": "definition_tags",
-      "schema": "public",
-      "isExisting": false,
-      "materialized": false
-    },
-    "public.tag_counts": {
-      "columns": {
-        "tag": {
-          "name": "tag",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "usage_count": {
-          "name": "usage_count",
-          "type": "bigint",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "definition": "SELECT lower(unnest(tags)) AS tag, count(*) AS usage_count\n        FROM definition_tags\n        WHERE tags <> '{\"\"}'::text[] AND tags IS NOT NULL AND array_length(tags, 1) > 0\n        GROUP BY (lower(unnest(tags)))\n        ORDER BY (count(*)) DESC",
-      "name": "tag_counts",
-      "schema": "public",
-      "isExisting": false,
-      "materialized": false
-    }
-  },
-  "_meta": {
-    "columns": {},
+    "enums": {},
     "schemas": {},
-    "tables": {}
-  }
+    "sequences": {},
+    "roles": {},
+    "policies": {},
+    "views": {
+        "public.definition_tags": {
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "tags": {
+                    "name": "tags",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": false
+                }
+            },
+            "definition": "SELECT id, array_agg(TRIM(BOTH '\"'::text FROM tag)) AS tags\n        FROM (SELECT definitions.id, unnest(regexp_split_to_array(\"substring\"(definitions.definition, '\"tags\":[(.*?)]'::text), ',s*'::text)) AS tag\n              FROM definitions\n              WHERE definitions.definition ~~ '%\"tags\":%'::text) sub\n        GROUP BY id",
+            "name": "definition_tags",
+            "schema": "public",
+            "isExisting": false,
+            "materialized": false
+        },
+        "public.tag_counts": {
+            "columns": {
+                "tag": {
+                    "name": "tag",
+                    "type": "text",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "usage_count": {
+                    "name": "usage_count",
+                    "type": "bigint",
+                    "primaryKey": false,
+                    "notNull": false
+                }
+            },
+            "definition": "SELECT lower(unnest(tags)) AS tag, count(*) AS usage_count\n        FROM definition_tags\n        WHERE tags <> '{\"\"}'::text[] AND tags IS NOT NULL AND array_length(tags, 1) > 0\n        GROUP BY (lower(unnest(tags)))\n        ORDER BY (count(*)) DESC",
+            "name": "tag_counts",
+            "schema": "public",
+            "isExisting": false,
+            "materialized": false
+        }
+    },
+    "_meta": {
+        "columns": {},
+        "schemas": {},
+        "tables": {}
+    }
 }
