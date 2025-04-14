@@ -28,7 +28,7 @@ average.value =
         rating.value.aiCreativeElementsScore +
         rating.value.aiConsistencyScore +
         rating.value.aiStructureScore) /
-    7;
+    8;
 </script>
 
 <template>
