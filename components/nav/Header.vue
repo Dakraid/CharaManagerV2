@@ -143,12 +143,12 @@ async function updateZoomLevel(zoomLevel: number) {
         </div>
         <Sheet>
             <SheetTrigger as-child>
-                <Button variant="outline" size="icon" class="shrink-0 lg:hidden">
+                <Button size="icon" class="shrink-0 w-14 ml-2">
                     <Pencil class="h-5 w-5" />
-                    <span class="sr-only">Toggle navigation menu</span>
+                    <span class="sr-only">Toggle editor menu</span>
                 </Button>
             </SheetTrigger>
-            <SheetContent id="sidebar-tabs" side="right" class="w-full">
+            <SheetContent id="sidebar-tabs" side="right" class="w-full md:w-[800px]">
                 <RenderCacheable>
                     <CharsSidebar class="pt-4" />
                 </RenderCacheable>

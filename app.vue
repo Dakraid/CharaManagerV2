@@ -2,38 +2,7 @@
 import '~/assets/css/site.css';
 
 const nuxtApp = useNuxtApp();
-const appStore = useAppStore();
 const characterStore = useCharacterStore();
-
-async function refreshCharacters() {
-    characterStore.loading = true;
-
-    try {
-        characterStore.count = await $fetch<number>('/api/chars/count', {
-            method: 'GET',
-        });
-    } catch (err: any) {
-        console.warn('Failed to fetch the character count: %s', err);
-    }
-
-    try {
-        characterStore.characters = await $fetch<Character[]>('/api/chars/characters', {
-            method: 'GET',
-            query: {
-                page: characterStore.currentPage,
-                perPage: appStore.perPage,
-            },
-        });
-    } catch (err: any) {
-        console.warn('Failed to fetch the characters: %s', err);
-    }
-
-    characterStore.loading = false;
-}
-
-nuxtApp.hooks.hook('characters:refresh', async () => {
-    await refreshCharacters();
-});
 
 nuxtApp.hooks.hook('characters:menu', async (id: number) => {
     await navigateTo({
@@ -50,8 +19,7 @@ nuxtApp.hooks.hook('characters:menu', async (id: number) => {
             <CommonLoading v-if="characterStore.loading" loading-text="Loading..." class="Overlay" />
         </Transition>
         <NavHeader class="Header" />
-        <main
-            class="Content flex flex-1 flex-col h-[calc(100vh_-_theme(spacing.16))] min-h-[calc(100vh_-_theme(spacing.16))] max-h-[calc(100vh_-_theme(spacing.16))] bg-muted/40 p-4 gap-4 md:gap-8 md:p-10">
+        <main class="Content h-[calc(100vh_-_theme(spacing.16))] min-h-[calc(100vh_-_theme(spacing.16))] max-h-[calc(100vh_-_theme(spacing.16))] bg-muted/40 p-4 px-0">
             <NuxtPage />
         </main>
     </div>

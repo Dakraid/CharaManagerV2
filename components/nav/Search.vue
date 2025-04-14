@@ -90,9 +90,7 @@ async function OnClear() {
     fileNameOp.value = ComparisonOperator.Disabled;
     dateOp.value = ComparisonOperator.Disabled;
 
-    characterStore.loading = true;
-    await nuxtApp.hooks.callHook('characters:refresh');
-    characterStore.loading = false;
+    await characterStore.refreshCharacters();
     filterActive.value = false;
 }
 </script>

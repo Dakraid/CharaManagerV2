@@ -137,7 +137,6 @@ async function uploadFiles() {
         approveUpload.value = 'Uploaded files successfully!';
 
         await clearFiles();
-        await nuxtApp.hooks.callHook('characters:refresh');
     } catch (err: any) {
         toast({
             title: 'Error',
@@ -145,6 +144,7 @@ async function uploadFiles() {
             variant: 'destructive',
         });
     }
+    await characterStore.refreshCharacters();
 }
 
 async function sidebarResizeHandler() {

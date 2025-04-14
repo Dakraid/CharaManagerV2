@@ -39,21 +39,35 @@ async function triggerDownload(character: Character) {
     <inspiraGlowBorder
         id="target"
         ref="target"
-        :class="cn('m-0 p-0 h-[596px] transition-transform hover:scale-103')"
+        :class="cn('m-0 p-0 h-[596px] w-[300px] transition-transform hover:scale-103')"
         :border-width="isHovered ? 3 : 1"
         :color="isHovered ? ['#A07CFE', '#FE8FB5', '#FFBE7B'] : '#666666'"
         @mouseenter="isHovered = true"
         @mouseleave="isHovered = false">
-        <Card class="flex flex-col w-80 h-[596px] border-0 p-4 px-4 gap-4">
-            <CardHeader class="flex flex-col justify-center gap-4 p-0 z-10">
-                <CardTitle class="grid grid-cols-[48px_1fr_48px] max-w-[288px] justify-between max-h-8 gap-4">
-                    <Badge variant="outline" class="h-10 w-12 flex justify-center rounded-md">#{{ character.id }}</Badge>
+        <Card class="flex flex-col gap-4 border-0 p-4 px-4 h-[596px] w-[300px]">
+            <CardHeader class="z-10 mx-auto flex flex-col justify-center gap-2 p-0 w-[256px]">
+                <CardTitle class="grid grid-cols-[48px_1fr]">
                     <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger>
-                                <h1 class="leading-8 h-[40px] max-w-[160px] text-ellipsis whitespace-nowrap overflow-x-hidden hover:cursor-default">
-                                    {{ appStore.censorNames ? replaceLettersWithHash(character.charName) : character.charName }}
-                                </h1>
+                                <Badge variant="outline" class="flex h-8 w-12 justify-center rounded-md rounded-r-none">#{{ character.id }}</Badge>
+                            </TooltipTrigger>
+                            <TooltipContent side="bottom">
+                                <div class="flex flex-col items-center p-1">
+                                    <Separator label="Upload Date" class="mb-4" />
+                                    <p>{{ dayjs(character.uploadDate).format('DD.MM.YYYY HH:mm:ss') }}</p>
+                                    <Separator label="Filename" class="my-4" />
+                                    <p>{{ `${character.charName}_${dayjs(character.uploadDate).format('YYYY-MM-DD_HH-mm-ss')}.png` }}</p>
+                                </div>
+                            </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
+                    <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger>
+                                <Badge variant="outline" class="flex h-8 justify-center rounded-md rounded-l-none border-l-0 w-[208px] hover:cursor-default">
+                                    <p class="truncate text-base font-bold">{{ appStore.censorNames ? replaceLettersWithHash(character.charName) : character.charName }}</p>
+                                </Badge>
                             </TooltipTrigger>
                             <TooltipContent side="bottom">
                                 <div class="flex justify-between gap-2">
@@ -62,14 +76,11 @@ async function triggerDownload(character: Character) {
                             </TooltipContent>
                         </Tooltip>
                     </TooltipProvider>
-                    <Button variant="destructive" size="icon" class="h-10 w-12" @click="deleteCharacter(character)">
-                        <Trash class="h-4 w-4" />
-                    </Button>
                 </CardTitle>
-                <CharsRatingOverallScore :character="character" />
+                <CharsRatingUserRating :character="character" />
             </CardHeader>
-            <CardContent class="Image-Grid w-[256px] mx-auto p-0 z-10 rounded-xl overflow-hidden transition-all">
-                <Skeleton v-if="!targetIsVisible" class="Image-Container h-[384px] w-[256px] rounded-xl" />
+            <CardContent class="z-10 mx-auto overflow-hidden rounded-xl p-0 transition-all Image-Grid w-[256px]">
+                <Skeleton v-if="!targetIsVisible" class="rounded-xl Image-Container h-[384px] w-[256px]" />
                 <NuxtImg
                     v-else
                     :id="character.etag"
@@ -82,48 +93,40 @@ async function triggerDownload(character: Character) {
                     height="384"
                     loading="lazy"
                     placeholder="Placeholder.png"
-                    placeholder-class="h-[384px] w-[256px] bg-muted rounded-xl"
+                    placeholder-class="rounded-xl h-[384px] w-[256px] bg-muted"
                     :class="cn('Image-Container border rounded-xl transition-all mx-auto', appStore.blurChars ? 'blur-2xl rotate-180 grayscale' : '')" />
-                <Badge variant="secondary" class="Token-Permanent-Container rounded-xl rounded-tl-none rounded-br-none"> Permanent: {{ character.tokensPermanent ?? -1 }}</Badge>
-                <Badge variant="secondary" class="Token-Total-Container rounded-xl rounded-tr-none rounded-bl-none"> Total: {{ character.tokensTotal ?? -1 }}</Badge>
+                <Badge variant="secondary" class="rounded-xl rounded-tl-none rounded-br-none Token-Permanent-Container"> Permanent: {{ character.tokensPermanent ?? -1 }}</Badge>
+                <Badge variant="secondary" class="rounded-xl rounded-tr-none rounded-bl-none Token-Total-Container"> Total: {{ character.tokensTotal ?? -1 }}</Badge>
             </CardContent>
-            <CardFooter class="flex flex-col p-0 mt-2 gap-4 z-10">
-                <div class="w-full flex justify-between gap-8">
-                    <Button class="flex-1 h-8" @click="showCharacter(character)">
-                        <div class="flex gap-2 items-center justify-center">
-                            <Pencil class="h-4 w-4" />
-                            <span>Edit</span>
-                        </div>
+            <CardFooter class="z-10 mx-auto flex flex-col gap-4 p-0 w-[256px]">
+                <CharsRatingAiRating :character="character" class="h-6 w-full" />
+                <div class="grid w-full gap-2 grid-cols-[min-content_1fr_1fr]">
+                    <AlertDialog>
+                        <AlertDialogTrigger>
+                            <Button variant="destructive" size="icon" class="h-8">
+                                <Trash class="h-4 w-4" />
+                            </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                <AlertDialogDescription> This action cannot be undone. This will permanently delete the character and any data associated.</AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction @click="deleteCharacter(character)">Continue</AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
+                    <Button class="h-8 w-full" @click="showCharacter(character)">
+                        <Pencil class="h-4 w-4" />
                     </Button>
-                    <Button class="flex-1 h-8" :disabled="isDownloading" @click="triggerDownload(character)">
-                        <div class="flex gap-2 items-center justify-center">
-                            <Transition name="fade" mode="out-in">
-                                <LoaderCircle v-if="isDownloading" class="h-4 w-4 mx-auto motion-safe:animate-spin" />
-                                <Download v-else class="h-4 w-4" />
-                            </Transition>
-                            <span>Download</span>
-                        </div>
+                    <Button class="h-8 w-full" :disabled="isDownloading" @click="triggerDownload(character)">
+                        <Transition name="fade" mode="out-in">
+                            <LoaderCircle v-if="isDownloading" class="mx-auto h-4 w-4 motion-safe:animate-spin" />
+                            <Download v-else class="h-4 w-4" />
+                        </Transition>
                     </Button>
-                </div>
-                <div class="flex w-full justify-between gap-4">
-                    <TooltipProvider>
-                        <Tooltip>
-                            <TooltipTrigger>
-                                <p class="text-sm text-muted-foreground hover:underline">Filename</p>
-                            </TooltipTrigger>
-                            <TooltipContent side="bottom">
-                                <div class="flex justify-between gap-2">
-                                    <p>Uploaded as:</p>
-                                    <p>{{ character.fileName }}</p>
-                                </div>
-                                <div class="flex justify-between gap-2">
-                                    <p>Download as:</p>
-                                    <p>{{ `${character.charName}_${dayjs(character.uploadDate).format('YYYY-MM-DD_HH-mm-ss')}.png` }}</p>
-                                </div>
-                            </TooltipContent>
-                        </Tooltip>
-                    </TooltipProvider>
-                    <h1 class="text-sm text-muted-foreground">{{ character.uploadDate }}</h1>
                 </div>
             </CardFooter>
         </Card>

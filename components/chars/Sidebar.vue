@@ -1,6 +1,4 @@
-<script setup lang="ts">
-const characterStore = useCharacterStore();
-</script>
+<script setup lang="ts"></script>
 
 <template>
     <div class="Container gap-2 h-[calc(100vh_-_theme(spacing.36))]">

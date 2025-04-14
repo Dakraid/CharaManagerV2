@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { vElementVisibility } from '@vueuse/components';
+import { FileQuestion } from 'lucide-vue-next';
 
 const route = useRoute();
 const router = useRouter();
-const nuxtApp = useNuxtApp();
 const appStore = useAppStore();
 const characterStore = useCharacterStore();
 
@@ -31,24 +31,7 @@ useRouteCache((helper) => {
         .addTags([`characters:${characterStore.highestId}-${appStore.perPage}-${characterStore.count}`]);
 });
 
-characterStore.loading = true;
-await nuxtApp.hooks.callHook('characters:refresh');
-
-async function updatePage(page: number) {
-    characterStore.currentPage = page;
-
-    await router.push({
-        path: '',
-        query: { page: characterStore.currentPage },
-    });
-
-    await nuxtApp.hooks.callHook('characters:refresh');
-}
-
-async function updatePerPage(perPage: number) {
-    appStore.perPage = perPage;
-    await nuxtApp.hooks.callHook('characters:refresh');
-}
+await characterStore.refreshCharacters();
 
 async function onElementVisibility(state: boolean) {
     characterStore.loading = !state;
@@ -56,127 +39,41 @@ async function onElementVisibility(state: boolean) {
 </script>
 
 <template>
-    <div class="flex-1 grid grid-cols-[1fr] grid-rows-[min-content_1fr] xl:grid-cols-[1fr_400px] gap-2 max-h-[calc(100vh_-_theme(spacing.16))]">
-        <div class="pagination-grid justify-center items-center gap-2 lg:gap-8 my-1">
-            <div class="total flex justify-center h-10 w-40 md:w-48 rounded-md border border-input bg-background ring-offset-background p-2">
-                <h1 class="text-center text-sm">Total Items: {{ characterStore.count }}</h1>
-            </div>
-
-            <ClientOnly>
-                <Pagination
-                    :page="characterStore.currentPage"
-                    :total="characterStore.count - appStore.perPage"
-                    :items-per-page="appStore.perPage"
-                    :sibling-count="1"
-                    show-edges
-                    class="controls"
-                    @update:page="updatePage">
-                    <PaginationList v-slot="{ items }" class="flex items-center justify-between md:justify-center gap-1">
-                        <PaginationFirst />
-                        <PaginationPrev />
-
-                        <template v-for="(item, index) in items">
-                            <PaginationListItem v-if="item.type === 'page'" :key="index" :value="item.value" as-child>
-                                <Button class="w-10 h-10 p-0" :variant="item.value === characterStore.currentPage ? 'default' : 'outline'">
-                                    {{ item.value }}
-                                </Button>
-                            </PaginationListItem>
-                            <PaginationEllipsis v-else :key="item.type" :index="index" />
-                        </template>
-
-                        <PaginationNext />
-                        <PaginationLast />
-                    </PaginationList>
-                </Pagination>
-            </ClientOnly>
-
-            <div class="perPage flex gap-2 w-40 md:w-48">
-                <NumberField id="perPage" :default-value="30" :min="1" :model-value="appStore.perPage" @update:model-value="updatePerPage">
-                    <NumberFieldContent>
-                        <NumberFieldDecrement class="p-2" />
-                        <NumberFieldInput class="p-2" />
-                        <NumberFieldIncrement class="p-2" />
-                    </NumberFieldContent>
-                </NumberField>
-
-                <TooltipProvider>
-                    <Tooltip>
-                        <TooltipTrigger
-                            class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground w-10 h-10 p-0">
-                            ?
-                        </TooltipTrigger>
-                        <TooltipContent side="bottom">
-                            <div class="flex flex-col gap-2">
-                                <h1>Set how many items are displayed per page</h1>
-                                <h1>It's not recommended to go beyond 90 items per page</h1>
-                            </div>
-                        </TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
-            </div>
-        </div>
+    <div class="grid grid-cols-[1fr] grid-rows-[min-content_1fr] max-h-[calc(100vh_-_theme(spacing.16))]">
+        <CharsPagination />
         <Transition>
-            <h1
+            <div
                 v-if="!characterStore.loading && characterStore.characters && characterStore.characters.length === 0"
-                class="col-start-1 row-start-2 text-2xl text-center font-bold">
-                No characters found!
-            </h1>
+                class="col-start-1 row-start-2 h-[calc(100vh_-_8.5rem)] flex flex-col justify-center items-center gap-4">
+                <FileQuestion class="h-24 w-24 animate-bounce" />
+                <h1 class="text-center text-2xl font-bold">No characters found!</h1>
+                <div class="flex flex-col items-center justify-center">
+                    <h2 class="text-center text-xl">Upload or create one using the edit bar!</h2>
+                    <h2 class="text-center text-xl">Just click the pen in the top right corner!</h2>
+                </div>
+            </div>
             <ScrollArea
                 v-else
                 v-element-visibility="onElementVisibility"
-                class="max-h-[calc(100vh_-_12.5rem)] rounded-md overflow-y-hidden scroll-smooth"
+                class="max-h-[calc(100vh_-_8.5rem)] rounded-md overflow-y-hidden scroll-smooth"
                 style="grid-column-start: 1; grid-row-start: 2">
                 <ClientOnly>
-                    <RenderCacheable v-if="appStore.cardSize == 3" class="flex justify-around flex-wrap gap-4 m-4">
+                    <RenderCacheable v-if="appStore.cardSize == 3" class="m-4 flex flex-wrap justify-around gap-4">
                         <LazyCharsDisplayCanvas v-for="character in characterStore.characters" :key="character.id" :character="character" />
                     </RenderCacheable>
-                    <RenderCacheable v-else-if="appStore.cardSize == 2" class="flex justify-around flex-wrap gap-0 m-4">
+                    <RenderCacheable v-else-if="appStore.cardSize == 2" class="m-4 flex flex-wrap justify-around gap-0">
                         <LazyCharsDisplayParallax v-for="character in characterStore.characters" :key="character.id" :character="character" />
                     </RenderCacheable>
-                    <RenderCacheable v-else-if="appStore.cardSize == 1" class="flex justify-around flex-wrap gap-4 m-4">
+                    <RenderCacheable v-else-if="appStore.cardSize == 1" class="m-4 flex flex-wrap justify-around gap-4">
                         <LazyCharsDisplaySquare v-for="character in characterStore.characters" :key="character.id" :character="character" />
                     </RenderCacheable>
-                    <RenderCacheable v-else class="flex justify-around flex-wrap gap-4 m-4">
+                    <RenderCacheable v-else class="m-4 flex flex-wrap justify-around gap-3">
                         <LazyCharsDisplayDefault v-for="character in characterStore.characters" :key="character.id" :character="character" />
                     </RenderCacheable>
                 </ClientOnly>
             </ScrollArea>
         </Transition>
-        <RenderCacheable class="hidden row-start-1 row-span-2 lg:col-start-2 lg:block lg:max-h-[calc(100vh_-_theme(spacing.36))]">
-            <CharsSidebar />
-        </RenderCacheable>
     </div>
 </template>
 
-<style scoped>
-.pagination-grid {
-    display: grid;
-    grid-auto-columns: 1fr;
-    grid-template-columns: 10rem 1fr 10rem;
-    grid-template-rows: 2.5rem 2.5rem;
-    gap: 1rem 0;
-    grid-template-areas:
-        'total . perPage'
-        'controls controls controls';
-
-    @media (min-width: 768px) {
-        grid-auto-columns: 1fr;
-        grid-template-columns: 12rem max-content 12rem;
-        grid-template-rows: 2.5rem;
-        gap: 1rem;
-        grid-template-areas: 'total controls perPage';
-    }
-}
-
-.total {
-    grid-area: total;
-}
-
-.perPage {
-    grid-area: perPage;
-}
-
-.controls {
-    grid-area: controls;
-}
-</style>
+<style scoped></style>

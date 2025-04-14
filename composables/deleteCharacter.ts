@@ -2,7 +2,7 @@ import { useToast } from '~/components/ui/toast';
 
 export async function deleteCharacter(character: Character) {
     const { toast } = useToast();
-    const nuxtApp = useNuxtApp();
+    const characterStore = useCharacterStore();
     try {
         const { data } = await useFetch('/api/chars/character', {
             method: 'DELETE',
@@ -15,8 +15,6 @@ export async function deleteCharacter(character: Character) {
             title: 'Success',
             description: data.value ?? '',
         });
-
-        await nuxtApp.hooks.callHook('characters:refresh');
     } catch (err: any) {
         toast({
             title: 'Error',
@@ -24,4 +22,5 @@ export async function deleteCharacter(character: Character) {
             variant: 'destructive',
         });
     }
+    await characterStore.refreshCharacters();
 }

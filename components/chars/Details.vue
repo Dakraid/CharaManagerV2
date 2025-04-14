@@ -131,7 +131,7 @@ async function uploadImage() {
     }
 
     await clearFileInput(document.getElementById('file-input'));
-    await nuxtApp.hooks.callHook('characters:refresh');
+    await characterStore.refreshCharacters();
 }
 
 async function deleteActiveCharacter() {
