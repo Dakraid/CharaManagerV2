@@ -1,4 +1,5 @@
 // noinspection JSUnusedGlobalSymbols
+import dayjs from 'dayjs';
 import { eq, isNull, or } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { jsonrepair } from 'jsonrepair';
@@ -261,7 +262,8 @@ export default defineTask({
             characterDefs = await db.select().from(characters).leftJoin(definitions, eq(characters.id, definitions.id)).leftJoin(ratings, eq(characters.id, ratings.id));
         }
 
-        const chunkSize = 10;
+        const chunkSize = 15;
+        let progress = 0;
         const failedEvaluations: { id: number }[] = [];
 
         for (let i = 0; i < characterDefs.length; i += chunkSize) {
@@ -295,6 +297,7 @@ export default defineTask({
                         .insert(ratings)
                         .values({
                             id: result.id,
+                            aiLastEvaluated: dayjs().format('YYYY-MM-DD HH:mm:ss'),
                             aiGrammarAndSpellingScore: result.evaluation.grammarAndSpelling.score,
                             aiGrammarAndSpellingReason: result.evaluation.grammarAndSpelling.reason,
                             aiAppearanceScore: result.evaluation.appearance.score,
@@ -313,6 +316,7 @@ export default defineTask({
                         .onConflictDoUpdate({
                             target: ratings.id,
                             set: {
+                                aiLastEvaluated: dayjs().format('YYYY-MM-DD HH:mm:ss'),
                                 aiGrammarAndSpellingScore: result.evaluation.grammarAndSpelling.score,
                                 aiGrammarAndSpellingReason: result.evaluation.grammarAndSpelling.reason,
                                 aiAppearanceScore: result.evaluation.appearance.score,
@@ -334,7 +338,8 @@ export default defineTask({
                 }
             }
 
-            console.log(`Completed ${i + chunkSize} out of ${characterDefs.length} total.`);
+            progress += chunkResults.length;
+            console.log(`Completed ${progress} out of ${characterDefs.length} total.`);
             await Sleep(500);
         }
 
