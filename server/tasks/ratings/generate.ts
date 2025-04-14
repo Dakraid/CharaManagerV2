@@ -1,6 +1,6 @@
 // noinspection JSUnusedGlobalSymbols
 import dayjs from 'dayjs';
-import { eq, isNull, or } from 'drizzle-orm';
+import { eq, isNull, lte, or } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { jsonrepair } from 'jsonrepair';
 import pg from 'pg';
@@ -16,6 +16,7 @@ const evaluationSchema = z.object({
     appearance: scoreSchema,
     personality: scoreSchema,
     background: scoreSchema,
+    introduction: scoreSchema,
     creativeElements: scoreSchema,
     consistency: scoreSchema,
     structure: scoreSchema,
@@ -155,6 +156,20 @@ async function getEvaluation(
                                 },
                                 required: ['score', 'reason'],
                             },
+                            introduction: {
+                                type: 'object',
+                                properties: {
+                                    score: {
+                                        type: 'number',
+                                        minimum: 1,
+                                        maximum: 100,
+                                    },
+                                    reason: {
+                                        type: 'string',
+                                    },
+                                },
+                                required: ['score', 'reason'],
+                            },
                             creativeElements: {
                                 type: 'object',
                                 properties: {
@@ -198,7 +213,7 @@ async function getEvaluation(
                                 required: ['score', 'reason'],
                             },
                         },
-                        required: ['grammarAndSpelling', 'appearance', 'personality', 'background', 'creativeElements', 'consistency', 'structure'],
+                        required: ['grammarAndSpelling', 'appearance', 'personality', 'background', 'introduction', 'creativeElements', 'consistency', 'structure'],
                         additionalProperties: false,
                     },
                 },
@@ -251,25 +266,35 @@ export default defineTask({
                     isNull(ratings.aiAppearanceScore),
                     isNull(ratings.aiPersonalityScore),
                     isNull(ratings.aiBackgroundScore),
+                    isNull(ratings.aiIntroductionScore),
                     isNull(ratings.aiCreativeElementsScore),
                     isNull(ratings.aiConsistencyScore),
-                    isNull(ratings.aiStructureScore)
+                    isNull(ratings.aiStructureScore),
+                    lte(ratings.aiLastEvaluated, dayjs(runtimeConfig.evaluationLatestVersion).toDate())
                 )
             );
 
         if (payload.force) {
             await db.delete(ratings);
             characterDefs = await db.select().from(characters).leftJoin(definitions, eq(characters.id, definitions.id)).leftJoin(ratings, eq(characters.id, ratings.id));
+        } else if (payload.id) {
+            characterDefs = await db
+                .select()
+                .from(characters)
+                .leftJoin(definitions, eq(characters.id, definitions.id))
+                .leftJoin(ratings, eq(characters.id, ratings.id))
+                .where(eq(characters.id, payload.id as number));
         }
 
         const chunkSize = 15;
         let progress = 0;
         const failedEvaluations: { id: number }[] = [];
 
+        console.log(`Getting evaluations for ${characterDefs.length} characters.`);
         for (let i = 0; i < characterDefs.length; i += chunkSize) {
             const chunk = characterDefs.slice(i, i + chunkSize);
 
-            const chunkPromises = chunk.map(async (characterDef) => {
+            const chunkPromises = chunk.map(async (characterDef: any) => {
                 try {
                     if (!characterDef.definitions?.definition) {
                         throw new Error('Empty definition received.');
@@ -297,7 +322,7 @@ export default defineTask({
                         .insert(ratings)
                         .values({
                             id: result.id,
-                            aiLastEvaluated: dayjs().format('YYYY-MM-DD HH:mm:ss'),
+                            aiLastEvaluated: dayjs().toDate(),
                             aiGrammarAndSpellingScore: result.evaluation.grammarAndSpelling.score,
                             aiGrammarAndSpellingReason: result.evaluation.grammarAndSpelling.reason,
                             aiAppearanceScore: result.evaluation.appearance.score,
@@ -306,6 +331,8 @@ export default defineTask({
                             aiPersonalityReason: result.evaluation.personality.reason,
                             aiBackgroundScore: result.evaluation.background.score,
                             aiBackgroundReason: result.evaluation.background.reason,
+                            aiIntroductionScore: result.evaluation.introduction.score,
+                            aiIntroductionReason: result.evaluation.introduction.reason,
                             aiCreativeElementsScore: result.evaluation.creativeElements.score,
                             aiCreativeElementsReason: result.evaluation.creativeElements.reason,
                             aiConsistencyScore: result.evaluation.consistency.score,
@@ -316,7 +343,7 @@ export default defineTask({
                         .onConflictDoUpdate({
                             target: ratings.id,
                             set: {
-                                aiLastEvaluated: dayjs().format('YYYY-MM-DD HH:mm:ss'),
+                                aiLastEvaluated: dayjs().toDate(),
                                 aiGrammarAndSpellingScore: result.evaluation.grammarAndSpelling.score,
                                 aiGrammarAndSpellingReason: result.evaluation.grammarAndSpelling.reason,
                                 aiAppearanceScore: result.evaluation.appearance.score,
@@ -325,6 +352,8 @@ export default defineTask({
                                 aiPersonalityReason: result.evaluation.personality.reason,
                                 aiBackgroundScore: result.evaluation.background.score,
                                 aiBackgroundReason: result.evaluation.background.reason,
+                                aiIntroductionScore: result.evaluation.introduction.score,
+                                aiIntroductionReason: result.evaluation.introduction.reason,
                                 aiCreativeElementsScore: result.evaluation.creativeElements.score,
                                 aiCreativeElementsReason: result.evaluation.creativeElements.reason,
                                 aiConsistencyScore: result.evaluation.consistency.score,

@@ -55,7 +55,7 @@ export const ratings = pgTable(
     {
         id: integer().primaryKey().notNull(),
         rating: integer().default(0).notNull(),
-        aiLastEvaluated: timestamp('aiLastEvaluated', { mode: 'string' }),
+        aiLastEvaluated: timestamp({ withTimezone: true }).defaultNow(),
         aiGrammarAndSpellingScore: integer(),
         aiGrammarAndSpellingReason: text(),
         aiAppearanceScore: integer(),
@@ -64,6 +64,8 @@ export const ratings = pgTable(
         aiPersonalityReason: text(),
         aiBackgroundScore: integer(),
         aiBackgroundReason: text(),
+        aiIntroductionScore: integer(),
+        aiIntroductionReason: text(),
         aiCreativeElementsScore: integer(),
         aiCreativeElementsReason: text(),
         aiConsistencyScore: integer(),

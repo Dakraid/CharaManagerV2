@@ -24,6 +24,7 @@ average.value =
         rating.value.aiAppearanceScore +
         rating.value.aiPersonalityScore +
         rating.value.aiBackgroundScore +
+        rating.value.aiIntroductionScore +
         rating.value.aiCreativeElementsScore +
         rating.value.aiConsistencyScore +
         rating.value.aiStructureScore) /
@@ -71,6 +72,8 @@ average.value =
                     <CharsRatingAiEvalDisplay :score="rating.aiPersonalityScore" :reason="rating.aiPersonalityReason" subtext="Personality: " />
                     <Separator />
                     <CharsRatingAiEvalDisplay :score="rating.aiBackgroundScore" :reason="rating.aiBackgroundReason" subtext="Background: " />
+                    <Separator />
+                    <CharsRatingAiEvalDisplay :score="rating.aiIntroductionScore" :reason="rating.aiIntroductionReason" subtext="Introduction: " />
                     <Separator />
                     <CharsRatingAiEvalDisplay :score="rating.aiCreativeElementsScore" :reason="rating.aiCreativeElementsReason" subtext="Creative Elements: " />
                     <Separator />

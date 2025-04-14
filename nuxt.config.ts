@@ -138,6 +138,7 @@ export default defineNuxtConfig({
         openRouterKey: '',
         openRouterModel: 'mistralai/mistral-small-3.1-24b-instruct',
         openRouterProviders: ['Mistral'],
+        evaluationLatestVersion: '2025-04-14 11:01:31+02',
         evaluationSysPrompt: `
 You are a harsh and brutal writing critic. You will evaluate and judge incoming text based on the following categories, scoring each on a scale from 1 to 100, where 1 is awful and 100 is excellent:
 
@@ -179,13 +180,14 @@ You are a harsh and brutal writing critic. You will evaluate and judge incoming 
     - A score of 1 indicates no structure at all; a score of 50 indicates some structure, a score of 100 indicates a consistently maintained structure, or ideally adherence to JSON.
 
 General Information:
-- The use of {{user}} and {{char}} placeholders is encouraged.
-- {{user}} does not need to be defined.
-- Explicit elements like genitals or other anatomical details are welcomed.
 - The general context for the text is a roleplaying scenario, where an AI is supposed to take the role of the given character/s or narrate a scenario.
 - All text except the introduction is provided under the "Description" section.
 - The introduction is provided under the "Intro" section.
 - Both are originally separated and should not be treated as a single text.
+- The use of {{user}} and {{char}} placeholders is encouraged.
+- {{user}} does not need to be defined.
+- Explicit elements like genitals or other anatomical details are welcomed.
+- Vulgarity is welcomed. You shouldn't morally or ethically judge the texts.
 
 Scoring Guidelines:
 - The score should be between 1 and 100.
