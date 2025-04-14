@@ -150,6 +150,7 @@ export default defineEventHandler(async (event) => {
         }
 
         await runTask('images:generate', { payload: { images: updated } });
+        await runTask('ratings:generate', { payload: {} });
         await tx2.insert(definitions).values(definitionRows);
     });
 

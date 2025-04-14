@@ -35,6 +35,25 @@ export interface Rating {
     aiStructureReason: string | undefined;
 }
 
+export interface RatingWithEval {
+    id: number;
+    rating: number;
+    aiGrammarAndSpellingScore: number;
+    aiGrammarAndSpellingReason: string;
+    aiAppearanceScore: number;
+    aiAppearanceReason: string;
+    aiPersonalityScore: number;
+    aiPersonalityReason: string;
+    aiBackgroundScore: number;
+    aiBackgroundReason: string;
+    aiCreativeElementsScore: number;
+    aiCreativeElementsReason: string;
+    aiConsistencyScore: number;
+    aiConsistencyReason: string;
+    aiStructureScore: number;
+    aiStructureReason: string;
+}
+
 export interface Definition {
     id: number;
     definition: string;

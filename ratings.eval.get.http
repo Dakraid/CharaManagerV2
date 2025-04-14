@@ -1,0 +1,7 @@
+GET http://localhost:9999/api/ratings/evaluate
+Content-Type: application/json
+authorization: Bearer setMe
+
+{}
+
+###

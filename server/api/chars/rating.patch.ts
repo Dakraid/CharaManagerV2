@@ -14,7 +14,10 @@ export default defineEventHandler(async (event) => {
         await db
             .insert(ratings)
             .values({ id: rating.id, rating: rating.rating })
-            .onDuplicateKeyUpdate({ set: { rating: rating.rating } });
+            .onConflictDoUpdate({
+                target: ratings.id,
+                set: { rating: rating.rating },
+            });
     } catch (err: any) {
         console.error(err);
         throw createError({

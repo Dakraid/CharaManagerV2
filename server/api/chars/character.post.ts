@@ -13,6 +13,13 @@ export default defineEventHandler(async (event) => {
 
     const { id } = await readBody<{ id: number }>(event);
 
+    if (typeof id !== 'number' || id < 0) {
+        throw createError({
+            statusCode: StatusCode.BAD_REQUEST,
+            statusMessage: 'Invalid id',
+        });
+    }
+
     const rows = await db
         .select({
             id: characters.id,

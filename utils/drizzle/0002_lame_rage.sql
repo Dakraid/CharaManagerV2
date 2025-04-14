@@ -1,0 +1,1 @@
+ALTER TABLE "ratings" ADD COLUMN "aiLastEvaluated" timestamp;

@@ -1,7 +1,7 @@
 // noinspection JSUnusedGlobalSymbols
-// noinspection JSUnusedGlobalSymbols
 import { eq, isNull, or } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/node-postgres';
+import { jsonrepair } from 'jsonrepair';
 import pg from 'pg';
 import { z } from 'zod';
 
@@ -22,9 +22,48 @@ const evaluationSchema = z.object({
 
 type Evaluation = z.infer<typeof evaluationSchema>;
 
+async function parseEvaluationFromCodeBlock(data: string, useRepair = false): Promise<Evaluation | undefined> {
+    try {
+        const codeBlockRegex = /```(?:json)?\s*\n([\s\S]*?)\n\s*```/;
+        const codeBlockMatch = data.match(codeBlockRegex);
+
+        if (codeBlockMatch && codeBlockMatch[1]) {
+            const rawData = JSON.parse(useRepair ? jsonrepair(codeBlockMatch[1]) : codeBlockMatch[1]);
+            return evaluationSchema.parse(rawData);
+        }
+    } catch (error) {
+        if (error instanceof SyntaxError) {
+            if (!useRepair) {
+                return parseEvaluationFromCodeBlock(data, true);
+            }
+
+            console.error('Failed to parse JSON:', error);
+        } else {
+            console.error('Invalid evaluation data:', error);
+        }
+    }
+}
+
+async function parseEvaluationFromEntireContent(data: string, useRepair = false): Promise<Evaluation | undefined> {
+    try {
+        const rawData = JSON.parse(useRepair ? jsonrepair(data) : data);
+        return evaluationSchema.parse(rawData);
+    } catch (error) {
+        if (error instanceof SyntaxError) {
+            if (!useRepair) {
+                return parseEvaluationFromEntireContent(data, true);
+            }
+            console.error('Failed to parse JSON:', error);
+        } else {
+            console.error('Invalid evaluation data:', error);
+        }
+    }
+}
+
 async function getEvaluation(
     apiKey: string,
     model: string,
+    providers: string[],
     characterId: number,
     systemPrompt: string,
     evaluationText: string,
@@ -43,7 +82,7 @@ async function getEvaluation(
         body: JSON.stringify({
             model: model,
             provider: {
-                order: ['Mistral', 'Parasail'],
+                order: providers,
             },
             messages: [
                 { role: 'system', content: systemPrompt },
@@ -167,34 +206,14 @@ async function getEvaluation(
     });
 
     const data = await response.json();
-    try {
-        const codeBlockRegex = /```(?:json)?\s*\n([\s\S]*?)\n\s*```/;
-        const codeBlockMatch = data.choices[0].message.content.match(codeBlockRegex);
+    const evaluation = (await parseEvaluationFromCodeBlock(data.choices[0].message.content)) || (await parseEvaluationFromEntireContent(data.choices[0].message.content.trim()));
 
-        if (codeBlockMatch && codeBlockMatch[1]) {
-            const rawData = JSON.parse(codeBlockMatch[1]);
-            return { id: characterId, evaluation: evaluationSchema.parse(rawData) };
-        }
-
-        try {
-            const entireContent = data.choices[0].message.content.trim();
-            const rawData = JSON.parse(entireContent);
-            return { id: characterId, evaluation: evaluationSchema.parse(rawData) };
-        } catch (innerError) {
-            console.error('Content is not valid JSON:', innerError);
-        }
-
-        throw new Error('Failed to extract valid JSON from response.');
-    } catch (error) {
-        if (error instanceof SyntaxError) {
-            console.error('Failed to parse JSON:', error);
-        } else {
-            console.error('Invalid evaluation data:', error);
-        }
+    if (evaluation) {
+        return { id: characterId, evaluation };
     }
 
     if (retry < retryLimit) {
-        return await getEvaluation(apiKey, model, characterId, systemPrompt, evaluationText, retryLimit, retry + 1);
+        return await getEvaluation(apiKey, model, providers, characterId, systemPrompt, evaluationText, retryLimit, retry + 1);
     }
 
     return { id: characterId, evaluation: undefined };
@@ -220,7 +239,7 @@ export default defineTask({
 
         const db = drizzle({ client: pool });
 
-        const characterDefs = await db
+        let characterDefs = await db
             .select()
             .from(characters)
             .leftJoin(definitions, eq(characters.id, definitions.id))
@@ -237,8 +256,12 @@ export default defineTask({
                 )
             );
 
+        if (payload.force) {
+            await db.delete(ratings);
+            characterDefs = await db.select().from(characters).leftJoin(definitions, eq(characters.id, definitions.id)).leftJoin(ratings, eq(characters.id, ratings.id));
+        }
+
         const chunkSize = 10;
-        const successfulEvaluations: { id: number; evaluation: Evaluation }[] = [];
         const failedEvaluations: { id: number }[] = [];
 
         for (let i = 0; i < characterDefs.length; i += chunkSize) {
@@ -254,6 +277,7 @@ export default defineTask({
                     return await getEvaluation(
                         runtimeConfig.openRouterKey,
                         runtimeConfig.openRouterModel,
+                        runtimeConfig.openRouterProviders,
                         characterDef.characters.id,
                         runtimeConfig.evaluationSysPrompt,
                         `# Description:\n${json.data.description}\n# Intro:\n${json.data.first_mes}`
@@ -267,59 +291,57 @@ export default defineTask({
             const chunkResults = await Promise.all(chunkPromises);
             for (const result of chunkResults) {
                 if (result.evaluation) {
-                    successfulEvaluations.push(result as { id: number; evaluation: Evaluation });
+                    await db
+                        .insert(ratings)
+                        .values({
+                            id: result.id,
+                            aiGrammarAndSpellingScore: result.evaluation.grammarAndSpelling.score,
+                            aiGrammarAndSpellingReason: result.evaluation.grammarAndSpelling.reason,
+                            aiAppearanceScore: result.evaluation.appearance.score,
+                            aiAppearanceReason: result.evaluation.appearance.reason,
+                            aiPersonalityScore: result.evaluation.personality.score,
+                            aiPersonalityReason: result.evaluation.personality.reason,
+                            aiBackgroundScore: result.evaluation.background.score,
+                            aiBackgroundReason: result.evaluation.background.reason,
+                            aiCreativeElementsScore: result.evaluation.creativeElements.score,
+                            aiCreativeElementsReason: result.evaluation.creativeElements.reason,
+                            aiConsistencyScore: result.evaluation.consistency.score,
+                            aiConsistencyReason: result.evaluation.consistency.reason,
+                            aiStructureScore: result.evaluation.structure.score,
+                            aiStructureReason: result.evaluation.structure.reason,
+                        })
+                        .onConflictDoUpdate({
+                            target: ratings.id,
+                            set: {
+                                aiGrammarAndSpellingScore: result.evaluation.grammarAndSpelling.score,
+                                aiGrammarAndSpellingReason: result.evaluation.grammarAndSpelling.reason,
+                                aiAppearanceScore: result.evaluation.appearance.score,
+                                aiAppearanceReason: result.evaluation.appearance.reason,
+                                aiPersonalityScore: result.evaluation.personality.score,
+                                aiPersonalityReason: result.evaluation.personality.reason,
+                                aiBackgroundScore: result.evaluation.background.score,
+                                aiBackgroundReason: result.evaluation.background.reason,
+                                aiCreativeElementsScore: result.evaluation.creativeElements.score,
+                                aiCreativeElementsReason: result.evaluation.creativeElements.reason,
+                                aiConsistencyScore: result.evaluation.consistency.score,
+                                aiConsistencyReason: result.evaluation.consistency.reason,
+                                aiStructureScore: result.evaluation.structure.score,
+                                aiStructureReason: result.evaluation.structure.reason,
+                            },
+                        });
                 } else {
                     failedEvaluations.push({ id: result.id });
                 }
             }
 
             console.log(`Completed ${i + chunkSize} out of ${characterDefs.length} total.`);
-            await Sleep(1000);
-        }
-
-        for (const successfulEvaluation of successfulEvaluations) {
-            await db
-                .insert(ratings)
-                .values({
-                    id: successfulEvaluation.id,
-                    aiGrammarAndSpellingScore: successfulEvaluation.evaluation.grammarAndSpelling.score,
-                    aiGrammarAndSpellingReason: successfulEvaluation.evaluation.grammarAndSpelling.reason,
-                    aiAppearanceScore: successfulEvaluation.evaluation.appearance.score,
-                    aiAppearanceReason: successfulEvaluation.evaluation.appearance.reason,
-                    aiPersonalityScore: successfulEvaluation.evaluation.personality.score,
-                    aiPersonalityReason: successfulEvaluation.evaluation.personality.reason,
-                    aiBackgroundScore: successfulEvaluation.evaluation.background.score,
-                    aiBackgroundReason: successfulEvaluation.evaluation.background.reason,
-                    aiCreativeElementsScore: successfulEvaluation.evaluation.creativeElements.score,
-                    aiCreativeElementsReason: successfulEvaluation.evaluation.creativeElements.reason,
-                    aiConsistencyScore: successfulEvaluation.evaluation.consistency.score,
-                    aiConsistencyReason: successfulEvaluation.evaluation.consistency.reason,
-                    aiStructureScore: successfulEvaluation.evaluation.structure.score,
-                    aiStructureReason: successfulEvaluation.evaluation.structure.reason,
-                })
-                .onConflictDoUpdate({
-                    target: ratings.id,
-                    set: {
-                        aiGrammarAndSpellingScore: successfulEvaluation.evaluation.grammarAndSpelling.score,
-                        aiGrammarAndSpellingReason: successfulEvaluation.evaluation.grammarAndSpelling.reason,
-                        aiAppearanceScore: successfulEvaluation.evaluation.appearance.score,
-                        aiAppearanceReason: successfulEvaluation.evaluation.appearance.reason,
-                        aiPersonalityScore: successfulEvaluation.evaluation.personality.score,
-                        aiPersonalityReason: successfulEvaluation.evaluation.personality.reason,
-                        aiBackgroundScore: successfulEvaluation.evaluation.background.score,
-                        aiBackgroundReason: successfulEvaluation.evaluation.background.reason,
-                        aiCreativeElementsScore: successfulEvaluation.evaluation.creativeElements.score,
-                        aiCreativeElementsReason: successfulEvaluation.evaluation.creativeElements.reason,
-                        aiConsistencyScore: successfulEvaluation.evaluation.consistency.score,
-                        aiConsistencyReason: successfulEvaluation.evaluation.consistency.reason,
-                        aiStructureScore: successfulEvaluation.evaluation.structure.score,
-                        aiStructureReason: successfulEvaluation.evaluation.structure.reason,
-                    },
-                });
+            await Sleep(500);
         }
 
         if (failedEvaluations.length > 0) {
-            console.warn(`Completed rating generation task with ${failedEvaluations.length} failures.`);
+            console.warn(
+                `Completed rating generation task with ${failedEvaluations.length} failures. The IDs are: ${failedEvaluations.map((evaluation) => evaluation.id).join(', ')}`
+            );
         } else {
             console.log('Completed rating generation task...');
         }

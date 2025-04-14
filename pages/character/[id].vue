@@ -13,13 +13,6 @@ definePageMeta({
     },
 });
 
-useRouteCache((helper) => {
-    helper
-        .setMaxAge(3600)
-        .setCacheable()
-        .addTags([`character:${route.params.id}`]);
-});
-
 const activeCharacter = ref<Character>();
 const activeDefinition = ref<Cards.V2>();
 
