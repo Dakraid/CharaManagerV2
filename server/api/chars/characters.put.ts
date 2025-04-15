@@ -1,8 +1,8 @@
-import * as Cards from 'character-card-utils';
 import dayjs from 'dayjs';
 import { eq, inArray } from 'drizzle-orm';
-import { encode, isWithinTokenLimit } from 'gpt-tokenizer';
 import { createHash } from 'node:crypto';
+import { inputImageToCharacter } from '~/server/utils/CharacterUtilities';
+import getEmbeddings from '~/server/utils/EmbeddingUtilities';
 
 function isDigitString(input: string): boolean {
     const regex = /^\d{13}$/;
@@ -101,8 +101,21 @@ export default defineEventHandler(async (event) => {
         return 'No new files or all files are duplicates.';
     }
 
+    let updated: {
+        id: number;
+        file: string;
+        sourceUri: string | null;
+        fileName: string;
+        charName: string | null;
+        etag: string | null;
+        uploadDate: string;
+        hash: string;
+        public: boolean;
+        ownerId: number | null;
+    }[] = [];
+
     await db.transaction(async (tx2) => {
-        const updated = await db
+        updated = await db
             .select()
             .from(characters)
             .where(
@@ -115,33 +128,31 @@ export default defineEventHandler(async (event) => {
         const definitionRows: DefinitionRow[] = [];
         for (const update of updated) {
             try {
-                const cleanedContent = await CleanCharacterBook(extractDefinition(update.file));
-                const content = JSON.parse(cleanedContent);
-                const card = Cards.parseToV2(content);
+                const card = await inputImageToCharacter(update.file);
+
+                if (card === undefined) {
+                    throw new Error('Failed to convert image to character card.');
+                }
 
                 if (personalityToCreatorNotes) {
                     card.data.creator_notes = card.data.personality;
                     card.data.personality = '';
                 }
 
-                const permanent = [card.data.description, card.data.personality];
-                const total = [card.data.description, card.data.personality, card.data.first_mes];
-                const tokensPermanent = encode(permanent.join('\n')).length;
-                const tokensTotal = encode(total.join('\n')).length;
+                const tokens = await getTokenCounts(card);
+                const embedding = await getEmbeddings(card, embedderProvider);
 
                 const cardJson = JSON.stringify(card);
                 const hash = createHash('sha256').update(cardJson).digest('hex');
 
-                let embedding: number[] | undefined;
-                if (isWithinTokenLimit(card.data.description, 8192)) {
-                    embedding = await embedderProvider.embed(card.data.description);
-                }
-
-                if (embedding?.length && embedding?.length <= 1) {
-                    embedding = undefined;
-                }
-
-                definitionRows.push({ id: update.id, definition: cardJson, hash: hash, embedding: embedding, tokensTotal: tokensTotal, tokensPermanent: tokensPermanent });
+                definitionRows.push({
+                    id: update.id,
+                    definition: cardJson,
+                    hash: hash,
+                    embedding: embedding,
+                    tokensTotal: tokens.tokensTotal,
+                    tokensPermanent: tokens.tokensPermanent,
+                });
 
                 await db.update(characters).set({ charName: card.data.name }).where(eq(characters.id, update.id));
             } catch (err: any) {
@@ -149,14 +160,16 @@ export default defineEventHandler(async (event) => {
             }
         }
 
-        await runTask('images:generate', { payload: { images: updated } });
         await tx2.insert(definitions).values(definitionRows);
     });
 
-    await runTask('ratings:generate', { payload: {} });
+    const p1 = runTask('images:generate', { payload: { images: updated } });
+    const p2 = runTask('ratings:generate', { payload: {} });
+    await Promise.all([p1, p2]);
 
     if (hasDuplicates) {
         return 'Successfully uploaded files. Some files have been skipped due to being duplicates.';
     }
+
     return 'Successfully uploaded files.';
 });

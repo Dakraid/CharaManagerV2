@@ -6,29 +6,30 @@ import { drizzle } from 'drizzle-orm/node-postgres';
 import { encode, isWithinTokenLimit } from 'gpt-tokenizer';
 import { createHash } from 'node:crypto';
 import pg from 'pg';
+import { inputImageToCharacter } from '~/server/utils/CharacterUtilities';
+import getEmbeddings from '~/server/utils/EmbeddingUtilities';
 
-async function insertMissingDefinition(db: NodePgDatabase, embeddingProvider: any, id: number, file: string) {
+async function insertMissingDefinition(db: NodePgDatabase, embedderProvider: any, id: number, file: string) {
     try {
-        const cleanedContent = await CleanCharacterBook(extractDefinition(file));
-        const content = JSON.parse(cleanedContent);
-        const card = Cards.parseToV2(content);
+        const card = await inputImageToCharacter(file);
+        if (card === undefined) {
+            throw new Error('Failed to convert image to character card.');
+        }
 
-        const permanent = [card.data.description, card.data.personality];
-        const total = [card.data.description, card.data.personality, card.data.first_mes];
-        const tokensPermanent = encode(permanent.join('\n')).length;
-        const tokensTotal = encode(total.join('\n')).length;
+        const tokens = await getTokenCounts(card);
+        const embedding = await getEmbeddings(card, embedderProvider);
 
         const cardJson = JSON.stringify(card);
         const hash = createHash('sha256').update(cardJson).digest('hex');
 
-        let embedding: number[] | undefined;
-        if (isWithinTokenLimit(card.data.description, 8192)) {
-            embedding = await embeddingProvider.embed(card.data.description);
-        }
-
-        if (embedding?.length && embedding?.length > 1) {
-            await db.insert(definitions).values({ id: id, definition: cardJson, hash: hash, embedding: embedding, tokensTotal: tokensTotal, tokensPermanent: tokensPermanent });
-        }
+        await db.insert(definitions).values({
+            id: id,
+            definition: cardJson,
+            hash: hash,
+            embedding: embedding,
+            tokensTotal: tokens.tokensTotal,
+            tokensPermanent: tokens.tokensPermanent,
+        });
     } catch (err: any) {
         console.error(err);
     }
