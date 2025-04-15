@@ -48,8 +48,8 @@ onMounted(async () => {
         <div v-if="characterStore.loading && activeCharacter === undefined" />
         <CommonError v-else-if="!characterStore.loading && activeCharacter === undefined" error="Character not found" class="rounded-xl" />
         <div v-else class="flex h-full w-full flex-wrap items-center justify-center gap-2 overflow-y-auto px-4 lg:flex-nowrap">
-            <CharsDetailsImage :character="activeCharacter!" />
-            <CharsDetailsEditor v-model:character="activeCharacter!" v-model:definition="activeDefinition!" />
+            <CharsDetailsImage v-if="activeCharacter" :character="activeCharacter" />
+            <CharsDetailsEditor v-if="activeCharacter && activeDefinition" v-model:character="activeCharacter" v-model:definition="activeDefinition" />
         </div>
     </Transition>
 </template>
