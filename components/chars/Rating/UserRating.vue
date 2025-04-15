@@ -24,7 +24,7 @@ async function hoverRating(formattedRating: number) {
             ]"
             active-color="hsl(var(--primary))"
             inactive-color="hsl(var(--secondary))"
-            class="flex justify-between z-20"
+            class="z-20 flex justify-between"
             rating-size="24px"
             @rating-selected="updateRating(character, hoveredRating)"
             @rating-hovered="hoverRating"

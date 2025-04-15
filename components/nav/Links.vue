@@ -14,7 +14,7 @@ const route = useRoute();
                 route.path === '/' || route.path.startsWith('/?') ? 'text-foreground bg-accent' : ''
             )
         ">
-        <div class="flex justify-center items-center gap-2">
+        <div class="flex items-center justify-center gap-2">
             <Home class="h-[1.2rem] w-[1.2rem]" />
             Home
         </div>
@@ -27,7 +27,7 @@ const route = useRoute();
                 route.path === '/relations' ? 'text-foreground bg-accent' : ''
             )
         ">
-        <div class="flex justify-center items-center gap-2">
+        <div class="flex items-center justify-center gap-2">
             <Waypoints class="h-[1.2rem] w-[1.2rem]" />
             Relations
         </div>
@@ -40,7 +40,7 @@ const route = useRoute();
                 route.path === '/statistics' ? 'text-foreground bg-accent' : ''
             )
         ">
-        <div class="flex justify-center items-center gap-2">
+        <div class="flex items-center justify-center gap-2">
             <ChartLine class="h-[1.2rem] w-[1.2rem]" />
             Statistics
         </div>
@@ -53,7 +53,7 @@ const route = useRoute();
                 route.path === '/logging' ? 'text-foreground bg-accent' : ''
             )
         ">
-        <div class="flex justify-center items-center gap-2">
+        <div class="flex items-center justify-center gap-2">
             <Logs class="h-[1.2rem] w-[1.2rem]" />
             Logging
         </div>

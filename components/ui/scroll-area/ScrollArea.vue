@@ -17,7 +17,7 @@ const delegatedProps = computed(() => {
 
 <template>
     <ScrollAreaRoot v-bind="delegatedProps" :class="cn('relative overflow-hidden', props.class)">
-        <ScrollAreaViewport class="h-full w-full rounded-[inherit] reka-scroll-area-viewport scroll-smooth" @scroll="$emit('onScroll')">
+        <ScrollAreaViewport class="h-full w-full scroll-smooth rounded-[inherit] reka-scroll-area-viewport" @scroll="$emit('onScroll')">
             <slot />
         </ScrollAreaViewport>
         <ScrollBar />

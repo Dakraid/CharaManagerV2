@@ -49,7 +49,7 @@ async function onSubmit(values: any) {
 
 <template>
     <div>
-        <div class="grid gap-2 text-center w-full">
+        <div class="grid w-full gap-2 text-center">
             <h1 class="text-3xl font-bold">Register</h1>
             <p class="text-balance text-muted-foreground">Enter your credentials below to register</p>
         </div>
@@ -73,7 +73,7 @@ async function onSubmit(values: any) {
                     <FormMessage />
                 </FormItem>
             </FormField>
-            <Button type="submit" class="w-full mt-2"> Register</Button>
+            <Button type="submit" class="mt-2 w-full"> Register</Button>
         </Form>
     </div>
 </template>

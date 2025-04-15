@@ -12,16 +12,16 @@ allowRegistration.value = response ?? false;
 
 <template>
     <div class="w-full h-full lg:grid lg:grid-rows-[1fr_1fr] gap-6 max-h-[calc(100vh_-_theme(spacing.16))] max-w-[1024px] mx-auto">
-        <div class="hidden rounded-2xl w-full h-full overflow-hidden border bg-black lg:block lg:shadow-xl">
+        <div class="hidden h-full w-full overflow-hidden rounded-2xl border bg-black lg:block lg:shadow-xl">
             <stunningTyndallEffect class="Container bg-gradient-to-br from-transparent to-white/20">
-                <div class="Overlap flex gap-6 flex-col justify-center items-center">
+                <div class="flex flex-col items-center justify-center gap-6 Overlap">
                     <inspiraRadiantText
                         class="inline-flex items-center justify-center px-4 py-1 transition ease-out hover:text-neutral-600 hover:duration-300 hover:dark:text-neutral-400"
                         :duration="5">
                         <span class="text-6xl font-bold">Welcome to CharaManagerV2</span>
                     </inspiraRadiantText>
 
-                    <NuxtImg src="/CharaManager.svg" alt="Image" class="w-64 rounded-2xl object-cover opacity-100 mix-blend-overlay z-20" />
+                    <NuxtImg src="/CharaManager.svg" alt="Image" class="z-20 w-64 rounded-2xl object-cover opacity-100 mix-blend-overlay" />
 
                     <Badge>VERSION 0.1.0-DEV</Badge>
                 </div>
@@ -35,20 +35,20 @@ allowRegistration.value = response ?? false;
             </stunningTyndallEffect>
         </div>
         <div>
-            <inspiraGlowBorder class="p-12 w-full" :color="['#A07CFE', '#FE8FB5', '#FFBE7B']">
-                <div class="flex flex-col flex-wrap lg:flex-row lg:flex-nowrap z-40">
+            <inspiraGlowBorder class="w-full p-12" :color="['#A07CFE', '#FE8FB5', '#FFBE7B']">
+                <div class="z-40 flex flex-col flex-wrap lg:flex-row lg:flex-nowrap">
                     <AuthState>
                         <template #default="{ loggedIn, clear }">
                             <AuthLogin v-if="!loggedIn" class="w-full lg:w-[350px] lg:mx-8 lg:my-0" />
-                            <div v-if="loggedIn" class="w-full flex flex-col gap-6 my-auto lg:w-[350px]">
-                                <div class="flex flex-col gap-2 text-center w-full">
+                            <div v-if="loggedIn" class="my-auto flex w-full flex-col gap-6 lg:w-[350px]">
+                                <div class="flex w-full flex-col gap-2 text-center">
                                     <h1 class="text-3xl font-bold">Logout</h1>
                                     <p class="text-balance text-muted-foreground">To log out, click the button below.</p>
                                 </div>
                                 <Button v-if="loggedIn" @click="clear"> Logout</Button>
                             </div>
                             <div v-if="allowRegistration || loggedIn">
-                                <Separator v-if="$device.isDesktop" orientation="vertical" class="my-auto mx-8 label-fix-black" label="OR" />
+                                <Separator v-if="$device.isDesktop" orientation="vertical" class="mx-8 my-auto label-fix-black" label="OR" />
                                 <Separator v-else orientation="horizontal" class="mx-auto my-8 label-fix-black" label="OR" />
                             </div>
                             <AuthRegister v-if="allowRegistration && !loggedIn" class="w-full lg:w-[350px] lg:mx-8 lg:my-0" />

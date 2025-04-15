@@ -2,9 +2,9 @@
 
 <template>
     <div class="Container gap-2 h-[calc(100vh_-_theme(spacing.36))]">
-        <Button type="submit" class="Button w-full mt-2">Create New</Button>
-        <Tabs id="control-tabs" default-value="file" class="Controls w-full">
-            <TabsList class="grid w-full grid-cols-2 mb-2">
+        <Button type="submit" class="mt-2 w-full Button">Create New</Button>
+        <Tabs id="control-tabs" default-value="file" class="w-full Controls">
+            <TabsList class="mb-2 grid w-full grid-cols-2">
                 <TabsTrigger value="file"> File Upload</TabsTrigger>
                 <TabsTrigger value="url"> URL Download</TabsTrigger>
             </TabsList>

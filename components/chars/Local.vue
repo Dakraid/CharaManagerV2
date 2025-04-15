@@ -190,7 +190,7 @@ onMounted(async () => {
                 }
             "
             @drop.prevent="handleDrop">
-            <h1 class="text-lg font-bold text-center text-foreground">Drop files here</h1>
+            <h1 class="text-center text-lg font-bold text-foreground">Drop files here</h1>
             or
             <Input id="file-input" ref="fileInput" type="file" name="files[]" accept="image/png" multiple @input="handleFileInput" @click="approveUpload == ''" />
         </label>
@@ -198,13 +198,13 @@ onMounted(async () => {
         <Transition>
             <div v-if="files.length !== 0" class="flex flex-col gap-4">
                 <Button variant="outline" @click="uploadFiles">Upload</Button>
-                <div class="flex items-top justify-center gap-2">
+                <div class="flex justify-center gap-2 items-top">
                     <Checkbox id="importNotes" v-model:checked="personalityToCreatorNotes" />
                     <div class="grid gap-2 leading-none">
-                        <label for="importNotes" class="text-sm text-center font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                        <label for="importNotes" class="peer-disabled:cursor-not-allowed text-center text-sm font-medium leading-none peer-disabled:opacity-70">
                             Import Personality as Creator Nodes?
                         </label>
-                        <p class="text-sm text-center text-muted-foreground">Mainly for Cards from JannyAI.com</p>
+                        <p class="text-center text-sm text-muted-foreground">Mainly for Cards from JannyAI.com</p>
                     </div>
                 </div>
             </div>
@@ -214,11 +214,11 @@ onMounted(async () => {
             <div
                 v-if="files.length !== 0 && files.length <= 10"
                 id="previewContainerUpload"
-                class="flex flex-wrap overflow-y-scroll bg-card rounded-md border p-4"
+                class="flex flex-wrap overflow-y-scroll rounded-md border p-4 bg-card"
                 :style="`max-height: ${maxHeight}px;`">
                 <CharsDisplayUpload v-for="file in files" :key="file.name" :content="file.content" @remove="removeFile(file.name)" />
             </div>
-            <p v-else-if="files.length !== 0" class="text-sm text-center text-muted-foreground">Too many files selected for preview.</p>
+            <p v-else-if="files.length !== 0" class="text-center text-sm text-muted-foreground">Too many files selected for preview.</p>
         </Transition>
 
         <div v-if="approveUpload !== ''">

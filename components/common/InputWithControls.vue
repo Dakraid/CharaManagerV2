@@ -25,12 +25,12 @@ const props = defineProps<{
 
 <template>
     <div :class="cn('relative w-full max-w-sm items-center', hideLabel ? 'Container-NoLabel' : 'Container-Label', props.class)">
-        <Label v-if="!hideLabel" class="Label w-full"> {{ label != null ? label : 'Search...' }}</Label>
+        <Label v-if="!hideLabel" class="w-full Label"> {{ label != null ? label : 'Search...' }}</Label>
 
         <div v-if="type === 'number'" class="Control">
             <div v-if="operator === ComparisonOperator.Between || operator === ComparisonOperator.Outside" class="flex flex-col flex-nowrap">
-                <Input v-model="from" type="number" class="Control pl-[52px] border-b-0 rounded-b-none" :placeholder="placeholder != null ? placeholder : '...'" />
-                <Input v-model="to" type="number" class="Control pl-[52px] rounded-t-none" :placeholder="placeholder != null ? placeholder : '...'" />
+                <Input v-model="from" type="number" class="rounded-b-none border-b-0 Control pl-[52px]" :placeholder="placeholder != null ? placeholder : '...'" />
+                <Input v-model="to" type="number" class="rounded-t-none Control pl-[52px]" :placeholder="placeholder != null ? placeholder : '...'" />
             </div>
 
             <Input
@@ -103,7 +103,7 @@ const props = defineProps<{
                 <DropdownMenuSeparator />
                 <DropdownMenuRadioGroup v-model="operator">
                     <DropdownMenuRadioItem v-for="option in options" :key="option" :value="option">
-                        <div class="grid grid-cols-[28px_1fr] gap-1">
+                        <div class="grid gap-1 grid-cols-[28px_1fr]">
                             <span class="col-start-1 mx-auto">{{ comparisonOperatorSymbols[option] }}</span>
                             <span class="col-start-2">({{ option }})</span>
                         </div>

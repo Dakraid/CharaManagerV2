@@ -14,8 +14,8 @@ async function updateZoomLevel(zoomLevel: number) {
 </script>
 
 <template>
-    <header class="sticky top-0 flex h-16 items-center gap-2 border-b bg-background px-4 md:px-6 z-20">
-        <div class="hidden lg:flex items-center gap-2 text-lg font-semibold lg:text-base"></div>
+    <header class="sticky top-0 z-20 flex h-16 items-center gap-2 border-b px-4 bg-background md:px-6">
+        <div class="hidden items-center gap-2 text-lg font-semibold lg:flex lg:text-base"></div>
         <RenderCacheable class="hidden lg:flex">
             <NavDesktop />
         </RenderCacheable>
@@ -37,8 +37,8 @@ async function updateZoomLevel(zoomLevel: number) {
             <DropdownMenu>
                 <DropdownMenuTrigger as-child>
                     <Button variant="outline">
-                        <Moon class="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                        <Sun class="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                        <Moon class="rotate-0 scale-100 transition-all h-[1.2rem] w-[1.2rem] dark:-rotate-90 dark:scale-0" />
+                        <Sun class="absolute rotate-90 scale-0 transition-all h-[1.2rem] w-[1.2rem] dark:rotate-0 dark:scale-100" />
                         <span class="sr-only">Toggle theme</span>
                     </Button>
                 </DropdownMenuTrigger>
@@ -66,8 +66,8 @@ async function updateZoomLevel(zoomLevel: number) {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                     <DropdownMenuLabel>
-                        <div class="flex flex-col w-full max-w-sm gap-1">
-                            <NuxtLink to="/authenticate" class="flex items-center gap-2 text-lg font-semibold w-full">
+                        <div class="flex w-full max-w-sm flex-col gap-1">
+                            <NuxtLink to="/authenticate" class="flex w-full items-center gap-2 text-lg font-semibold">
                                 <Button class="w-full">User Management</Button>
                             </NuxtLink>
                         </div>
@@ -75,20 +75,20 @@ async function updateZoomLevel(zoomLevel: number) {
                     <DropdownMenuSeparator />
                     <DropdownMenuLabel>Censor</DropdownMenuLabel>
                     <DropdownMenuLabel>
-                        <div class="flex w-full max-w-sm items-top gap-2">
+                        <div class="flex w-full max-w-sm gap-2 items-top">
                             <Checkbox id="blurChars" v-model:checked="appStore.blurChars" />
                             <div class="grid gap-2 leading-none">
-                                <label for="blurChars" class="text-sm text-center font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                                <label for="blurChars" class="peer-disabled:cursor-not-allowed text-center text-sm font-medium leading-none peer-disabled:opacity-70">
                                     Censor Characters?
                                 </label>
                             </div>
                         </div>
                     </DropdownMenuLabel>
                     <DropdownMenuLabel>
-                        <div class="flex w-full max-w-sm items-top gap-2">
+                        <div class="flex w-full max-w-sm gap-2 items-top">
                             <Checkbox id="censorNames" v-model:checked="appStore.censorNames" />
                             <div class="grid gap-2 leading-none">
-                                <label for="censorNames" class="text-sm text-center font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                                <label for="censorNames" class="peer-disabled:cursor-not-allowed text-center text-sm font-medium leading-none peer-disabled:opacity-70">
                                     Censor Character Names?
                                 </label>
                             </div>
@@ -115,7 +115,7 @@ async function updateZoomLevel(zoomLevel: number) {
                     <DropdownMenuSeparator />
                     <DropdownMenuLabel>Image Quality (1 Worst - 100 Best)</DropdownMenuLabel>
                     <DropdownMenuLabel>
-                        <div class="flex w-full max-w-sm items-top gap-2">
+                        <div class="flex w-full max-w-sm gap-2 items-top">
                             <NumberField id="imageQuality" :default-value="appStore.imageQuality" :min="1" :max="100" @update:model-value="updateImageQuality">
                                 <NumberFieldContent>
                                     <NumberFieldDecrement />
@@ -128,7 +128,7 @@ async function updateZoomLevel(zoomLevel: number) {
                     <DropdownMenuSeparator />
                     <DropdownMenuLabel>Zoom Level (0.5 Zoom out - 2 Zoom In)</DropdownMenuLabel>
                     <DropdownMenuLabel>
-                        <div class="flex w-full max-w-sm items-top gap-2">
+                        <div class="flex w-full max-w-sm gap-2 items-top">
                             <NumberField id="zoomLevel" :default-value="appStore.zoomLevel" :min="0.5" :max="2" :step="0.5" @update:model-value="updateZoomLevel">
                                 <NumberFieldContent>
                                     <NumberFieldDecrement />
@@ -143,7 +143,7 @@ async function updateZoomLevel(zoomLevel: number) {
         </div>
         <Sheet>
             <SheetTrigger as-child>
-                <Button size="icon" class="shrink-0 w-14 ml-2">
+                <Button size="icon" class="ml-2 w-14 shrink-0">
                     <Pencil class="h-5 w-5" />
                     <span class="sr-only">Toggle editor menu</span>
                 </Button>

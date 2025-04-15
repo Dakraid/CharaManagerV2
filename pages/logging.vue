@@ -76,22 +76,22 @@ characterStore.loading = false;
 </script>
 
 <template>
-    <div class="flex-1 grid grid-rows-[min-content_1fr]">
+    <div class="grid flex-1 grid-rows-[min-content_1fr]">
         <div class="mx-auto grid w-full gap-2">
-            <h1 class="text-3xl font-semibold mb-8">Logging</h1>
+            <h1 class="mb-8 text-3xl font-semibold">Logging</h1>
         </div>
-        <div class="w-full mx-auto grid grid-rows-[min-content_1fr] lg:grid-rows-[1fr] items-start gap-6 lg:grid-cols-[300px_1fr]">
-            <nav class="grid md:self-stretch gap-4 text-sm text-muted-foreground">
+        <div class="mx-auto grid w-full items-start gap-6 grid-rows-[min-content_1fr] lg:grid-rows-[1fr] lg:grid-cols-[300px_1fr]">
+            <nav class="grid gap-4 text-sm text-muted-foreground md:self-stretch">
                 <Transition>
-                    <LoaderCircle v-if="!logs" class="h-10 w-10 mx-auto animate-spin" />
-                    <ScrollArea v-else-if="logs.length !== 0" class="rounded-lg border bg-card text-card-foreground shadow-sm p-4">
-                        <Button v-for="item in logs" :key="item" variant="outline" class="w-full mb-4" @click="getLog(item)">{{ item }}</Button>
+                    <LoaderCircle v-if="!logs" class="mx-auto h-10 w-10 animate-spin" />
+                    <ScrollArea v-else-if="logs.length !== 0" class="rounded-lg border p-4 shadow-sm bg-card text-card-foreground">
+                        <Button v-for="item in logs" :key="item" variant="outline" class="mb-4 w-full" @click="getLog(item)">{{ item }}</Button>
                     </ScrollArea>
-                    <h1 v-else class="rounded-lg border bg-card text-card-foreground shadow-sm p-4 text-xl">No logs available.</h1>
+                    <h1 v-else class="rounded-lg border p-4 text-xl shadow-sm bg-card text-card-foreground">No logs available.</h1>
                 </Transition>
             </nav>
             <Transition>
-                <div v-if="logSelected !== null && logSelected?.trim() !== ''" :key="logSelected" class="flex self-stretch gap-6">
+                <div v-if="logSelected !== null && logSelected?.trim() !== ''" :key="logSelected" class="flex gap-6 self-stretch">
                     <Card class="flex flex-1 flex-col">
                         <CardHeader>
                             <CardTitle>{{ logSelected }} ({{ logContent.length }} entries)</CardTitle>
@@ -121,7 +121,7 @@ characterStore.loading = false;
                         </CardContent>
                     </Card>
                 </div>
-                <div v-else class="flex self-stretch gap-6">
+                <div v-else class="flex gap-6 self-stretch">
                     <Card class="flex flex-1 flex-col"></Card>
                 </div>
             </Transition>

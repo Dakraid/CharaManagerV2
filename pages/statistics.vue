@@ -63,15 +63,15 @@ onMounted(async () => {
 <template>
     <Transition>
         <ScrollArea v-if="!error" class="max-h-[calc(100vh_-_theme(spacing.36))] rounded-md overflow-y-hidden scroll-smooth pr-4">
-            <div v-if="datesAsRecords.length > 0" class="flex flex-col gap-4 mb-24 last:mb-0">
+            <div v-if="datesAsRecords.length > 0" class="mb-24 flex flex-col gap-4 last:mb-0">
                 <Label>Character Downloads per Date (Count > 0)</Label>
                 <LineChart :data="datesAsRecords" index="Date" :categories="['Downloads']" />
             </div>
-            <div v-if="authorsAsRecords.length > 0" class="flex flex-col gap-4 mb-24 last:mb-0">
+            <div v-if="authorsAsRecords.length > 0" class="mb-24 flex flex-col gap-4 last:mb-0">
                 <Label>Characters per Author</Label>
                 <BarChart :data="authorsAsRecords" index="Author" :categories="['Count']" />
             </div>
-            <div v-if="tokensAsRecords.length > 0" class="flex flex-col gap-4 mb-24 last:mb-0">
+            <div v-if="tokensAsRecords.length > 0" class="mb-24 flex flex-col gap-4 last:mb-0">
                 <Label>Tokens per Characters</Label>
                 <BarChart :data="tokensAsRecords" index="Character" :categories="['Tokens']" />
             </div>

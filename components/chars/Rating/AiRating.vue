@@ -37,8 +37,8 @@ average.value =
                         <CharsRatingAiEvalDisplay :score="average" subtext="AI Evaluation Score: " />
                     </TooltipTrigger>
                     <TooltipContent side="bottom">
-                        <div class="flex flex-col items-center gap-2 max-w-6xl">
-                            <h1 class="font-bold text-lg">Evaluation Breakdown</h1>
+                        <div class="flex max-w-6xl flex-col items-center gap-2">
+                            <h1 class="text-lg font-bold">Evaluation Breakdown</h1>
                             <CharsRatingAiEvalDisplay :score="rating.aiGrammarAndSpellingScore" :reason="rating.aiGrammarAndSpellingReason" subtext="Grammar & Spelling: " />
                             <Separator />
                             <CharsRatingAiEvalDisplay :score="rating.aiAppearanceScore" :reason="rating.aiAppearanceReason" subtext="Appearance: " />

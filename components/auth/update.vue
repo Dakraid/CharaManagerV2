@@ -47,7 +47,7 @@ async function onSubmit(values: any) {
 
 <template>
     <div>
-        <div class="grid gap-2 text-center w-full">
+        <div class="grid w-full gap-2 text-center">
             <h1 class="text-3xl font-bold">Change Password</h1>
             <p class="text-balance text-muted-foreground">Enter your new password below.</p>
         </div>
@@ -62,7 +62,7 @@ async function onSubmit(values: any) {
                     <FormMessage />
                 </FormItem>
             </FormField>
-            <Button type="submit" class="w-full mt-2"> Change Password</Button>
+            <Button type="submit" class="mt-2 w-full"> Change Password</Button>
         </Form>
     </div>
 </template>

@@ -29,9 +29,9 @@ if (typeof props.error === 'string') {
 </script>
 
 <template>
-    <div class="w-full h-full flex flex-1 flex-col gap-2 items-center justify-center">
-        <TriangleAlert class="h-20 w-20 mx-auto motion-safe:animate-bounce" />
-        <div class="flex flex-col gap-2 items-center justify-center">
+    <div class="flex h-full w-full flex-1 flex-col items-center justify-center gap-2">
+        <TriangleAlert class="mx-auto h-20 w-20 motion-safe:animate-bounce" />
+        <div class="flex flex-col items-center justify-center gap-2">
             <h1 class="text-2xl font-bold">An error occurred:</h1>
             <h2 class="text-2xl">{{ formattedError }}</h2>
             <h2 v-if="hint.trim() !== ''" class="text-xl text-muted-foreground">{{ hint }}</h2>

@@ -174,7 +174,7 @@ onMounted(async () => {
         <Card class="flex flex-col h-full max-h-[calc(100vh_-_theme(spacing.16))]">
             <CardHeader>
                 <div class="flex flex-col gap-2">
-                    <h1 class="text-muted-foreground text-center text-sm">Image Replacement</h1>
+                    <h1 class="text-center text-sm text-muted-foreground">Image Replacement</h1>
                     <Input id="file-input" ref="fileInput" type="file" name="file" accept="image/*" @input="handleFileInput" />
                     <Transition>
                         <Button v-if="newFile.trim() !== ''" type="submit" variant="secondary" class="flex-1" @click="uploadImage">
@@ -184,7 +184,7 @@ onMounted(async () => {
                     </Transition>
                 </div>
             </CardHeader>
-            <CardContent class="flex-1 p-6 pt-0 pb-0 flex justify-center items-center">
+            <CardContent class="flex flex-1 items-center justify-center p-6 pt-0 pb-0">
                 <NuxtImg
                     :id="character.etag"
                     :key="character.etag"
@@ -195,7 +195,7 @@ onMounted(async () => {
                     width="384"
                     height="576"
                     placeholder="Placeholder.png"
-                    placeholder-class="h-[576ppx] w-[384px] bg-muted rounded-xl"
+                    placeholder-class="rounded-xl h-[576ppx] w-[384px] bg-muted"
                     :class="cn('h-[576px] w-[384px] mx-auto object-cover rounded-xl transition-all', appStore.blurChars ? 'blur-2xl' : '')" />
             </CardContent>
             <CardFooter class="p-6 min-h-10">
@@ -215,13 +215,13 @@ onMounted(async () => {
                 </CardTitle>
             </CardHeader>
             <CardContent class="flex-1 p-6 pt-2 pb-2">
-                <Tabs default-value="general" class="w-full h-full max-h-full overflow-y-clip" @update:model-value="setContentHeight">
-                    <TabsList class="w-full flex flex-col lg:flex-row justify-around">
-                        <TabsTrigger class="flex-1 w-full" value="general"> General</TabsTrigger>
-                        <TabsTrigger class="flex-1 w-full" value="alternatives"> Alternative Greetings</TabsTrigger>
-                        <TabsTrigger class="flex-1 w-full" value="examples"> Message Examples</TabsTrigger>
-                        <TabsTrigger class="flex-1 w-full" value="prompts"> Prompt Overrides</TabsTrigger>
-                        <TabsTrigger class="flex-1 w-full" value="creator"> Creator Metadata</TabsTrigger>
+                <Tabs default-value="general" class="h-full max-h-full w-full overflow-y-clip" @update:model-value="setContentHeight">
+                    <TabsList class="flex w-full flex-col justify-around lg:flex-row">
+                        <TabsTrigger class="w-full flex-1" value="general"> General</TabsTrigger>
+                        <TabsTrigger class="w-full flex-1" value="alternatives"> Alternative Greetings</TabsTrigger>
+                        <TabsTrigger class="w-full flex-1" value="examples"> Message Examples</TabsTrigger>
+                        <TabsTrigger class="w-full flex-1" value="prompts"> Prompt Overrides</TabsTrigger>
+                        <TabsTrigger class="w-full flex-1" value="creator"> Creator Metadata</TabsTrigger>
                         <TabsTrigger
                             class="flex-grow"
                             value="json"
@@ -235,7 +235,7 @@ onMounted(async () => {
                     </TabsList>
                     <TabsContent :class="cn('grid grid-rows-[1fr] gap-2 h-[calc(100%-48px)]', activeTab === 'general' ? 'grid' : 'hidden')" value="general">
                         <ScrollArea id="general" class="height-fix">
-                            <div class="grid grid-rows-[min-content_1fr_min-content_1fr_min-content_1fr_min-content_1fr] gap-2 h-full pr-4">
+                            <div class="grid h-full gap-2 pr-4 grid-rows-[min-content_1fr_min-content_1fr_min-content_1fr_min-content_1fr]">
                                 <Label for="description">Description</Label>
                                 <Textarea id="description" v-model="activeDefinition.data.description" spellcheck="true" />
 
@@ -259,7 +259,7 @@ onMounted(async () => {
                         </Button>
                         <Label for="alt_greetings">Alternative Greetings</Label>
                         <ScrollArea id="alt_greetings" class="height-fix">
-                            <div class="grid gap-2 h-full pr-4" :style="`grid-template-rows: repeat(${activeDefinition.data.alternate_greetings.length}, 1fr)`">
+                            <div class="grid h-full gap-2 pr-4" :style="`grid-template-rows: repeat(${activeDefinition.data.alternate_greetings.length}, 1fr)`">
                                 <Textarea
                                     v-for="(item, index) in activeDefinition.data.alternate_greetings"
                                     :key="item"
@@ -315,7 +315,7 @@ onMounted(async () => {
                 </Tabs>
             </CardContent>
             <CardFooter>
-                <div class="w-full flex justify-between items-center">
+                <div class="flex w-full items-center justify-between">
                     <Button type="submit" variant="destructive" @click="deleteActiveCharacter">
                         <span class="sr-only">Delete</span>
                         <Trash2 class="h-6 w-6" />

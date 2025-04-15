@@ -93,21 +93,21 @@ async function showCompare(parent: Character, child: Character) {
             v-if="parentCharacters.length > 0"
             v-element-visibility="onElementVisibility"
             class="max-h-[calc(100vh_-_theme(spacing.36))] rounded-md overflow-y-hidden scroll-smooth">
-            <div class="w-full flex flex-col wrap gap-4 m-4">
+            <div class="m-4 flex w-full flex-col gap-4 wrap">
                 <div v-for="parentCharacter in parentCharacters" :key="parentCharacter.id" class="Container w-full">
                     <LazyCharsDisplayDefault :character="parentCharacter" class="Parent" />
-                    <Separator orientation="vertical" class="SeparatorY h-full my-auto" />
+                    <Separator orientation="vertical" class="my-auto h-full SeparatorY" />
                     <Transition>
-                        <div v-if="childCharacters[parentCharacter.id] && childCharacters[parentCharacter.id].length > 0" class="Child flex flex-wrap gap-2">
+                        <div v-if="childCharacters[parentCharacter.id] && childCharacters[parentCharacter.id].length > 0" class="flex flex-wrap gap-2 Child">
                             <LazyCharsDisplayChild
                                 v-for="childCharacter in childCharacters[parentCharacter.id]"
                                 :key="childCharacter.id"
                                 :character="childCharacter"
                                 @compare="showCompare(parentCharacter, childCharacter)" />
                         </div>
-                        <CommonLoading v-else class="Child rounded-xl" />
+                        <CommonLoading v-else class="rounded-xl Child" />
                     </Transition>
-                    <Separator orientation="horizontal" class="SeparatorX w-full mt-1" />
+                    <Separator orientation="horizontal" class="mt-1 w-full SeparatorX" />
                 </div>
             </div>
         </ScrollArea>

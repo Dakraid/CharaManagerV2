@@ -57,23 +57,23 @@ async function closeCompare() {
 
 <template>
     <Transition>
-        <div v-if="loading" class="Container w-full h-full">
-            <CommonLoading class="Editor w-full h-full rounded-xl" loading-text="Loading characters..." />
+        <div v-if="loading" class="Container h-full w-full">
+            <CommonLoading class="h-full w-full rounded-xl Editor" loading-text="Loading characters..." />
         </div>
-        <div v-else-if="!loading && parentChar && childChar" class="Container w-full h-full">
-            <Button variant="destructive" size="icon" class="Button w-full h-full z-10" @click="closeCompare">
-                <CircleX class="w-4 h-4" />
+        <div v-else-if="!loading && parentChar && childChar" class="Container h-full w-full">
+            <Button variant="destructive" size="icon" class="z-10 h-full w-full Button" @click="closeCompare">
+                <CircleX class="h-4 w-4" />
             </Button>
-            <div class="Editor flex flex-col gap-2 w-full h-full px-2 rounded-md border border-muted">
-                <div class="flex justify-around w-full py-4">
-                    <h1 class="font-bold text-2xl">Child ({{ childCharRef!.charName }} - #{{ childId }})</h1>
-                    <h1 class="font-bold text-2xl">Parent ({{ parentCharRef!.charName }} - #{{ parentId }})</h1>
+            <div class="flex h-full w-full flex-col gap-2 rounded-md border px-2 Editor border-muted">
+                <div class="flex w-full justify-around py-4">
+                    <h1 class="text-2xl font-bold">Child ({{ childCharRef!.charName }} - #{{ childId }})</h1>
+                    <h1 class="text-2xl font-bold">Parent ({{ parentCharRef!.charName }} - #{{ parentId }})</h1>
                 </div>
                 <MonacoDiffEditor
                     v-model="childCharJson"
                     :original="parentCharJson"
                     lang="json"
-                    class="w-full h-full"
+                    class="h-full w-full"
                     :options="{
                         theme: 'vs-dark',
                         autoIndent: 'full',
@@ -85,8 +85,8 @@ async function closeCompare() {
                     }" />
             </div>
         </div>
-        <div v-else class="Container w-full h-full">
-            <CommonError class="Editor w-full h-full" error="Failed to retrieve characters." />
+        <div v-else class="Container h-full w-full">
+            <CommonError class="h-full w-full Editor" error="Failed to retrieve characters." />
         </div>
     </Transition>
 </template>

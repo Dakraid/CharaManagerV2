@@ -14,7 +14,7 @@ nuxtApp.hooks.hook('characters:menu', async (id: number) => {
 <template>
     <NuxtPwaManifest />
     <Toaster />
-    <div class="PageContainer h-screen min-h-screen max-h-screen min-w-screen max-w-screen">
+    <div class="h-screen max-h-screen min-h-screen PageContainer min-w-screen max-w-screen">
         <Transition>
             <CommonLoading v-if="characterStore.loading" loading-text="Loading..." class="Overlay" />
         </Transition>

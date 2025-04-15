@@ -1,6 +1,6 @@
 <template>
     <div :class="cn('sui-god-ray relative flex h-screen w-screen', $props.class)">
-        <div class="ray absolute inset-x-0 inset-y-0 opacity-50"></div>
+        <div class="absolute inset-x-0 inset-y-0 opacity-50 ray"></div>
     </div>
 </template>
 

@@ -24,7 +24,7 @@ const forwardedProps = useForwardProps(delegatedProps);
                 props.class
             )
         ">
-        <span class="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+        <span class="absolute left-2 flex items-center justify-center h-3.5 w-3.5">
             <SelectItemIndicator>
                 <Check class="h-4 w-4" />
             </SelectItemIndicator>

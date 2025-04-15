@@ -98,7 +98,7 @@ async function OnClear() {
 <template>
     <div class="flex flex-nowrap gap-0">
         <Transition>
-            <Button v-if="filterActive" id="clear" type="submit" variant="destructive" class="border-r-0 rounded-r-none" @click="OnClear">
+            <Button v-if="filterActive" id="clear" type="submit" variant="destructive" class="rounded-r-none border-r-0" @click="OnClear">
                 <span class="sr-only">Clear</span>
                 <FilterX class="h-[1.2rem] w-[1.2rem]" />
             </Button>
@@ -111,7 +111,7 @@ async function OnClear() {
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start">
-                <DropdownMenuLabel class="flex flex-col gap-2 z-30">
+                <DropdownMenuLabel class="z-30 flex flex-col gap-2">
                     <span class="text-muted-foreground">Leave any empty or null to ignore.</span>
                     <span class="text-muted-foreground">Between/Outside are range selections.</span>
                 </DropdownMenuLabel>
@@ -188,10 +188,10 @@ async function OnClear() {
             :hide-label="true"
             :hard-corners="true"
             placeholder="Filter by name..."
-            class="lg:min-w-[202px] w-full rounded-r-none rounded-l-none z-10"
+            class="z-10 w-full rounded-r-none rounded-l-none lg:min-w-[202px]"
             :options="[ComparisonOperator.Disabled, ComparisonOperator.Equal, ComparisonOperator.NotEqual, ComparisonOperator.Like, ComparisonOperator.Unlike]" />
 
-        <Button id="save" type="submit" variant="outline" class="border-l-0 rounded-l-none" @click="onSubmit">
+        <Button id="save" type="submit" variant="outline" class="rounded-l-none border-l-0" @click="onSubmit">
             <span class="sr-only">Filter</span>
             <SendHorizonal class="h-[1.2rem] w-[1.2rem]" />
         </Button>

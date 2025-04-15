@@ -199,14 +199,14 @@ watch(
         :color="isHovered ? ['#A07CFE', '#FE8FB5', '#FFBE7B'] : '#666666'"
         @mouseenter="isHovered = true"
         @mouseleave="isHovered = false">
-        <Card class="flex flex-col w-80 h-[596px] border-0 p-4 px-4 gap-4">
-            <CardHeader class="flex flex-col justify-center gap-4 p-0 z-10">
-                <CardTitle class="grid grid-cols-[48px_1fr_48px] max-w-[288px] justify-between max-h-8 gap-4">
-                    <Badge variant="outline" class="h-10 w-12 flex justify-center rounded-md">#{{ character.id }}</Badge>
+        <Card class="flex w-80 flex-col gap-4 border-0 p-4 px-4 h-[596px]">
+            <CardHeader class="z-10 flex flex-col justify-center gap-4 p-0">
+                <CardTitle class="grid max-h-8 justify-between gap-4 grid-cols-[48px_1fr_48px] max-w-[288px]">
+                    <Badge variant="outline" class="flex h-10 w-12 justify-center rounded-md">#{{ character.id }}</Badge>
                     <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger>
-                                <h1 class="leading-8 h-[40px] max-w-[160px] text-ellipsis whitespace-nowrap overflow-x-hidden hover:cursor-default">
+                                <h1 class="overflow-x-hidden text-ellipsis whitespace-nowrap leading-8 h-[40px] max-w-[160px] hover:cursor-default">
                                     {{ appStore.censorNames ? replaceLettersWithHash(character.charName) : character.charName }}
                                 </h1>
                             </TooltipTrigger>
@@ -232,7 +232,7 @@ watch(
                                 :rating-content="[28, 90, 90, 28, 152, 90, 90, 152]"
                                 active-color="hsl(var(--primary))"
                                 inactive-color="hsl(var(--secondary))"
-                                class="flex justify-center z-20"
+                                class="z-20 flex justify-center"
                                 rating-size="24px"
                                 @rating-selected="updateRating(character, hoveredRating)"
                                 @rating-hovered="(event) => (hoveredRating = event)" />
@@ -245,11 +245,11 @@ watch(
                     </Tooltip>
                 </TooltipProvider>
             </CardHeader>
-            <CardContent class="Image-Grid w-[256px] mx-auto p-0 z-10 rounded-xl overflow-hidden transition-all">
-                <Skeleton v-if="!targetIsVisible || !imageLoaded" class="Image-Container h-[384px] w-[256px] rounded-xl" />
+            <CardContent class="z-10 mx-auto overflow-hidden rounded-xl p-0 transition-all Image-Grid w-[256px]">
+                <Skeleton v-if="!targetIsVisible || !imageLoaded" class="rounded-xl Image-Container h-[384px] w-[256px]" />
                 <div
                     v-show="imageLoaded"
-                    class="Image-Container canvas-wrapper relative"
+                    class="relative Image-Container canvas-wrapper"
                     @mouseenter="handleMouseEnter"
                     @mouseleave="handleMouseLeave"
                     @mousemove="handleMouseMove">
@@ -265,24 +265,24 @@ watch(
                         ref="zoomCanvasRef"
                         width="256"
                         height="384"
-                        class="zoom-canvas absolute inset-0 rounded-xl"
+                        class="absolute inset-0 rounded-xl zoom-canvas"
                         :style="{ opacity: isCanvasHovered ? 1 : 0 }"></canvas>
                 </div>
-                <Badge variant="secondary" class="Token-Permanent-Container rounded-xl rounded-tl-none rounded-br-none"> Permanent: {{ character.tokensPermanent ?? -1 }}</Badge>
-                <Badge variant="secondary" class="Token-Total-Container rounded-xl rounded-tr-none rounded-bl-none"> Total: {{ character.tokensTotal ?? -1 }}</Badge>
+                <Badge variant="secondary" class="rounded-xl rounded-tl-none rounded-br-none Token-Permanent-Container"> Permanent: {{ character.tokensPermanent ?? -1 }}</Badge>
+                <Badge variant="secondary" class="rounded-xl rounded-tr-none rounded-bl-none Token-Total-Container"> Total: {{ character.tokensTotal ?? -1 }}</Badge>
             </CardContent>
-            <CardFooter class="flex flex-col p-0 mt-2 gap-4 z-10">
-                <div class="w-full flex justify-between gap-8">
-                    <Button class="flex-1 h-8" @click="showCharacter(character)">
-                        <div class="flex gap-2 items-center justify-center">
+            <CardFooter class="z-10 mt-2 flex flex-col gap-4 p-0">
+                <div class="flex w-full justify-between gap-8">
+                    <Button class="h-8 flex-1" @click="showCharacter(character)">
+                        <div class="flex items-center justify-center gap-2">
                             <Pencil class="h-4 w-4" />
                             <span>Edit</span>
                         </div>
                     </Button>
-                    <Button class="flex-1 h-8" :disabled="isDownloading" @click="triggerDownload(character)">
-                        <div class="flex gap-2 items-center justify-center">
+                    <Button class="h-8 flex-1" :disabled="isDownloading" @click="triggerDownload(character)">
+                        <div class="flex items-center justify-center gap-2">
                             <Transition name="fade" mode="out-in">
-                                <LoaderCircle v-if="isDownloading" class="h-4 w-4 mx-auto motion-safe:animate-spin" />
+                                <LoaderCircle v-if="isDownloading" class="mx-auto h-4 w-4 motion-safe:animate-spin" />
                                 <Download v-else class="h-4 w-4" />
                             </Transition>
                             <span>Download</span>

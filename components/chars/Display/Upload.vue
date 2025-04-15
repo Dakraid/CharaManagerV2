@@ -9,10 +9,10 @@ defineEmits(['remove']);
 </script>
 
 <template>
-    <div class="Preview border rounded-md">
-        <img loading="lazy" class="Image aspect-square w-full object-cover rounded-xl mx-auto mb-4 last:mb-0" :src="content" alt="file.name" />
-        <Button variant="destructive" size="icon" class="Button w-full h-full bg-destructive/50" @click="$emit('remove')">
-            <CircleX class="h-4 w-4 z-10" />
+    <div class="rounded-md border Preview">
+        <img loading="lazy" class="mx-auto mb-4 aspect-square w-full rounded-xl object-cover Image last:mb-0" :src="content" alt="file.name" />
+        <Button variant="destructive" size="icon" class="h-full w-full Button bg-destructive/50" @click="$emit('remove')">
+            <CircleX class="z-10 h-4 w-4" />
         </Button>
     </div>
 </template>
