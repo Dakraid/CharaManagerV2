@@ -5,6 +5,8 @@ const nuxtApp = useNuxtApp();
 const characterStore = useCharacterStore();
 
 nuxtApp.hooks.hook('characters:menu', async (id: number) => {
+    characterStore.activeCharacter = id;
+    characterStore.loading = true;
     await navigateTo({
         path: `/character/${id}`,
     });
@@ -19,7 +21,7 @@ nuxtApp.hooks.hook('characters:menu', async (id: number) => {
             <CommonLoading v-if="characterStore.loading" loading-text="Loading..." class="Overlay" />
         </Transition>
         <NavHeader class="Header" />
-        <main class="Content h-[calc(100vh_-_theme(spacing.16))] min-h-[calc(100vh_-_theme(spacing.16))] max-h-[calc(100vh_-_theme(spacing.16))] bg-muted/40 p-4 px-0">
+        <main class="Content h-[calc(100vh_-_theme(spacing.16))] min-h-[calc(100vh_-_theme(spacing.16))] max-h-[calc(100vh_-_theme(spacing.16))] max-w-screen bg-muted/40 p-4 px-0">
             <NuxtPage />
         </main>
     </div>

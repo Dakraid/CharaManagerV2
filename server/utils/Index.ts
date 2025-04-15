@@ -2,6 +2,7 @@ export { characters, definitionHistory, ratings, tags, definitions, lorebooks, u
 export { charactersRelations, usersRelations, definitionHistoryRelations, definitionsRelations, ratingsRelations, relationsRelations } from '~/utils/drizzle/relations';
 export type {
     Character,
+    CharacterWithDef,
     RemoteChar,
     Rating,
     RatingWithEval,

@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import { eq, inArray } from 'drizzle-orm';
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { createHash } from 'node:crypto';
 import { inputImageToCharacter } from '~/server/utils/CharacterUtilities';
 import getEmbeddings from '~/server/utils/EmbeddingUtilities';
@@ -7,6 +8,56 @@ import getEmbeddings from '~/server/utils/EmbeddingUtilities';
 function isDigitString(input: string): boolean {
     const regex = /^\d{13}$/;
     return regex.test(input);
+}
+
+async function processUpdatedCharacter(
+    db: NodePgDatabase,
+    embedderProvider: any,
+    personalityToCreatorNotes: boolean,
+    update: {
+        id: number;
+        file: string;
+        sourceUri: string | null;
+        fileName: string;
+        charName: string | null;
+        etag: string | null;
+        uploadDate: string;
+        hash: string;
+        public: boolean;
+        ownerId: number | null;
+    }
+): Promise<DefinitionRow | undefined> {
+    try {
+        const card = await inputImageToCharacter(update.file);
+
+        if (card === undefined) {
+            throw new Error('Failed to convert image to character card.');
+        }
+
+        if (personalityToCreatorNotes) {
+            card.data.creator_notes = card.data.personality;
+            card.data.personality = '';
+        }
+
+        const tokens = await getTokenCounts(card);
+        const embedding = await getEmbeddings(card, embedderProvider);
+
+        const cardJson = JSON.stringify(card);
+        const hash = createHash('sha256').update(cardJson).digest('hex');
+
+        await db.update(characters).set({ charName: card.data.name }).where(eq(characters.id, update.id));
+
+        return {
+            id: update.id,
+            definition: cardJson,
+            hash: hash,
+            embedding: embedding,
+            tokensTotal: tokens.tokensTotal,
+            tokensPermanent: tokens.tokensPermanent,
+        };
+    } catch (err: any) {
+        console.error(err);
+    }
 }
 
 export default defineEventHandler(async (event) => {
@@ -125,42 +176,17 @@ export default defineEventHandler(async (event) => {
                 )
             );
 
-        const definitionRows: DefinitionRow[] = [];
-        for (const update of updated) {
-            try {
-                const card = await inputImageToCharacter(update.file);
-
-                if (card === undefined) {
-                    throw new Error('Failed to convert image to character card.');
-                }
-
-                if (personalityToCreatorNotes) {
-                    card.data.creator_notes = card.data.personality;
-                    card.data.personality = '';
-                }
-
-                const tokens = await getTokenCounts(card);
-                const embedding = await getEmbeddings(card, embedderProvider);
-
-                const cardJson = JSON.stringify(card);
-                const hash = createHash('sha256').update(cardJson).digest('hex');
-
-                definitionRows.push({
-                    id: update.id,
-                    definition: cardJson,
-                    hash: hash,
-                    embedding: embedding,
-                    tokensTotal: tokens.tokensTotal,
-                    tokensPermanent: tokens.tokensPermanent,
-                });
-
-                await db.update(characters).set({ charName: card.data.name }).where(eq(characters.id, update.id));
-            } catch (err: any) {
-                console.error(err);
-            }
+        if (updated.length === 0) {
+            return 'No new files or all files are duplicates.';
         }
 
-        await tx2.insert(definitions).values(definitionRows);
+        const results = await Promise.all(
+            updated.map((update) => {
+                return processUpdatedCharacter(db, embedderProvider, personalityToCreatorNotes, update);
+            })
+        );
+
+        await tx2.insert(definitions).values(results.filter((i) => i !== undefined).flat());
     });
 
     const p1 = runTask('images:generate', { payload: { images: updated } });

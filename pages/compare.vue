@@ -4,6 +4,7 @@ import { formatJSON } from '~/composables/formatJson';
 
 const route = useRoute();
 const router = useRouter();
+const characterStore = useCharacterStore();
 
 definePageMeta({
     middleware() {
@@ -14,10 +15,13 @@ definePageMeta({
     },
 });
 
-const error = ref<boolean>(false);
-const loading = ref<boolean>(true);
 const parentId = ref<number>(Number(route.query.parent));
 const childId = ref<number>(Number(route.query.child));
+
+const parentCharRef = ref<Character>();
+const childCharRef = ref<Character>();
+const parentCharJson = ref<string>();
+const childCharJson = ref<string>();
 
 useRouteCache((helper) => {
     helper
@@ -27,28 +31,28 @@ useRouteCache((helper) => {
         .addTags([`compare:${parentId.value}-${childId.value}`]);
 });
 
-const [parentChar, childChar, parentCharDef, childCharDef] = await Promise.all([
-    getCharacterById(parentId.value),
-    getCharacterById(childId.value),
-    getCharacterDefinitionById(parentId.value),
-    getCharacterDefinitionById(childId.value),
-]);
+characterStore.loading = true;
 
-const parentCharRef = ref<Character>();
-const childCharRef = ref<Character>();
-const parentCharJson = ref<string>();
-const childCharJson = ref<string>();
+const parent = await $fetch<CharacterWithDef>('/api/chars/character', {
+    method: 'GET',
+    query: { id: parentId.value },
+});
 
-if (parentChar && childChar) {
-    parentCharRef.value = parentChar;
-    childCharRef.value = childChar;
-    parentCharJson.value = await formatJSON(parentCharDef ?? '');
-    childCharJson.value = await formatJSON(childCharDef ?? '');
-} else {
-    error.value = true;
+const child = await $fetch<CharacterWithDef>('/api/chars/character', {
+    method: 'GET',
+    query: { id: childId.value },
+});
+
+try {
+    parentCharRef.value = parent;
+    childCharRef.value = child;
+    parentCharJson.value = await formatJSON(parent.definition ?? '');
+    childCharJson.value = await formatJSON(child.definition ?? '');
+} catch (err: any) {
+    console.error(err);
 }
 
-loading.value = false;
+characterStore.loading = false;
 
 async function closeCompare() {
     router.back();
@@ -57,10 +61,13 @@ async function closeCompare() {
 
 <template>
     <Transition>
-        <div v-if="loading" class="Container h-full w-full">
+        <div v-if="characterStore.loading && !parent && !child" class="Container h-full w-full">
             <CommonLoading class="h-full w-full rounded-xl Editor" loading-text="Loading characters..." />
         </div>
-        <div v-else-if="!loading && parentChar && childChar" class="Container h-full w-full">
+        <div v-else-if="!characterStore.loading && !parent && !child" class="Container h-full w-full">
+            <CommonError class="h-full w-full Editor" error="Failed to retrieve characters." />
+        </div>
+        <div v-else class="Container h-full w-full">
             <Button variant="destructive" size="icon" class="z-10 h-full w-full Button" @click="closeCompare">
                 <CircleX class="h-4 w-4" />
             </Button>
@@ -84,9 +91,6 @@ async function closeCompare() {
                         },
                     }" />
             </div>
-        </div>
-        <div v-else class="Container h-full w-full">
-            <CommonError class="h-full w-full Editor" error="Failed to retrieve characters." />
         </div>
     </Transition>
 </template>

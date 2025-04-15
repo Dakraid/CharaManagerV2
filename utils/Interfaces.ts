@@ -9,6 +9,18 @@ export interface Character {
     tokensTotal: number;
 }
 
+export interface CharacterWithDef {
+    id: number;
+    fileName: string;
+    charName: string;
+    uploadDate: string;
+    etag: string;
+    rating: number;
+    tokensPermanent: number;
+    tokensTotal: number;
+    definition: string;
+}
+
 export interface RemoteChar {
     fileName: string;
     lastModified: string;

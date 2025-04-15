@@ -3,7 +3,7 @@ import { useToast } from '~/components/ui/toast';
 export async function downloadCharacter(character: Character) {
     const { toast } = useToast();
     try {
-        const { data } = await useFetch('/api/chars/character', {
+        const { data } = await useFetch('/api/chars/download', {
             method: 'GET',
             query: { id: character.id },
         });

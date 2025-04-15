@@ -44,7 +44,7 @@ export default defineNitroPlugin(async (nitroApp) => {
     const p4 = runTask('definitions:migrate', { payload: {} });
     const p5 = runTask('relations:generate', { payload: {} });
     const p6 = runTask('ratings:generate', { payload: {} });
-    await Promise.all([p1, p2, p3, p4, p5, p6]);
+    await Promise.allSettled([p1, p2, p3, p4, p5, p6]);
 
     await storage.setItem<number>('startup:timestamp', dayjs().unix());
 

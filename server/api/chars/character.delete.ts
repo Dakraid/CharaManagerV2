@@ -5,9 +5,17 @@ import path from 'node:path';
 
 export default defineEventHandler(async (event) => {
     await Authenticate(event);
-    const { id } = await readBody<{ id: number }>(event);
-    const db = event.context.$db;
 
+    const validatedQuery = await readValidatedBody(event, (body) => queryIdSchema.safeParse(body));
+    if (!validatedQuery.success) {
+        throw createError({
+            statusCode: StatusCode.BAD_REQUEST,
+            statusMessage: 'Query parameter "id" is missing or not a number',
+        });
+    }
+    const id = validatedQuery.data.number;
+
+    const db = event.context.$db;
     if (!db) {
         throw createError({
             statusCode: StatusCode.INTERNAL_SERVER_ERROR,

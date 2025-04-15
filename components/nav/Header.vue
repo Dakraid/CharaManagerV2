@@ -14,14 +14,14 @@ async function updateZoomLevel(zoomLevel: number) {
 </script>
 
 <template>
-    <header class="sticky top-0 z-20 flex h-16 items-center gap-2 border-b px-4 bg-background md:px-6">
+    <header class="sticky top-0 z-20 flex h-16 items-center gap-2 border-b px-4 bg-background xl:px-6">
         <div class="hidden items-center gap-2 text-lg font-semibold lg:flex lg:text-base"></div>
-        <RenderCacheable class="hidden lg:flex">
+        <RenderCacheable class="hidden xl:flex">
             <NavDesktop />
         </RenderCacheable>
         <Sheet>
             <SheetTrigger as-child>
-                <Button variant="outline" size="icon" class="shrink-0 lg:hidden">
+                <Button variant="outline" size="icon" class="shrink-0 xl:hidden">
                     <Menu class="h-5 w-5" />
                     <span class="sr-only">Toggle navigation menu</span>
                 </Button>
@@ -32,7 +32,7 @@ async function updateZoomLevel(zoomLevel: number) {
                 </RenderCacheable>
             </SheetContent>
         </Sheet>
-        <div class="flex w-full items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
+        <div class="flex w-full items-center gap-4 md:ml-auto md:gap-2 xl:gap-4">
             <NavSearch class="ml-auto flex-1 md:flex-initial" />
             <DropdownMenu>
                 <DropdownMenuTrigger as-child>

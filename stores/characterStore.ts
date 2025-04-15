@@ -1,6 +1,7 @@
 export const useCharacterStore = defineStore('chars', {
     state: () => ({
         count: 0,
+        activeCharacter: -1,
         characters: [] as Character[] | undefined,
         loading: false,
         currentPage: 1,

@@ -1,23 +1,18 @@
-import { GetObjectCommand } from '@aws-sdk/client-s3';
-import { def } from '@vue/shared';
-import dayjs from 'dayjs';
 import { eq } from 'drizzle-orm';
-import * as fs from 'node:fs/promises';
-import path from 'node:path';
 
 export default defineEventHandler(async (event) => {
     await Authenticate(event);
 
-    const query = getQuery(event);
-    if (!query.id || !Number(query.id)) {
+    const validatedQuery = await getValidatedQuery(event, (query) => queryIdSchema.safeParse(query));
+    if (!validatedQuery.success) {
         throw createError({
             statusCode: StatusCode.BAD_REQUEST,
             statusMessage: 'Query parameter "id" is missing or not a number',
         });
     }
-    const id = Number(query.id);
-    const db = event.context.$db;
+    const id = validatedQuery.data.id;
 
+    const db = event.context.$db;
     if (!db) {
         throw createError({
             statusCode: StatusCode.INTERNAL_SERVER_ERROR,
@@ -25,7 +20,7 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    const result = await db.select().from(ratings).where(eq(ratings.id, id));
+    const result = await db.select().from(ratings).where(eq(ratings.id, id)).limit(1);
 
     if (result.length === 0) {
         throw createError({

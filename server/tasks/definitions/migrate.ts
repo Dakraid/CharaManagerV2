@@ -6,7 +6,7 @@ import { drizzle } from 'drizzle-orm/node-postgres';
 import { encode, isWithinTokenLimit } from 'gpt-tokenizer';
 import { createHash } from 'node:crypto';
 import pg from 'pg';
-import { inputImageToCharacter } from '~/server/utils/CharacterUtilities';
+import { getTokenCounts, inputImageToCharacter } from '~/server/utils/CharacterUtilities';
 import getEmbeddings from '~/server/utils/EmbeddingUtilities';
 
 async function insertMissingDefinition(db: NodePgDatabase, embedderProvider: any, id: number, file: string) {
@@ -39,11 +39,8 @@ async function updateTokenCount(db: NodePgDatabase, id: number, definition: stri
     try {
         const json = JSON.parse(definition);
         const card = Cards.parseToV2(json);
-        const permanent = [card.data.description, card.data.personality];
-        const total = [card.data.description, card.data.personality, card.data.first_mes];
-        const tokensPermanent = encode(permanent.join('\n')).length;
-        const tokensTotal = encode(total.join('\n')).length;
-        await db.update(definitions).set({ tokensTotal: tokensTotal, tokensPermanent: tokensPermanent }).where(eq(definitions.id, id));
+        const tokens = await getTokenCounts(card);
+        await db.update(definitions).set({ tokensTotal: tokens.tokensTotal, tokensPermanent: tokens.tokensPermanent }).where(eq(definitions.id, id));
     } catch (err: any) {
         console.error(err);
     }
