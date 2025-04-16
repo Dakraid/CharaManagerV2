@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
             statusMessage: 'Query parameter "id" is missing or not a number',
         });
     }
-    const id = validatedQuery.data.number;
+    const id = validatedQuery.data.id;
 
     const db = event.context.$db;
     if (!db) {
