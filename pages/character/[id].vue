@@ -1,7 +1,11 @@
 <script setup lang="ts">
+import { getEditorDefaults } from '@pqina/pintura';
+import '@pqina/pintura/pintura.css';
+import { PinturaEditor } from '@pqina/vue-pintura';
 import * as Cards from 'character-card-utils';
 
 const route = useRoute();
+const runtimeConfig = useRuntimeConfig();
 const characterStore = useCharacterStore();
 
 definePageMeta({
@@ -18,6 +22,30 @@ characterStore.loading = true;
 const activeCharacter = ref<CharacterWithDef>();
 const activeDefinition = ref<Cards.V2>();
 
+const showEditor = ref(false);
+
+async function displayEditor() {
+    showEditor.value = true;
+}
+
+const inlineSrc = ref();
+const inlineResult = ref();
+
+const editorProps = {
+    imageCropAspectRatio: 384 / 576,
+    ...getEditorDefaults(),
+};
+
+const handleInlineLoad = (event: any) => {
+    console.log('inline load', event.detail);
+};
+
+const handleInlineProcess = (event: any) => {
+    console.log('inline process', event.detail);
+    inlineResult.value = URL.createObjectURL(event.detail.dest);
+    showEditor.value = false;
+};
+
 onMounted(async () => {
     if (validateIdRouteParameter(route) && activeCharacter.value === undefined) {
         const character = await $fetch<CharacterWithDef>('/api/chars/character', {
@@ -27,6 +55,10 @@ onMounted(async () => {
 
         if (character) {
             activeCharacter.value = character;
+
+            inlineSrc.value = runtimeConfig.public.imageDomain.endsWith('/')
+                ? `${runtimeConfig.public.imageDomain}full/${activeCharacter.value.id}.png`
+                : `${runtimeConfig.public.imageDomain}/full/${activeCharacter.value.id}.png`;
 
             let json;
             if (activeCharacter.value.definition.includes('\\"spec\\"')) {
@@ -47,11 +79,29 @@ onMounted(async () => {
     <Transition name="fade" mode="out-in">
         <div v-if="characterStore.loading && activeCharacter === undefined" />
         <CommonError v-else-if="!characterStore.loading && activeCharacter === undefined" error="Character not found" class="rounded-xl" />
+        <PinturaEditor
+            v-else-if="!characterStore.loading && activeCharacter && showEditor"
+            v-bind="editorProps"
+            :src="inlineSrc"
+            @pintura:load="handleInlineLoad($event)"
+            @pintura:process="handleInlineProcess($event)" />
         <div v-else class="flex h-full w-full flex-wrap items-center justify-center gap-2 overflow-y-auto px-4 lg:flex-nowrap">
-            <CharsDetailsImage v-if="activeCharacter" :character="activeCharacter" />
+            <CharsDetailsImage v-if="activeCharacter" :character="activeCharacter" @edit="displayEditor" />
             <CharsDetailsEditor v-if="activeCharacter && activeDefinition" v-model:character="activeCharacter" v-model:definition="activeDefinition" />
         </div>
     </Transition>
 </template>
 
-<style scoped></style>
+<style>
+.pintura-editor {
+    --color-background: 255, 255, 255;
+    --color-foreground: 0, 0, 0;
+}
+
+@media (prefers-color-scheme: dark) {
+    .pintura-editor {
+        --color-background: 0, 0, 0;
+        --color-foreground: 255, 255, 255;
+    }
+}
+</style>

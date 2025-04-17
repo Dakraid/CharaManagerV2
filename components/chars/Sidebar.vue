@@ -1,7 +1,7 @@
 <script setup lang="ts"></script>
 
 <template>
-    <div class="Container gap-2 h-[calc(100vh_-_theme(spacing.36))]">
+    <div class="Container gap-2 h-[calc(100vh_-_theme(spacing.36))] w-full">
         <Button type="submit" class="mt-2 w-full Button">Create New</Button>
         <Tabs id="control-tabs" default-value="file" class="w-full Controls">
             <TabsList class="mb-2 grid w-full grid-cols-2">

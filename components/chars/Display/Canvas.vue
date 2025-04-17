@@ -65,10 +65,8 @@ async function loadImage() {
             const ctx = canvasRef.value.getContext('2d');
             if (!ctx) return;
 
-            // Store original image for zoom functionality
             originalImage.value = image;
 
-            // Clear canvas
             ctx.clearRect(0, 0, canvasRef.value.width, canvasRef.value.height);
 
             // Apply blur filter if needed
@@ -81,7 +79,6 @@ async function loadImage() {
                 ctx.setTransform(1, 0, 0, 1, 0, 0);
             }
 
-            // Draw image on canvas
             ctx.drawImage(image, 0, 0, canvasRef.value.width, canvasRef.value.height);
 
             imageLoaded.value = true;
@@ -89,7 +86,6 @@ async function loadImage() {
 
         image.onerror = (error) => {
             console.error('Failed to load image:', error);
-            // Draw placeholder or error state
             if (canvasRef.value) {
                 const ctx = canvasRef.value.getContext('2d');
                 if (ctx) {
@@ -105,7 +101,6 @@ async function loadImage() {
     }
 }
 
-// Zoom functionality
 function handleMouseMove(event: MouseEvent) {
     if (!canvasRef.value) return;
 
@@ -128,18 +123,14 @@ function updateZoom() {
     const zoomWidth = zoomCanvasRef.value.width;
     const zoomHeight = zoomCanvasRef.value.height;
 
-    // Clear the zoom canvas
     zoomCtx.clearRect(0, 0, zoomWidth, zoomHeight);
 
-    // Calculate source dimensions (the area we want to zoom)
     const sourceWidth = zoomWidth / appStore.zoomLevel;
     const sourceHeight = zoomHeight / appStore.zoomLevel;
 
-    // Calculate source position (center around mouse)
     const sourceX = Math.max(0, Math.min(x - sourceWidth / 2, canvasRef.value.width - sourceWidth));
     const sourceY = Math.max(0, Math.min(y - sourceHeight / 2, canvasRef.value.height - sourceHeight));
 
-    // Draw the zoomed portion
     zoomCtx.drawImage(
         originalImage.value,
         sourceX * (originalImage.value.width / canvasRef.value.width),
@@ -168,7 +159,6 @@ async function triggerDownload(character: Character) {
     });
 }
 
-// Watch for changes to blurChars and reload image
 watch(
     () => appStore.blurChars,
     () => {
@@ -178,7 +168,6 @@ watch(
     }
 );
 
-// Watch for changes to imageQuality and reload image
 watch(
     () => appStore.imageQuality,
     () => {

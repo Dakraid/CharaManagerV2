@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ImageUp } from 'lucide-vue-next';
+import { ImageUp, Pencil } from 'lucide-vue-next';
 import { useToast } from '~/components/ui/toast';
 import { cn } from '~/lib/utils';
 
@@ -8,6 +8,7 @@ const { toast } = useToast();
 const props = defineProps<{
     character: Character;
 }>();
+defineEmits(['edit']);
 
 const appStore = useAppStore();
 const runtimeConfig = useRuntimeConfig();
@@ -81,7 +82,7 @@ async function uploadImage() {
 </script>
 
 <template>
-    <Card class="flex flex-col w-full h-min max-h-[calc(100vh_-_theme(spacing.16))] min-w-[434px] lg:max-w-[434px] lg:h-full">
+    <Card class="flex flex-col w-full h-min max-h-[calc(100vh_-_theme(spacing.16))] lg:max-w-[434px] lg:h-full">
         <CardHeader>
             <div class="flex flex-col gap-2">
                 <h1 class="text-center text-sm text-muted-foreground">Image Replacement</h1>
@@ -95,18 +96,23 @@ async function uploadImage() {
             </div>
         </CardHeader>
         <CardContent class="flex flex-1 items-center justify-center p-6 pt-0 pb-0">
-            <NuxtImg
-                :id="eTag"
-                :key="eTag"
-                :alt="character.charName"
-                :class="cn('h-[576px] w-[384px] mx-auto object-cover rounded-xl transition-all', appStore.blurChars ? 'blur-2xl' : '')"
-                :quality="100"
-                :src="imageUri"
-                format="webp"
-                height="576"
-                placeholder="Placeholder.png"
-                placeholder-class="rounded-xl h-[576ppx] w-[384px] bg-muted"
-                width="384" />
+            <div class="Viewer">
+                <NuxtImg
+                    :id="eTag"
+                    :key="eTag"
+                    :alt="character.charName"
+                    :class="cn('Image h-[576px] mx-auto object-cover rounded-xl transition-all', appStore.blurChars ? 'blur-2xl' : '')"
+                    :quality="100"
+                    :src="imageUri"
+                    format="png"
+                    height="576"
+                    placeholder="Placeholder.png"
+                    placeholder-class="Image rounded-xl h-[576px] bg-muted"
+                    width="384" />
+                <Button variant="secondary" size="icon" class="h-full w-full rounded-full Button" @click="$emit('edit')">
+                    <Pencil class="z-10 h-4 w-4" />
+                </Button>
+            </div>
         </CardContent>
         <CardFooter class="p-6 min-h-10">
             <div class="h-10"></div>
@@ -114,4 +120,19 @@ async function uploadImage() {
     </Card>
 </template>
 
-<style scoped></style>
+<style scoped>
+.Viewer {
+    display: grid;
+    grid-template-columns: 1fr 2rem 0.25rem;
+    grid-template-rows: 0.25rem 2rem 1fr;
+    gap: 0;
+}
+
+.Image {
+    grid-area: 1 / 1 / 4 / 4;
+}
+
+.Button {
+    grid-area: 2 / 2 / 3 / 3;
+}
+</style>

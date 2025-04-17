@@ -1,5 +1,4 @@
 export default defineEventHandler(async (event) => {
-    await Authenticate(event);
     const db = event.context.$db;
 
     if (!db) {

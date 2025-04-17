@@ -33,6 +33,8 @@
         "@nuxtjs/robots": "^5.2.9",
         "@panzoom/panzoom": "^4.6.0",
         "@pinia/nuxt": "^0.11.0",
+        "@pqina/pintura": "^8.92.12",
+        "@pqina/vue-pintura": "^9.0.2",
         "@tailwindcss/vite": "^4.1.3",
         "@tsparticles/engine": "^3.8.1",
         "@tsparticles/slim": "^3.8.1",

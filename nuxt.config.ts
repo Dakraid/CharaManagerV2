@@ -1,3 +1,13 @@
+import { execSync } from 'child_process';
+
+// Get git info at build time
+let gitCommitHash = 'unknown';
+try {
+    gitCommitHash = execSync('git rev-parse --short HEAD').toString().trim();
+} catch (error) {
+    console.warn('Unable to get git commit hash', error);
+}
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
     compatibilityDate: '2024-04-03',
@@ -112,6 +122,10 @@ export default defineNuxtConfig({
         blockAiBots: true,
     },
     runtimeConfig: {
+        public: {
+            gitCommitHash: gitCommitHash,
+            imageDomain: '',
+        },
         debugMode: false,
         // Registration
         allowRegistration: true,
@@ -237,9 +251,6 @@ Output your results as valid JSON. An example of the output format is (the conte
         captchaSolverKey: '',
         // Image File Settings
         imageFolder: '',
-        public: {
-            imageDomain: '',
-        },
         // Experimental
         expUseS3ImageStore: false,
         // S3 Configuration

@@ -1,7 +1,6 @@
 export const useCharacterStore = defineStore('chars', {
     state: () => ({
         count: 0,
-        activeCharacter: -1,
         characters: [] as Character[] | undefined,
         loading: false,
         currentPage: 1,
@@ -24,13 +23,16 @@ export const useCharacterStore = defineStore('chars', {
         async fetchCharacters() {
             const appStore = useAppStore();
             try {
-                this.characters = await $fetch<Character[]>('/api/chars/characters', {
-                    method: 'GET',
-                    query: {
-                        page: this.currentPage,
-                        perPage: appStore.perPage,
-                    },
-                });
+                const { data } = await useCachedAsyncData<Character[]>(`characters:${this.highestId}-${appStore.perPage}-${this.count}`, () =>
+                    $fetch<Character[]>('/api/chars/characters', {
+                        method: 'GET',
+                        query: {
+                            page: this.currentPage,
+                            perPage: appStore.perPage,
+                        },
+                    })
+                );
+                this.characters = data.value ?? undefined;
             } catch (err: any) {
                 console.warn('Failed to fetch the characters: %s', err);
             }

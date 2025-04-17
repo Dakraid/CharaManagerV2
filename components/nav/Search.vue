@@ -188,7 +188,7 @@ async function OnClear() {
             :hide-label="true"
             :hard-corners="true"
             placeholder="Filter by name..."
-            class="z-10 w-full rounded-r-none rounded-l-none lg:min-w-[202px]"
+            class="z-10 w-full rounded-r-none rounded-l-none"
             :options="[ComparisonOperator.Disabled, ComparisonOperator.Equal, ComparisonOperator.NotEqual, ComparisonOperator.Like, ComparisonOperator.Unlike]" />
 
         <Button id="save" type="submit" variant="outline" class="rounded-l-none border-l-0" @click="onSubmit">

@@ -21,7 +21,7 @@ async function updatePerPage(perPage: number) {
 </script>
 
 <template>
-    <div class="items-center justify-center gap-2 pagination-grid lg:gap-8">
+    <div class="items-center justify-center gap-2 px-2 pagination-grid lg:gap-8">
         <div class="flex h-10 w-40 justify-center rounded-md border p-2 total border-input bg-background ring-offset-background md:w-48">
             <h1 class="text-center text-sm">Total Items: {{ characterStore.count }}</h1>
         </div>
@@ -31,6 +31,7 @@ async function updatePerPage(perPage: number) {
                 :page="characterStore.currentPage"
                 :total="characterStore.count - appStore.perPage"
                 :items-per-page="appStore.perPage"
+                :sibling-count="1"
                 show-edges
                 class="controls"
                 @update:page="updatePage">

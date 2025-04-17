@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ChartLine, Home, Logs, Waypoints } from 'lucide-vue-next';
+import { ChartArea, Home, Logs, Network } from 'lucide-vue-next';
 import { cn } from '~/lib/utils';
 
 const route = useRoute();
@@ -28,7 +28,7 @@ const route = useRoute();
             )
         ">
         <div class="flex items-center justify-center gap-2">
-            <Waypoints class="h-[1.2rem] w-[1.2rem]" />
+            <Network class="h-[1.2rem] w-[1.2rem]" />
             Relations
         </div>
     </NuxtLink>
@@ -41,7 +41,7 @@ const route = useRoute();
             )
         ">
         <div class="flex items-center justify-center gap-2">
-            <ChartLine class="h-[1.2rem] w-[1.2rem]" />
+            <ChartArea class="h-[1.2rem] w-[1.2rem]" />
             Statistics
         </div>
     </NuxtLink>

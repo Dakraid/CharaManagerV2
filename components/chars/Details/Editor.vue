@@ -94,7 +94,7 @@ onMounted(async () => {
         <CardHeader class="flex flex-col p-6 pb-0">
             <CardTitle class="flex flex-row">
                 <Badge variant="outline" class="flex h-10 w-48 justify-center rounded-md rounded-r-none">#{{ character.id }}</Badge>
-                <Input v-model="definition.data.name" class="border-x-0 rounded-none z-10" />
+                <Input v-model="definition.data.name" class="z-10 rounded-none border-x-0" />
                 <Badge variant="outline" class="flex h-10 w-48 justify-center rounded-md rounded-l-none">{{ dayjs(character.uploadDate).format('DD.MM.YYYY HH:mm:ss') }}</Badge>
             </CardTitle>
             <CardDescription>
@@ -116,42 +116,42 @@ onMounted(async () => {
                 </Select>
             </CardDescription>
         </CardHeader>
-        <CardContent class="flex items-center justify-center h-full px-6 py-2 overflow-hidden">
+        <CardContent class="flex h-full items-center justify-center overflow-hidden px-6 py-2">
             <Transition name="fade" mode="out-in">
-                <ScrollArea v-if="selectedEditor === 'general'" class="flex flex-col gap-8 w-full h-full height-fix p-3 pr-6 border rounded-md">
-                    <div class="flex-1 h-full mb-8">
-                        <Label for="description" class="text-xl mb-4">Description</Label>
+                <ScrollArea v-if="selectedEditor === 'general'" class="flex h-full w-full flex-col gap-8 rounded-md border p-3 pr-6 height-fix">
+                    <div class="mb-8 h-full flex-1">
+                        <Label for="description" class="mb-4 text-xl">Description</Label>
                         <Textarea id="description" v-model="definition.data.description" spellcheck="true" class="h-full" />
                     </div>
 
-                    <div class="flex-1 h-full mb-8">
-                        <Label for="first_message" class="text-xl mb-4">First Message</Label>
+                    <div class="mb-8 h-full flex-1">
+                        <Label for="first_message" class="mb-4 text-xl">First Message</Label>
                         <Textarea id="first_message" v-model="definition.data.first_mes" spellcheck="true" class="h-full" />
                     </div>
 
-                    <div class="flex-1 h-full mb-8">
-                        <Label for="personality" class="text-xl mb-4">Personality</Label>
+                    <div class="mb-8 h-full flex-1">
+                        <Label for="personality" class="mb-4 text-xl">Personality</Label>
                         <Textarea id="personality" v-model="definition.data.personality" spellcheck="true" class="h-full" />
                     </div>
 
-                    <div class="flex-1 h-full mb-8">
-                        <Label for="scenario" class="text-xl mb-4">Scenario</Label>
+                    <div class="mb-8 h-full flex-1">
+                        <Label for="scenario" class="mb-4 text-xl">Scenario</Label>
                         <Textarea id="scenario" v-model="definition.data.scenario" spellcheck="true" class="h-full" />
                     </div>
                 </ScrollArea>
-                <ScrollArea v-else-if="selectedEditor === 'alternatives'" class="flex flex-col gap-8 w-full h-full height-fix p-3 pr-6 border rounded-md">
-                    <Label for="alt_greetings" class="text-xl my-2">Alternative Greetings</Label>
+                <ScrollArea v-else-if="selectedEditor === 'alternatives'" class="flex h-full w-full flex-col gap-8 rounded-md border p-3 pr-6 height-fix">
+                    <Label for="alt_greetings" class="my-2 text-xl">Alternative Greetings</Label>
                     <Button id="save" type="submit" variant="outline" class="my-2" @click="addGreeting">
                         <span class="sr-only">Add Greeting</span>
                         <MessageSquarePlus class="h-6 w-6" />
                     </Button>
                     <ScrollArea id="alt_greetings" class="height-fix">
-                        <div v-for="(item, index) in definition.data.alternate_greetings" :key="item" class="grid grid-cols-[1fr_48px] h-full gap-2 mb-2">
+                        <div v-for="(item, index) in definition.data.alternate_greetings" :key="item" class="mb-2 grid h-full gap-2 grid-cols-[1fr_48px]">
                             <Textarea v-model="definition.data.alternate_greetings[index]" class="h-full" spellcheck="true" />
                             <Button
                                 type="submit"
                                 variant="outline"
-                                class="border-destructive text-destructive-foreground hover:bg-destructive/20 h-full p-0"
+                                class="h-full p-0 border-destructive text-destructive-foreground hover:bg-destructive/20"
                                 @click="deleteAlternativeMessage(index)">
                                 <span class="sr-only">Delete</span>
                                 <Trash2 class="h-6 w-6 stroke-destructive" />
@@ -159,39 +159,39 @@ onMounted(async () => {
                         </div>
                     </ScrollArea>
                 </ScrollArea>
-                <ScrollArea v-else-if="selectedEditor === 'examples'" class="flex flex-col gap-8 w-full h-full height-fix p-3 pr-6 border rounded-md">
-                    <Label for="alt_greetings" class="text-xl mb-2">Message Examples</Label>
+                <ScrollArea v-else-if="selectedEditor === 'examples'" class="flex h-full w-full flex-col gap-8 rounded-md border p-3 pr-6 height-fix">
+                    <Label for="alt_greetings" class="mb-2 text-xl">Message Examples</Label>
                     <Textarea id="examples" v-model="definition.data.mes_example" spellcheck="true" class="h-full" />
                 </ScrollArea>
-                <ScrollArea v-else-if="selectedEditor === 'prompts'" class="flex flex-col gap-8 w-full h-full height-fix p-3 pr-6 border rounded-md">
-                    <div class="flex-1 h-full mb-8">
-                        <Label for="system_prompt" class="text-xl mb-4">System Prompt</Label>
+                <ScrollArea v-else-if="selectedEditor === 'prompts'" class="flex h-full w-full flex-col gap-8 rounded-md border p-3 pr-6 height-fix">
+                    <div class="mb-8 h-full flex-1">
+                        <Label for="system_prompt" class="mb-4 text-xl">System Prompt</Label>
                         <Textarea id="system_prompt" v-model="definition.data.system_prompt" spellcheck="true" class="h-full" />
                     </div>
 
-                    <div class="flex-1 h-full mb-8">
-                        <Label for="post_history_instructions" class="text-xl mb-4">Post History Instructions</Label>
+                    <div class="mb-8 h-full flex-1">
+                        <Label for="post_history_instructions" class="mb-4 text-xl">Post History Instructions</Label>
                         <Textarea id="post_history_instructions" v-model="definition.data.post_history_instructions" spellcheck="true" class="h-full" />
                     </div>
                 </ScrollArea>
-                <ScrollArea v-else-if="selectedEditor === 'creator'" class="flex flex-col gap-8 w-full h-full height-fix p-3 pr-6 border rounded-md">
-                    <div class="flex-1 h-full mb-8">
-                        <Label for="creator" class="text-xl mb-4">Creator</Label>
+                <ScrollArea v-else-if="selectedEditor === 'creator'" class="flex h-full w-full flex-col gap-8 rounded-md border p-3 pr-6 height-fix">
+                    <div class="mb-8 h-full flex-1">
+                        <Label for="creator" class="mb-4 text-xl">Creator</Label>
                         <Textarea id="creator" v-model="definition.data.creator" spellcheck="true" class="h-full" />
                     </div>
 
-                    <div class="flex-1 h-full mb-8">
-                        <Label for="creator_notes" class="text-xl mb-4">Creator Notes</Label>
+                    <div class="mb-8 h-full flex-1">
+                        <Label for="creator_notes" class="mb-4 text-xl">Creator Notes</Label>
                         <Textarea id="creator_notes" v-model="definition.data.creator_notes" spellcheck="true" class="h-full" />
                     </div>
 
-                    <div class="flex-1 h-full mb-8">
-                        <Label for="character_version" class="text-xl mb-4">Creator Notes</Label>
+                    <div class="mb-8 h-full flex-1">
+                        <Label for="character_version" class="mb-4 text-xl">Creator Notes</Label>
                         <Textarea id="character_version" v-model="definition.data.character_version" spellcheck="true" class="h-full" />
                     </div>
 
-                    <div class="flex-1 h-full mb-8">
-                        <Label for="tags" class="text-xl mb-4">Tags</Label>
+                    <div class="mb-8 h-full flex-1">
+                        <Label for="tags" class="mb-4 text-xl">Tags</Label>
                         <TagsInput v-model="definition.data.tags" if="character_tags">
                             <TagsInputItem v-for="item in definition.data.tags" :key="item" :value="item">
                                 <TagsInputItemText />
@@ -201,9 +201,9 @@ onMounted(async () => {
                         </TagsInput>
                     </div>
                 </ScrollArea>
-                <ScrollArea v-else-if="selectedEditor === 'dump'" class="flex flex-col gap-8 w-full h-full height-fix p-3 pr-6 border rounded-md">
-                    <div class="flex-1 h-full mb-8">
-                        <Label for="json" class="text-xl mb-4">JSON Dump</Label>
+                <ScrollArea v-else-if="selectedEditor === 'dump'" class="flex h-full w-full flex-col gap-8 rounded-md border p-3 pr-6 height-fix">
+                    <div class="mb-8 h-full flex-1">
+                        <Label for="json" class="mb-4 text-xl">JSON Dump</Label>
                         <Textarea id="json" v-model="jsonDump" spellcheck="true" class="h-full" />
                     </div>
                 </ScrollArea>
