@@ -7,6 +7,7 @@ const { toast } = useToast();
 
 const props = defineProps<{
     character: Character;
+    eTag: string;
 }>();
 defineEmits(['edit']);
 
@@ -18,7 +19,6 @@ const imageUri = runtimeConfig.public.imageDomain.endsWith('/')
     : `${runtimeConfig.public.imageDomain}/full/${props.character.id}.png`;
 
 const newFile = ref('');
-const eTag = ref(props.character.etag);
 
 async function clearFileInput(ctrl: any) {
     try {
@@ -67,8 +67,6 @@ async function uploadImage() {
         if (!data.value) {
             throw new Error('No E-Tag returned');
         }
-
-        eTag.value = data.value;
     } catch (err: any) {
         toast({
             title: 'Failed to save definition',

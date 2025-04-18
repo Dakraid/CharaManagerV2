@@ -40,7 +40,6 @@ export default defineNuxtConfig({
         '@vite-pwa/nuxt',
         '@vueuse/motion/nuxt',
         'nuxt-auth-utils',
-        'nuxt-booster',
         'nuxt-echarts',
         'nuxt-file-storage',
         'nuxt-lodash',

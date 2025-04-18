@@ -2,7 +2,6 @@
 import { cn } from '~/lib/utils';
 
 const config = useRuntimeConfig();
-const characterStore = useCharacterStore();
 const isDark = computed(() => useColorMode().value == 'dark');
 
 const allowRegistration = ref(false);
@@ -13,10 +12,6 @@ const response = await $fetch<boolean>('/api/auth/show', {
 });
 
 allowRegistration.value = response ?? false;
-
-onMounted(() => {
-    characterStore.loading = false;
-});
 </script>
 
 <template>

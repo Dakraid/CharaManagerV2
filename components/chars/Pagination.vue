@@ -4,11 +4,11 @@ const appStore = useAppStore();
 const characterStore = useCharacterStore();
 
 async function updatePage(page: number) {
-    characterStore.currentPage = page;
+    appStore.currentPage = page;
 
     await router.push({
         path: '',
-        query: { page: characterStore.currentPage },
+        query: { page: appStore.currentPage },
     });
 
     await characterStore.refreshCharacters();
@@ -21,14 +21,14 @@ async function updatePerPage(perPage: number) {
 </script>
 
 <template>
-    <div class="items-center justify-center gap-2 px-2 pagination-grid lg:gap-8">
+    <div class="items-center justify-center gap-2 pb-4 pagination-grid lg:gap-8">
         <div class="flex h-10 w-40 justify-center rounded-md border p-2 total border-input bg-background ring-offset-background md:w-48">
             <h1 class="text-center text-sm">Total Items: {{ characterStore.count }}</h1>
         </div>
 
         <ClientOnly>
             <Pagination
-                :page="characterStore.currentPage"
+                :page="appStore.currentPage"
                 :total="characterStore.count - appStore.perPage"
                 :items-per-page="appStore.perPage"
                 :sibling-count="1"
@@ -41,7 +41,7 @@ async function updatePerPage(perPage: number) {
 
                     <template v-for="(item, index) in items">
                         <PaginationListItem v-if="item.type === 'page'" :key="index" :value="item.value" as-child>
-                            <Button class="h-10 w-10 p-0" :variant="item.value === characterStore.currentPage ? 'default' : 'outline'">
+                            <Button class="h-10 w-10 p-0" :variant="item.value === appStore.currentPage ? 'default' : 'outline'">
                                 {{ item.value }}
                             </Button>
                         </PaginationListItem>

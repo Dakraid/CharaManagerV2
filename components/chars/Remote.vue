@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { toTypedSchema } from '@vee-validate/zod';
-import { CircleX, LoaderCircle } from 'lucide-vue-next';
+import { CircleX, LoaderCircle, Plus, X } from 'lucide-vue-next';
 import { useForm } from 'vee-validate';
 import * as z from 'zod';
 import { useToast } from '~/components/ui/toast';
@@ -16,6 +16,8 @@ const files = ref<FileUpload[]>([]);
 const downloading = ref<boolean>(false);
 const personalityToCreatorNotes = ref<boolean>(false);
 const approveUpload = ref<string>('');
+const currentUrl = ref<string>('');
+const urlList = ref<string[]>([]);
 
 const urlPrefixes = ['https://www.chub.ai/characters/', 'https://jannyai.com/characters/', 'https://app.wyvern.chat/characters/'];
 
@@ -29,159 +31,118 @@ const urlSchema = z
             return validPrefix && prefixCount === 1;
         },
         {
-            message: "URL must start with 'https://www.chub.ai/characters/' or 'https://jannyai.com/characters/' and have only one occurrence of either.",
-        }
-    );
-
-const urlsArraySchema = z
-    .string()
-    .url()
-    .transform((val) => val.split('\n'))
-    .refine(
-        (urls) => {
-            return urls.every((url) => {
-                const validPrefix = urlPrefixes.some((prefix) => url.startsWith(prefix));
-                const prefixCount = urlPrefixes.reduce((count, prefix) => count + (url.includes(prefix) ? 1 : 0), 0);
-                return validPrefix && prefixCount === 1;
-            });
-        },
-        {
-            message: "Each URL must start with 'https://www.chub.ai/characters/' or 'https://jannyai.com/characters/' and have only one occurrence of either.",
+            message:
+                "URL must start with 'https://www.chub.ai/characters/' or 'https://jannyai.com/characters/' or 'https://app.wyvern.chat/characters/' and have only one occurrence of either.",
         }
     );
 
 const formSchema = toTypedSchema(
     z.object({
-        links: z.union([urlSchema, urlsArraySchema]),
+        links: z.array(urlSchema).min(1, 'At least one URL is required'),
     })
 );
 
-const { handleSubmit } = useForm({
+const { handleSubmit, setValues, values } = useForm({
     validationSchema: formSchema,
+    initialValues: {
+        links: [],
+    },
 });
 
-const onSubmit = handleSubmit(async (values) => {
-    files.value = [];
-    downloading.value = true;
-    if (values.links.includes('\n')) {
-        try {
-            for (const value of (values.links as string).split('\n')) {
-                if (value.startsWith('https://www.chub.ai/')) {
-                    const { data, error } = await useFetch<FileUpload>('/api/sites/venusai', {
-                        method: 'POST',
-                        body: {
-                            targetUri: value,
-                        },
-                    });
+function addUrl() {
+    if (!currentUrl.value) return;
 
-                    if (!data.value) {
-                        toast({
-                            title: 'Error',
-                            description: error.value?.message,
-                            variant: 'destructive',
-                        });
-
-                        continue;
-                    }
-
-                    files.value.push(data.value);
-                } else if (value.startsWith('https://jannyai.com')) {
-                    const { data, error } = await useFetch<FileUpload>('/api/sites/jannyai', {
-                        method: 'POST',
-                        body: {
-                            targetUri: value,
-                        },
-                    });
-
-                    if (!data.value) {
-                        toast({
-                            title: 'Error',
-                            description: error.value?.message,
-                            variant: 'destructive',
-                        });
-
-                        continue;
-                    }
-
-                    files.value.push(data.value);
-                } else if (value.startsWith('https://app.wyvern.chat')) {
-                    const { data, error } = await useFetch<FileUpload>('/api/sites/wyvern', {
-                        method: 'POST',
-                        body: {
-                            targetUri: value,
-                        },
-                    });
-
-                    if (!data.value) {
-                        toast({
-                            title: 'Error',
-                            description: error.value?.message,
-                            variant: 'destructive',
-                        });
-
-                        continue;
-                    }
-
-                    files.value.push(data.value);
-                }
-            }
-        } catch (err: any) {
+    try {
+        urlSchema.parse(currentUrl.value);
+        urlList.value.push(currentUrl.value);
+        setValues({ links: urlList.value });
+        currentUrl.value = '';
+    } catch (error) {
+        if (error instanceof z.ZodError) {
             toast({
-                title: 'Error',
-                description: err.message,
-                variant: 'destructive',
-            });
-        }
-    } else {
-        try {
-            if ((values.links as string).startsWith('https://www.chub.ai/')) {
-                const { data, error } = await useFetch<FileUpload>('/api/sites/venusai', {
-                    method: 'POST',
-                    body: {
-                        targetUri: values.links,
-                    },
-                });
-
-                if (!data.value) {
-                    throw error;
-                }
-
-                files.value.push(data.value);
-            } else if ((values.links as string).startsWith('https://jannyai.com')) {
-                const { data, error } = await useFetch<FileUpload>('/api/sites/jannyai', {
-                    method: 'POST',
-                    body: {
-                        targetUri: values.links,
-                    },
-                });
-
-                if (!data.value) {
-                    throw error;
-                }
-
-                files.value.push(data.value);
-            } else if ((values.links as string).startsWith('https://app.wyvern.chat')) {
-                const { data, error } = await useFetch<FileUpload>('/api/sites/wyvern', {
-                    method: 'POST',
-                    body: {
-                        targetUri: values.links,
-                    },
-                });
-
-                if (!data.value) {
-                    throw error;
-                }
-
-                files.value.push(data.value);
-            }
-        } catch (err: any) {
-            toast({
-                title: 'Error',
-                description: err.message,
+                title: 'Invalid URL',
+                description: error.errors[0].message,
                 variant: 'destructive',
             });
         }
     }
+}
+
+function removeUrl(index: number) {
+    urlList.value.splice(index, 1);
+    setValues({ links: urlList.value });
+}
+
+const onSubmit = handleSubmit(async (values) => {
+    files.value = [];
+    downloading.value = true;
+
+    try {
+        for (const url of values.links) {
+            if (url.startsWith('https://www.chub.ai/')) {
+                const { data, error } = await useFetch<FileUpload>('/api/sites/venusai', {
+                    method: 'POST',
+                    body: {
+                        targetUri: url,
+                    },
+                });
+
+                if (!data.value) {
+                    toast({
+                        title: 'Error',
+                        description: error.value?.message,
+                        variant: 'destructive',
+                    });
+                    continue;
+                }
+
+                files.value.push(data.value);
+            } else if (url.startsWith('https://jannyai.com')) {
+                const { data, error } = await useFetch<FileUpload>('/api/sites/jannyai', {
+                    method: 'POST',
+                    body: {
+                        targetUri: url,
+                    },
+                });
+
+                if (!data.value) {
+                    toast({
+                        title: 'Error',
+                        description: error.value?.message,
+                        variant: 'destructive',
+                    });
+                    continue;
+                }
+
+                files.value.push(data.value);
+            } else if (url.startsWith('https://app.wyvern.chat')) {
+                const { data, error } = await useFetch<FileUpload>('/api/sites/wyvern', {
+                    method: 'POST',
+                    body: {
+                        targetUri: url,
+                    },
+                });
+
+                if (!data.value) {
+                    toast({
+                        title: 'Error',
+                        description: error.value?.message,
+                        variant: 'destructive',
+                    });
+                    continue;
+                }
+
+                files.value.push(data.value);
+            }
+        }
+    } catch (err: any) {
+        toast({
+            title: 'Error',
+            description: err.message,
+            variant: 'destructive',
+        });
+    }
+
     downloading.value = false;
 });
 
@@ -214,6 +175,8 @@ async function uploadFiles() {
         });
     }
     files.value = [];
+    urlList.value = [];
+    setValues({ links: [] });
 
     await characterStore.refreshCharacters();
 }
@@ -240,19 +203,37 @@ onMounted(async () => {
 </script>
 
 <template>
-    <div class="flex flex-col gap-4">
-        <form class="w-full space-y-6" @submit="onSubmit">
-            <FormField v-slot="{ componentField }" name="links">
+    <div class="flex flex-col gap-4 w-full">
+        <form class="space-y-6 w-full" @submit="onSubmit">
+            <FormField name="links">
                 <FormItem>
                     <FormLabel>Source URIs</FormLabel>
                     <FormControl>
-                        <Textarea placeholder="Paste links here..." class="resize-none" v-bind="componentField" />
+                        <div class="space-y-2 w-full">
+                            <!-- Input for adding new URLs -->
+                            <div class="flex gap-2">
+                                <Input v-model="currentUrl" placeholder="Paste link here..." type="url" class="flex-grow" @keydown.enter.prevent="addUrl" />
+                                <Button type="button" variant="outline" size="icon" @click="addUrl">
+                                    <Plus class="h-4 w-4" />
+                                </Button>
+                            </div>
+
+                            <!-- List of added URLs -->
+                            <div v-if="urlList.length > 0" class="space-y-2 border rounded-md p-2 w-full">
+                                <div v-for="(url, index) in urlList" :key="index" class="flex items-center gap-2 w-full">
+                                    <div class="flex-grow text-sm truncate max-w-full overflow-hidden">{{ url }}</div>
+                                    <Button type="button" variant="ghost" size="icon" class="flex-shrink-0" @click="removeUrl(index)">
+                                        <X class="h-4 w-4" />
+                                    </Button>
+                                </div>
+                            </div>
+                        </div>
                     </FormControl>
-                    <FormDescription>One link per line.<br />Supported are VenusAI and JannyAI</FormDescription>
+                    <FormDescription>Add links from VenusAI, JannyAI, or Wyvern</FormDescription>
                     <FormMessage />
                 </FormItem>
             </FormField>
-            <Button type="submit" class="w-full">Fetch</Button>
+            <Button type="submit" class="w-full" :disabled="urlList.length === 0">Fetch</Button>
         </form>
 
         <Transition>

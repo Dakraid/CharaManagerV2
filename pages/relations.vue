@@ -19,12 +19,12 @@ useRouteCache((helper) => {
         .setMaxAge(3600)
         .setCacheable()
         .allowStaleWhileRevalidate()
-        .addTags([`relations:${characterStore.highestId}`]);
+        .addTags([`relations:${characterStore.characterHighest}`]);
 });
 
 const hasError = ref<boolean>(false);
 
-characterStore.loading = true;
+characterStore.updateLoadingState(true);
 
 let relations: Relation[] = [];
 try {
@@ -73,11 +73,7 @@ try {
     hasError.value = true;
 }
 
-characterStore.loading = hasError.value;
-
-async function onElementVisibility(state: boolean) {
-    characterStore.loading = !state;
-}
+characterStore.updateLoadingState(false);
 
 async function showCompare(parent: Character, child: Character) {
     await router.push({
@@ -89,13 +85,10 @@ async function showCompare(parent: Character, child: Character) {
 
 <template>
     <Transition>
-        <ScrollArea
-            v-if="parentCharacters.length > 0"
-            v-element-visibility="onElementVisibility"
-            class="max-h-[calc(100vh_-_theme(spacing.36))] rounded-md overflow-y-hidden scroll-smooth">
+        <ScrollArea v-if="parentCharacters.length > 0" class="max-h-[calc(100vh_-_theme(spacing.36))] rounded-md overflow-y-scroll">
             <div class="m-4 flex w-full flex-col gap-4 wrap">
-                <div v-for="parentCharacter in parentCharacters" :key="parentCharacter.id" class="Container w-full">
-                    <LazyCharsDisplayDefault :character="parentCharacter" class="Parent" />
+                <div v-for="parentCharacter in parentCharacters" :key="parentCharacter.id" class="Container w-full items-center justify-center">
+                    <LazyCharsDisplayDefault :character="parentCharacter" class="Parent w-full" />
                     <Separator orientation="vertical" class="my-auto h-full SeparatorY" />
                     <Transition>
                         <div v-if="childCharacters[parentCharacter.id] && childCharacters[parentCharacter.id].length > 0" class="flex flex-wrap gap-2 Child">

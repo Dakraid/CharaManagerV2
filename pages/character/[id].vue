@@ -3,6 +3,9 @@ import { getEditorDefaults } from '@pqina/pintura';
 import '@pqina/pintura/pintura.css';
 import { PinturaEditor } from '@pqina/vue-pintura';
 import * as Cards from 'character-card-utils';
+import { useToast } from '~/components/ui/toast';
+
+const { toast } = useToast();
 
 const route = useRoute();
 const runtimeConfig = useRuntimeConfig();
@@ -16,8 +19,6 @@ definePageMeta({
         }
     },
 });
-
-characterStore.loading = true;
 
 const activeCharacter = ref<CharacterWithDef>();
 const activeDefinition = ref<Cards.V2>();
@@ -37,14 +38,42 @@ const editorProps = {
 };
 
 const handleInlineLoad = (event: any) => {
-    console.log('inline load', event.detail);
+    // Empty for now
 };
 
-const handleInlineProcess = (event: any) => {
-    console.log('inline process', event.detail);
-    inlineResult.value = URL.createObjectURL(event.detail.dest);
+const handleInlineProcess = async (event: any) => {
     showEditor.value = false;
+
+    try {
+        const { data } = await useFetch<string>('/api/img/image', {
+            method: 'PUT',
+            body: {
+                id: activeCharacter.value!.id,
+                newImage: await blobToBase64(event.detail.dest),
+            },
+        });
+
+        if (!data.value) {
+            throw new Error('No E-Tag returned');
+        }
+
+        activeCharacter.value!.etag = data.value;
+    } catch (err: any) {
+        toast({
+            title: 'Failed to save definition',
+            description: err.message,
+            variant: 'destructive',
+        });
+    }
 };
+
+function blobToBase64(blob: Blob) {
+    return new Promise((resolve, _) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.readAsDataURL(blob);
+    });
+}
 
 onMounted(async () => {
     if (validateIdRouteParameter(route) && activeCharacter.value === undefined) {
@@ -71,22 +100,22 @@ onMounted(async () => {
         }
     }
 
-    characterStore.loading = false;
+    await characterStore.updateLoadingState(false);
 });
 </script>
 
 <template>
     <Transition name="fade" mode="out-in">
-        <div v-if="characterStore.loading && activeCharacter === undefined" />
-        <CommonError v-else-if="!characterStore.loading && activeCharacter === undefined" error="Character not found" class="rounded-xl" />
+        <div v-if="characterStore.loadingState && activeCharacter === undefined" />
+        <CommonError v-else-if="!characterStore.loadingState && activeCharacter === undefined" error="Character not found" class="rounded-xl" />
         <PinturaEditor
-            v-else-if="!characterStore.loading && activeCharacter && showEditor"
+            v-else-if="!characterStore.loadingState && activeCharacter && showEditor"
             v-bind="editorProps"
             :src="inlineSrc"
             @pintura:load="handleInlineLoad($event)"
             @pintura:process="handleInlineProcess($event)" />
         <div v-else class="flex h-full w-full flex-wrap items-center justify-center gap-2 overflow-y-auto px-4 lg:flex-nowrap">
-            <CharsDetailsImage v-if="activeCharacter" :character="activeCharacter" @edit="displayEditor" />
+            <CharsDetailsImage v-if="activeCharacter" :character="activeCharacter" :e-tag="activeCharacter.etag" @edit="displayEditor" />
             <CharsDetailsEditor v-if="activeCharacter && activeDefinition" v-model:character="activeCharacter" v-model:definition="activeDefinition" />
         </div>
     </Transition>

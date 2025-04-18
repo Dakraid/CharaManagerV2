@@ -23,7 +23,7 @@ import { Pencil } from 'lucide-vue-next';
                     <span class="sr-only">Toggle editor menu</span>
                 </Button>
             </SheetTrigger>
-            <SheetContent side="right" class="w-full md:w-[800px]">
+            <SheetContent side="right" class="w-full sm:max-w-[600px]">
                 <RenderCacheable>
                     <CharsSidebar class="pt-4" />
                 </RenderCacheable>
