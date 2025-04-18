@@ -1,22 +1,18 @@
-import dayjs from "dayjs";
-import {writeFile} from "node:fs/promises";
-import Jimp from "jimp-compact";
+import dayjs from 'dayjs';
 
 export default defineEventHandler(async (event) => {
     await Authenticate(event);
 
-    const {targetUri} = await readBody<{ targetUri: string }>(event);
-
-    const baseUrl = targetUri.split('/characters/')[0];
-    const characterPath = targetUri.split('/characters/')[1];
-    const fileName = 'main_' + characterPath.split('/')[1] + '_spec_v2.png';
-
-    if (!baseUrl.includes('chub.ai') && !baseUrl.includes('characterhub.org')) {
+    const validatedBody = await readValidatedBody(event, body => postVenusUriSchema.safeParse(body));
+    if (!validatedBody.success) {
         throw createError({
             statusCode: StatusCode.BAD_REQUEST,
-            statusMessage: 'Unsupported URL received: ' + targetUri,
+            statusMessage: validatedBody.error.message,
         });
     }
+
+    const characterPath = validatedBody.data.targetUri.split('/characters/')[1];
+    const fileName = 'main_' + characterPath.split('/')[1] + '_spec_v2.png';
 
     let apiResponse: any;
     try {
@@ -38,7 +34,7 @@ export default defineEventHandler(async (event) => {
                 name: fileName,
                 content: 'data:' + apiResponse.type + ';base64,' + buffer.toString('base64'),
                 lastModified: dayjs().format('YYYY-MM-DD HH:mm:ss'),
-                sourceUri: targetUri,
+                sourceUri: validatedBody.data.targetUri,
             };
         } else {
             const response = await fetch('https://api.chub.ai/api/characters/download', {
@@ -50,7 +46,7 @@ export default defineEventHandler(async (event) => {
                     fullPath: characterPath,
                     format: 'tavern',
                     version: 'main',
-                })
+                }),
             });
 
             if (!response.ok) {
@@ -62,7 +58,7 @@ export default defineEventHandler(async (event) => {
                 name: fileName,
                 content: 'data:' + apiResponse.type + ';base64,' + buffer.toString('base64'),
                 lastModified: dayjs().format('YYYY-MM-DD HH:mm:ss'),
-                sourceUri: targetUri,
+                sourceUri: validatedBody.data.targetUri,
             };
         }
     } catch (err: any) {

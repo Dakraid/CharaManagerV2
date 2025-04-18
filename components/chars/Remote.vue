@@ -17,7 +17,7 @@ const downloading = ref<boolean>(false);
 const personalityToCreatorNotes = ref<boolean>(false);
 const approveUpload = ref<string>('');
 
-const urlPrefixes = ['https://www.chub.ai/characters/', 'https://jannyai.com/characters/'];
+const urlPrefixes = ['https://www.chub.ai/characters/', 'https://jannyai.com/characters/', 'https://app.wyvern.chat/characters/'];
 
 const urlSchema = z
     .string()
@@ -104,6 +104,25 @@ const onSubmit = handleSubmit(async (values) => {
                     }
 
                     files.value.push(data.value);
+                } else if (value.startsWith('https://app.wyvern.chat')) {
+                    const { data, error } = await useFetch<FileUpload>('/api/sites/wyvern', {
+                        method: 'POST',
+                        body: {
+                            targetUri: value,
+                        },
+                    });
+
+                    if (!data.value) {
+                        toast({
+                            title: 'Error',
+                            description: error.value?.message,
+                            variant: 'destructive',
+                        });
+
+                        continue;
+                    }
+
+                    files.value.push(data.value);
                 }
             }
         } catch (err: any) {
@@ -130,6 +149,19 @@ const onSubmit = handleSubmit(async (values) => {
                 files.value.push(data.value);
             } else if ((values.links as string).startsWith('https://jannyai.com')) {
                 const { data, error } = await useFetch<FileUpload>('/api/sites/jannyai', {
+                    method: 'POST',
+                    body: {
+                        targetUri: values.links,
+                    },
+                });
+
+                if (!data.value) {
+                    throw error;
+                }
+
+                files.value.push(data.value);
+            } else if ((values.links as string).startsWith('https://app.wyvern.chat')) {
+                const { data, error } = await useFetch<FileUpload>('/api/sites/wyvern', {
                     method: 'POST',
                     body: {
                         targetUri: values.links,
