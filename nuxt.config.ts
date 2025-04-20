@@ -1,12 +1,15 @@
 import { execSync } from 'child_process';
+import { dirname, resolve } from 'path';
+import { fileURLToPath } from 'url';
 
-// Get git info at build time
 let gitCommitHash = 'unknown';
 try {
     gitCommitHash = execSync('git rev-parse --short HEAD').toString().trim();
 } catch (error) {
     console.warn('Unable to get git commit hash', error);
 }
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
@@ -86,6 +89,9 @@ export default defineNuxtConfig({
     },
     future: {
         typescriptBundlerResolution: true,
+    },
+    fileStorage: {
+        mount: resolve(__dirname, 'public/storage'),
     },
     colorMode: {
         classSuffix: '',

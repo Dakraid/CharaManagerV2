@@ -1,8 +1,10 @@
+import * as Cards from 'character-card-utils';
 import dayjs from 'dayjs';
 import { eq, inArray } from 'drizzle-orm';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { createHash } from 'node:crypto';
-import { inputImageToCharacter } from '~/server/utils/CharacterUtilities';
+import { extractDefinition } from '~/server/utils/Base64Image';
+import { cleanCharacterBook, inputImageToCharacter } from '~/server/utils/CharacterUtilities';
 import getEmbeddings from '~/server/utils/EmbeddingUtilities';
 
 function isDigitString(input: string): boolean {
@@ -82,6 +84,7 @@ export default defineEventHandler(async (event) => {
     const fileRows: FileRow[] = [];
     let result: { id: number }[] = [];
     let hasDuplicates = false;
+    const failures: string[] = [];
 
     const { files, personalityToCreatorNotes } = await readBody<{ files: FileUpload[]; personalityToCreatorNotes: boolean }>(event);
 
@@ -92,6 +95,24 @@ export default defineEventHandler(async (event) => {
                 if (fileRows.some((f) => f.hash === hash)) {
                     continue;
                 }
+
+                let isValid = false;
+                try {
+                    const cleanedContent = await cleanCharacterBook(extractDefinition(file.content));
+                    const content = JSON.parse(cleanedContent);
+                    const card = Cards.parseToV2(content);
+                    if (card?.data.description) {
+                        isValid = true;
+                    }
+                } catch (err: any) {
+                    console.warn('Received invalid character card: ' + file.name);
+                }
+
+                if (!isValid) {
+                    failures.push(file.name);
+                    continue;
+                }
+
                 if (isDigitString(file.lastModified)) {
                     fileRows.push({
                         file: file.content,
@@ -129,7 +150,9 @@ export default defineEventHandler(async (event) => {
         const cleaned = fileRows.filter((file) => duplicates.every((duplicate) => duplicate.hash !== file.hash));
 
         if (cleaned.length === 0) {
-            return 'No new files or all files are duplicates.';
+            return `No new files to process.${hasDuplicates ? ' Some files have been skipped due to being duplicates.' : ''}${
+                failures.length > 0 ? ` Some files have failed to save due to being invalid: ${failures.join(', ')}` : ''
+            }`;
         }
 
         if (fileRows.length > cleaned.length) {
@@ -149,7 +172,9 @@ export default defineEventHandler(async (event) => {
     });
 
     if (result.length === 0) {
-        return 'No new files or all files are duplicates.';
+        return `No new files to process.${hasDuplicates ? ' Some files have been skipped due to being duplicates.' : ''}${
+            failures.length > 0 ? ` Some files have failed to save due to being invalid: ${failures.join(', ')}` : ''
+        }`;
     }
 
     let updated: {
@@ -193,9 +218,7 @@ export default defineEventHandler(async (event) => {
     const p2 = runTask('ratings:generate', { payload: {} });
     await Promise.all([p1, p2]);
 
-    if (hasDuplicates) {
-        return 'Successfully uploaded files. Some files have been skipped due to being duplicates.';
-    }
-
-    return 'Successfully uploaded files.';
+    return `Successfully uploaded files.${hasDuplicates ? ' Some files have been skipped due to being duplicates.' : ''}${
+        failures.length > 0 ? ` Some files have failed to save due to being invalid: ${failures.join(', ')}` : ''
+    }`;
 });

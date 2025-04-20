@@ -9,9 +9,6 @@ export const useCharacterStore = defineStore('chars', {
         loadedCharacters: [] as Character[] | undefined,
     }),
     getters: {
-        loadingState(state): boolean {
-            return state.appLoading || state.isFetching;
-        },
         characterHighest(state): number {
             return state.highest;
         },

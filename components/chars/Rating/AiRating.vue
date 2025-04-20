@@ -6,23 +6,25 @@ const props = defineProps<{
 const rating = ref<RatingWithEval | undefined>(undefined);
 const average = ref(0);
 
-rating.value = await $fetch<RatingWithEval>('/api/ratings/rating', {
-    method: 'GET',
-    query: {
-        id: props.character.id,
-    },
-});
+if (props.character.charName) {
+    rating.value = await $fetch<RatingWithEval>('/api/ratings/rating', {
+        method: 'GET',
+        query: {
+            id: props.character.id,
+        },
+    });
 
-average.value =
-    (rating.value.aiGrammarAndSpellingScore +
-        rating.value.aiAppearanceScore +
-        rating.value.aiPersonalityScore +
-        rating.value.aiBackgroundScore +
-        rating.value.aiIntroductionScore +
-        rating.value.aiCreativeElementsScore +
-        rating.value.aiConsistencyScore +
-        rating.value.aiStructureScore) /
-    8;
+    average.value =
+        (rating.value.aiGrammarAndSpellingScore +
+            rating.value.aiAppearanceScore +
+            rating.value.aiPersonalityScore +
+            rating.value.aiBackgroundScore +
+            rating.value.aiIntroductionScore +
+            rating.value.aiCreativeElementsScore +
+            rating.value.aiConsistencyScore +
+            rating.value.aiStructureScore) /
+        8;
+}
 </script>
 
 <template>

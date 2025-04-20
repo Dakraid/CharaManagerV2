@@ -1,4 +1,8 @@
 import dayjs from 'dayjs';
+import * as Cards from 'character-card-utils';
+import type { V2 } from 'character-card-utils';
+import sharp from 'sharp';
+import { addDefinition, updateDefinition } from '~/server/utils/Base64Image';
 
 export default defineEventHandler(async (event) => {
     await Authenticate(event);
@@ -26,11 +30,24 @@ export default defineEventHandler(async (event) => {
             method: 'GET',
         });
 
+        let card: Cards.V2;
+        try {
+            card = Cards.parseToV2(wyvernJson);
+        } catch (err: any) {
+            throw createError({
+                statusCode: StatusCode.BAD_REQUEST,
+                statusMessage: 'Failed to parse character definition.',
+            });
+        }
+
         if (wyvernAvatar instanceof Blob || wyvernAvatar instanceof File) {
             const buffer = Buffer.from(await wyvernAvatar.arrayBuffer());
+            const pngBuffer = await sharp(buffer).png().toBuffer();
+            const newCard = addDefinition('data:image/png;base64,' + pngBuffer.toString('base64'), JSON.stringify(card));
+
             return <FileUpload>{
                 name: fileName,
-                content: 'data:' + wyvernAvatar.type + ';base64,' + buffer.toString('base64'),
+                content: newCard,
                 lastModified: dayjs().format('YYYY-MM-DD HH:mm:ss'),
                 sourceUri: validatedBody.data.targetUri,
             };

@@ -106,10 +106,10 @@ onMounted(async () => {
 
 <template>
     <Transition name="fade" mode="out-in">
-        <div v-if="characterStore.loadingState && activeCharacter === undefined" />
-        <CommonError v-else-if="!characterStore.loadingState && activeCharacter === undefined" error="Character not found" class="rounded-xl" />
+        <div v-if="(characterStore.appLoading || characterStore.isFetching) && activeCharacter === undefined" />
+        <CommonError v-else-if="!(characterStore.appLoading || characterStore.isFetching) && activeCharacter === undefined" error="Character not found" class="rounded-xl" />
         <PinturaEditor
-            v-else-if="!characterStore.loadingState && activeCharacter && showEditor"
+            v-else-if="!(characterStore.appLoading || characterStore.isFetching) && activeCharacter && showEditor"
             v-bind="editorProps"
             :src="inlineSrc"
             @pintura:load="handleInlineLoad($event)"
