@@ -179,6 +179,7 @@ async function uploadFiles() {
     setValues({ links: [] });
 
     await characterStore.refreshCharacters();
+    await characterStore.updateLoadingState(false);
 }
 
 async function removeFile(filename: string) {
