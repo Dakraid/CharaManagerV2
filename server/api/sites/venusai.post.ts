@@ -54,12 +54,12 @@ export default defineEventHandler(async (event) => {
             }
 
             const buffer = Buffer.from(await response.arrayBuffer());
-            return <FileUpload>{
+            return {
                 name: fileName,
                 content: 'data:' + apiResponse.type + ';base64,' + buffer.toString('base64'),
                 lastModified: dayjs().format('YYYY-MM-DD HH:mm:ss'),
                 sourceUri: validatedBody.data.targetUri,
-            };
+            } as FileUpload;
         }
     } catch (err: any) {
         console.error(err);

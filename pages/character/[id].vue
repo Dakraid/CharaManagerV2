@@ -2,7 +2,7 @@
 import { getEditorDefaults } from '@pqina/pintura';
 import '@pqina/pintura/pintura.css';
 import { PinturaEditor } from '@pqina/vue-pintura';
-import * as Cards from 'character-card-utils';
+import { Undo2 } from 'lucide-vue-next';
 import { useToast } from '~/components/ui/toast';
 
 const { toast } = useToast();
@@ -14,23 +14,20 @@ const characterStore = useCharacterStore();
 definePageMeta({
     middleware() {
         const { loggedIn, session } = useUserSession();
-        if (!loggedIn.value || !session.value.user) {
+        if (!loggedIn.value || !session.value?.user) {
             return navigateTo('/authenticate');
         }
     },
 });
 
-const activeCharacter = ref<CharacterWithDef>();
-const activeDefinition = ref<Cards.V2>();
+characterStore.loadedCharacter = undefined;
 
 const showEditor = ref(false);
+const inlineSrc = ref();
 
 async function displayEditor() {
     showEditor.value = true;
 }
-
-const inlineSrc = ref();
-const inlineResult = ref();
 
 const editorProps = {
     imageCropAspectRatio: 384 / 576,
@@ -48,7 +45,7 @@ const handleInlineProcess = async (event: any) => {
         const { data } = await useFetch<string>('/api/img/image', {
             method: 'PUT',
             body: {
-                id: activeCharacter.value!.id,
+                id: characterStore.loadedCharacter!.character.id,
                 newImage: await blobToBase64(event.detail.dest),
             },
         });
@@ -57,7 +54,7 @@ const handleInlineProcess = async (event: any) => {
             throw new Error('No E-Tag returned');
         }
 
-        activeCharacter.value!.etag = data.value;
+        characterStore.loadedCharacter!.character.etag = data.value;
     } catch (err: any) {
         toast({
             title: 'Failed to save definition',
@@ -76,47 +73,39 @@ function blobToBase64(blob: Blob) {
 }
 
 onMounted(async () => {
-    if (validateIdRouteParameter(route) && activeCharacter.value === undefined) {
-        const character = await $fetch<CharacterWithDef>('/api/chars/character', {
-            method: 'GET',
-            query: { id: route.params.id },
-        });
+    if (validateIdRouteParameter(route) && (characterStore.loadedCharacter === undefined || characterStore.loadedCharacter.character.id !== Number(route.params.id))) {
+        await characterStore.fetchCharacterWithDef(Number(route.params.id));
 
-        if (character) {
-            activeCharacter.value = character;
-
-            inlineSrc.value = runtimeConfig.public.imageDomain.endsWith('/')
-                ? `${runtimeConfig.public.imageDomain}full/${activeCharacter.value.id}.png`
-                : `${runtimeConfig.public.imageDomain}/full/${activeCharacter.value.id}.png`;
-
-            let json;
-            if (activeCharacter.value.definition.includes('\\"spec\\"')) {
-                json = JSON.parse(JSON.parse(activeCharacter.value.definition));
-            } else {
-                json = JSON.parse(activeCharacter.value.definition);
-            }
-
-            activeDefinition.value = Cards.parseToV2(json);
-        }
+        inlineSrc.value = runtimeConfig.public.imageDomain.endsWith('/')
+            ? `${runtimeConfig.public.imageDomain}full/${characterStore.loadedCharacter!.character.id}.png`
+            : `${runtimeConfig.public.imageDomain}/full/${characterStore.loadedCharacter!.character.id}.png`;
     }
 
-    await characterStore.updateLoadingState(false);
+    if (!characterStore.loadedCharacter) {
+        showError('No character loaded');
+    }
 });
 </script>
 
 <template>
     <Transition name="fade" mode="out-in">
-        <div v-if="(characterStore.appLoading || characterStore.isFetching) && activeCharacter === undefined" />
-        <CommonError v-else-if="!(characterStore.appLoading || characterStore.isFetching) && activeCharacter === undefined" error="Character not found" class="rounded-xl" />
+        <div v-if="characterStore.isFetching && characterStore.loadedCharacter === undefined" />
+        <CommonError v-else-if="!characterStore.isFetching && characterStore.loadedCharacter === undefined" error="Character not found" class="rounded-xl" />
         <PinturaEditor
-            v-else-if="!(characterStore.appLoading || characterStore.isFetching) && activeCharacter && showEditor"
+            v-else-if="!characterStore.isFetching && characterStore.loadedCharacter && showEditor"
             v-bind="editorProps"
             :src="inlineSrc"
             @pintura:load="handleInlineLoad($event)"
             @pintura:process="handleInlineProcess($event)" />
         <div v-else class="flex h-full w-full flex-wrap items-center justify-center gap-2 overflow-y-auto px-4 lg:flex-nowrap">
-            <CharsDetailsImage v-if="activeCharacter" :character="activeCharacter" :e-tag="activeCharacter.etag" @edit="displayEditor" />
-            <CharsDetailsEditor v-if="activeCharacter && activeDefinition" v-model:character="activeCharacter" v-model:definition="activeDefinition" />
+            <div class="flex flex-col w-full h-full items-center justify-center gap-2 overflow-y-auto flex-nowrap lg:max-w-[434px]">
+                <Button id="clear" type="submit" variant="outline" class="w-full" @click="$router.back()">
+                    <span class="sr-only">Back</span>
+                    <Undo2 class="h-[1.2rem] w-[1.2rem]" />
+                </Button>
+                <CharsDetailsImage @edit="displayEditor" />
+            </div>
+            <CharsDetailsEditor />
         </div>
     </Transition>
 </template>

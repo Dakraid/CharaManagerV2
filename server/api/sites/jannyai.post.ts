@@ -86,12 +86,12 @@ export default defineEventHandler(async (event) => {
     }
 
     if (characterFile.length > 0) {
-        return <FileUpload>{
+        return {
             name: `${characterFilename}.png`,
             content: 'data:image/png;base64,' + characterFile,
             lastModified: dayjs().format('YYYY-MM-DD HH:mm:ss'),
             sourceUri: validatedBody.data.targetUri,
-        };
+        } as FileUpload;
     }
 
     throw createError({

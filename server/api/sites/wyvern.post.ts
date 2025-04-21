@@ -1,13 +1,13 @@
-import dayjs from 'dayjs';
 import * as Cards from 'character-card-utils';
 import type { V2 } from 'character-card-utils';
+import dayjs from 'dayjs';
 import sharp from 'sharp';
 import { addDefinition, updateDefinition } from '~/server/utils/Base64Image';
 
 export default defineEventHandler(async (event) => {
     await Authenticate(event);
 
-    const validatedBody = await readValidatedBody(event, body => postWyvernUriSchema.safeParse(body));
+    const validatedBody = await readValidatedBody(event, (body) => postWyvernUriSchema.safeParse(body));
     if (!validatedBody.success) {
         throw createError({
             statusCode: StatusCode.BAD_REQUEST,
@@ -23,7 +23,6 @@ export default defineEventHandler(async (event) => {
                 'Content-Type': 'application/json',
             },
         });
-
 
         const fileName = 'main_' + wyvernJson.name + '_spec_v2.png';
         const wyvernAvatar = await $fetch(wyvernJson.avatar, {
@@ -45,12 +44,12 @@ export default defineEventHandler(async (event) => {
             const pngBuffer = await sharp(buffer).png().toBuffer();
             const newCard = addDefinition('data:image/png;base64,' + pngBuffer.toString('base64'), JSON.stringify(card));
 
-            return <FileUpload>{
+            return {
                 name: fileName,
                 content: newCard,
                 lastModified: dayjs().format('YYYY-MM-DD HH:mm:ss'),
                 sourceUri: validatedBody.data.targetUri,
-            };
+            } as FileUpload;
         } else {
             throw new Error('Unrecognized file format received.');
         }

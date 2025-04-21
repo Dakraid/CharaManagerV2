@@ -5,18 +5,15 @@ import { cn } from '~/lib/utils';
 
 const { toast } = useToast();
 
-const props = defineProps<{
-    character: Character;
-    eTag: string;
-}>();
 defineEmits(['edit']);
 
 const appStore = useAppStore();
 const runtimeConfig = useRuntimeConfig();
+const characterStore = useCharacterStore();
 
 const imageUri = runtimeConfig.public.imageDomain.endsWith('/')
-    ? `${runtimeConfig.public.imageDomain}full/${props.character.id}.png`
-    : `${runtimeConfig.public.imageDomain}/full/${props.character.id}.png`;
+    ? `${runtimeConfig.public.imageDomain}full/${characterStore.loadedCharacter!.character.id}.png`
+    : `${runtimeConfig.public.imageDomain}/full/${characterStore.loadedCharacter!.character.id}.png`;
 
 const newFile = ref('');
 
@@ -59,7 +56,7 @@ async function uploadImage() {
         const { data } = await useFetch<string>('/api/img/image', {
             method: 'PUT',
             body: {
-                id: props.character.id,
+                id: characterStore.loadedCharacter!.character.id,
                 newImage: newFile.value,
             },
         });
@@ -96,9 +93,9 @@ async function uploadImage() {
         <CardContent class="flex flex-1 items-center justify-center p-6 pt-0 pb-0">
             <div class="Viewer">
                 <NuxtImg
-                    :id="eTag"
-                    :key="eTag"
-                    :alt="character.charName"
+                    :id="characterStore.loadedCharacter!.character.etag"
+                    :key="characterStore.loadedCharacter!.character.etag"
+                    :alt="characterStore.loadedCharacter!.character.charName"
                     :class="cn('Image h-[576px] mx-auto object-cover rounded-xl transition-all', appStore.blurChars ? 'blur-2xl' : '')"
                     :quality="100"
                     :src="imageUri"

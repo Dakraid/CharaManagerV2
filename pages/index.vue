@@ -44,7 +44,7 @@ onMounted(async () => {
         </Transition>
         <Transition name="fade" mode="out-in">
             <div
-                v-if="!(characterStore.appLoading || characterStore.isFetching) && characterStore.characterList && characterStore.characterList.length === 0"
+                v-if="!characterStore.isFetching && characterStore.characterList && characterStore.characterList.length === 0"
                 class="col-start-1 row-start-2 h-[calc(100vh_-_8.5rem)] flex flex-col justify-center items-center gap-4">
                 <FileQuestion class="h-24 w-24 animate-bounce" />
                 <h1 class="text-center text-2xl font-bold">No characters found!</h1>

@@ -17,7 +17,7 @@ nuxtApp.hooks.hook('characters:menu', async (id: number) => {
     <Toaster />
     <div class="h-screen max-h-screen min-h-screen PageContainer max-w-screen">
         <Transition>
-            <CommonLoading v-if="characterStore.appLoading || characterStore.isFetching" loading-text="Loading..." class="Overlay" />
+            <CommonLoading v-if="characterStore.isFetching" loading-text="Loading..." class="Overlay" />
         </Transition>
         <NavMain class="Header" />
         <main

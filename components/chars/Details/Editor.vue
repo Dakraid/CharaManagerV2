@@ -1,15 +1,14 @@
 <script setup lang="ts">
-import type * as Cards from 'character-card-utils';
 import dayjs from 'dayjs';
 import { MessageSquarePlus, SendHorizontal, Trash2 } from 'lucide-vue-next';
 import { useToast } from '~/components/ui/toast';
 
 const { toast } = useToast();
-const character = defineModel<Character>('character', { required: true });
-const definition = defineModel<Cards.V2>('definition', { required: true });
+
+const characterStore = useCharacterStore();
 
 const selectedEditor = ref('general');
-const jsonDump = ref(JSON.stringify(definition.value.data, null, 4));
+const jsonDump = ref(JSON.stringify(characterStore.loadedCharacter!.definition.data, null, 4));
 
 async function navigateHome() {
     await navigateTo({
@@ -18,7 +17,7 @@ async function navigateHome() {
 }
 
 async function addGreeting() {
-    definition.value.data.alternate_greetings.push('');
+    characterStore.loadedCharacter!.definition.data.alternate_greetings.push('');
 }
 
 async function saveActiveDefinition() {
@@ -26,8 +25,8 @@ async function saveActiveDefinition() {
         await useFetch('/api/defs/definition', {
             method: 'PATCH',
             body: {
-                id: character.value.id,
-                definition: JSON.stringify(definition.value),
+                id: characterStore.loadedCharacter!.character.id,
+                definition: JSON.stringify(characterStore.loadedCharacter!.definition),
             },
         });
     } catch (err: any) {
@@ -45,12 +44,12 @@ async function saveActiveDefinition() {
 }
 
 async function deleteActiveCharacter() {
-    await deleteCharacter(character.value);
+    await deleteCharacter(characterStore.loadedCharacter!.character);
     await navigateHome();
 }
 
 async function deleteAlternativeMessage(index: number) {
-    definition.value.data.alternate_greetings.splice(index, 1);
+    characterStore.loadedCharacter!.definition.data.alternate_greetings.splice(index, 1);
 }
 
 async function setContentHeight() {
@@ -93,9 +92,11 @@ onMounted(async () => {
     <Card class="flex flex-col w-full max-h-[calc(100vh_-_theme(spacing.16))] h-full">
         <CardHeader class="flex flex-col p-6 pb-0">
             <CardTitle class="flex flex-row">
-                <Badge variant="outline" class="flex h-10 w-48 justify-center rounded-md rounded-r-none">#{{ character.id }}</Badge>
-                <Input v-model="definition.data.name" class="z-10 rounded-none border-x-0" />
-                <Badge variant="outline" class="flex h-10 w-48 justify-center rounded-md rounded-l-none">{{ dayjs(character.uploadDate).format('DD.MM.YYYY HH:mm:ss') }}</Badge>
+                <Badge variant="outline" class="flex h-10 w-48 justify-center rounded-md rounded-r-none">#{{ characterStore.loadedCharacter!.character.id }}</Badge>
+                <Input v-model="characterStore.loadedCharacter!.definition.data.name" class="z-10 rounded-none border-x-0" />
+                <Badge variant="outline" class="flex h-10 w-48 justify-center rounded-md rounded-l-none">
+                    {{ dayjs(characterStore.loadedCharacter!.character.uploadDate).format('DD.MM.YYYY HH:mm:ss') }}
+                </Badge>
             </CardTitle>
             <CardDescription>
                 <Select v-model="selectedEditor" default-value="general">
@@ -121,22 +122,22 @@ onMounted(async () => {
                 <ScrollArea v-if="selectedEditor === 'general'" class="flex h-full w-full flex-col gap-8 rounded-md border p-3 pr-6 height-fix">
                     <div class="mb-8 h-full flex-1">
                         <Label for="description" class="mb-4 text-xl">Description</Label>
-                        <Textarea id="description" v-model="definition.data.description" spellcheck="true" class="h-full" />
+                        <Textarea id="description" v-model="characterStore.loadedCharacter!.definition.data.description" spellcheck="true" class="h-full" />
                     </div>
 
                     <div class="mb-8 h-full flex-1">
                         <Label for="first_message" class="mb-4 text-xl">First Message</Label>
-                        <Textarea id="first_message" v-model="definition.data.first_mes" spellcheck="true" class="h-full" />
+                        <Textarea id="first_message" v-model="characterStore.loadedCharacter!.definition.data.first_mes" spellcheck="true" class="h-full" />
                     </div>
 
                     <div class="mb-8 h-full flex-1">
                         <Label for="personality" class="mb-4 text-xl">Personality</Label>
-                        <Textarea id="personality" v-model="definition.data.personality" spellcheck="true" class="h-full" />
+                        <Textarea id="personality" v-model="characterStore.loadedCharacter!.definition.data.personality" spellcheck="true" class="h-full" />
                     </div>
 
                     <div class="mb-8 h-full flex-1">
                         <Label for="scenario" class="mb-4 text-xl">Scenario</Label>
-                        <Textarea id="scenario" v-model="definition.data.scenario" spellcheck="true" class="h-full" />
+                        <Textarea id="scenario" v-model="characterStore.loadedCharacter!.definition.data.scenario" spellcheck="true" class="h-full" />
                     </div>
                 </ScrollArea>
                 <ScrollArea v-else-if="selectedEditor === 'alternatives'" class="flex h-full w-full flex-col gap-8 rounded-md border p-3 pr-6 height-fix">
@@ -146,8 +147,11 @@ onMounted(async () => {
                         <MessageSquarePlus class="h-6 w-6" />
                     </Button>
                     <ScrollArea id="alt_greetings" class="height-fix">
-                        <div v-for="(item, index) in definition.data.alternate_greetings" :key="item" class="mb-2 grid h-full gap-2 grid-cols-[1fr_48px]">
-                            <Textarea v-model="definition.data.alternate_greetings[index]" class="h-full" spellcheck="true" />
+                        <div
+                            v-for="(item, index) in characterStore.loadedCharacter!.definition.data.alternate_greetings"
+                            :key="item"
+                            class="mb-2 grid h-full gap-2 grid-cols-[1fr_48px]">
+                            <Textarea v-model="characterStore.loadedCharacter!.definition.data.alternate_greetings[index]" class="h-full" spellcheck="true" />
                             <Button
                                 type="submit"
                                 variant="outline"
@@ -161,39 +165,43 @@ onMounted(async () => {
                 </ScrollArea>
                 <ScrollArea v-else-if="selectedEditor === 'examples'" class="flex h-full w-full flex-col gap-8 rounded-md border p-3 pr-6 height-fix">
                     <Label for="alt_greetings" class="mb-2 text-xl">Message Examples</Label>
-                    <Textarea id="examples" v-model="definition.data.mes_example" spellcheck="true" class="h-full" />
+                    <Textarea id="examples" v-model="characterStore.loadedCharacter!.definition.data.mes_example" spellcheck="true" class="h-full" />
                 </ScrollArea>
                 <ScrollArea v-else-if="selectedEditor === 'prompts'" class="flex h-full w-full flex-col gap-8 rounded-md border p-3 pr-6 height-fix">
                     <div class="mb-8 h-full flex-1">
                         <Label for="system_prompt" class="mb-4 text-xl">System Prompt</Label>
-                        <Textarea id="system_prompt" v-model="definition.data.system_prompt" spellcheck="true" class="h-full" />
+                        <Textarea id="system_prompt" v-model="characterStore.loadedCharacter!.definition.data.system_prompt" spellcheck="true" class="h-full" />
                     </div>
 
                     <div class="mb-8 h-full flex-1">
                         <Label for="post_history_instructions" class="mb-4 text-xl">Post History Instructions</Label>
-                        <Textarea id="post_history_instructions" v-model="definition.data.post_history_instructions" spellcheck="true" class="h-full" />
+                        <Textarea
+                            id="post_history_instructions"
+                            v-model="characterStore.loadedCharacter!.definition.data.post_history_instructions"
+                            spellcheck="true"
+                            class="h-full" />
                     </div>
                 </ScrollArea>
                 <ScrollArea v-else-if="selectedEditor === 'creator'" class="flex h-full w-full flex-col gap-8 rounded-md border p-3 pr-6 height-fix">
                     <div class="mb-8 h-full flex-1">
                         <Label for="creator" class="mb-4 text-xl">Creator</Label>
-                        <Textarea id="creator" v-model="definition.data.creator" spellcheck="true" class="h-full" />
+                        <Textarea id="creator" v-model="characterStore.loadedCharacter!.definition.data.creator" spellcheck="true" class="h-full" />
                     </div>
 
                     <div class="mb-8 h-full flex-1">
                         <Label for="creator_notes" class="mb-4 text-xl">Creator Notes</Label>
-                        <Textarea id="creator_notes" v-model="definition.data.creator_notes" spellcheck="true" class="h-full" />
+                        <Textarea id="creator_notes" v-model="characterStore.loadedCharacter!.definition.data.creator_notes" spellcheck="true" class="h-full" />
                     </div>
 
                     <div class="mb-8 h-full flex-1">
                         <Label for="character_version" class="mb-4 text-xl">Creator Notes</Label>
-                        <Textarea id="character_version" v-model="definition.data.character_version" spellcheck="true" class="h-full" />
+                        <Textarea id="character_version" v-model="characterStore.loadedCharacter!.definition.data.character_version" spellcheck="true" class="h-full" />
                     </div>
 
                     <div class="mb-8 h-full flex-1">
                         <Label for="tags" class="mb-4 text-xl">Tags</Label>
-                        <TagsInput v-model="definition.data.tags" if="character_tags">
-                            <TagsInputItem v-for="item in definition.data.tags" :key="item" :value="item">
+                        <TagsInput v-model="characterStore.loadedCharacter!.definition.data.tags" if="character_tags">
+                            <TagsInputItem v-for="item in characterStore.loadedCharacter!.definition.data.tags" :key="item" :value="item">
                                 <TagsInputItemText />
                                 <TagsInputItemDelete />
                             </TagsInputItem>

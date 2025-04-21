@@ -1,3 +1,4 @@
+import * as Cards from 'character-card-utils';
 import { debounce } from 'perfect-debounce';
 
 export const useCharacterStore = defineStore('chars', {
@@ -7,6 +8,7 @@ export const useCharacterStore = defineStore('chars', {
         count: -1,
         highest: -1,
         loadedCharacters: [] as Character[] | undefined,
+        loadedCharacter: undefined as { character: CharacterWithDef; definition: Cards.V2 } | undefined,
     }),
     getters: {
         characterHighest(state): number {
@@ -20,6 +22,13 @@ export const useCharacterStore = defineStore('chars', {
         },
         characterById: (state) => {
             return (id: number) => state.loadedCharacters?.find((char) => char.id === id);
+        },
+        characterWithDef(state): { character: CharacterWithDef; definition: Cards.V2 } {
+            if (!state.loadedCharacter) {
+                throw new Error('No character loaded');
+            }
+
+            return state.loadedCharacter;
         },
     },
     actions: {
@@ -99,6 +108,48 @@ export const useCharacterStore = defineStore('chars', {
                 await this.fetchCharacters();
             } catch (err: any) {
                 console.error('Failed to update character store: %s', err);
+            } finally {
+                this.isFetching = false;
+            }
+        },
+        async fetchCharacterWithDef(id: number) {
+            while (this.isFetching) {
+                await Sleep(100);
+            }
+
+            this.isFetching = true;
+            try {
+                const { data, error } = await useCachedAsyncData<CharacterWithDef>(`character:full-${id}`, () =>
+                    $fetch<CharacterWithDef>('/api/chars/character', {
+                        method: 'GET',
+                        query: {
+                            id: id,
+                        },
+                    })
+                );
+
+                if (error.value) {
+                    throw error.value;
+                }
+
+                if (!data.value) {
+                    throw new Error('Failed to fetch character, received undefined.');
+                }
+
+                let json;
+                if (data.value.definition.includes('\\"spec\\"')) {
+                    json = JSON.parse(JSON.parse(data.value.definition));
+                } else {
+                    json = JSON.parse(data.value.definition);
+                }
+
+                if (!json) {
+                    throw new Error('Failed to parse character definition.');
+                }
+
+                this.loadedCharacter = { character: data.value, definition: Cards.parseToV2(json) };
+            } catch (err: any) {
+                console.error('Failed to fetch character with def: %s', err);
             } finally {
                 this.isFetching = false;
             }
