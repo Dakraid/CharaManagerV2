@@ -105,112 +105,104 @@ async function getEvaluation(
                                 properties: {
                                     score: {
                                         type: 'number',
-                                        minimum: 1,
-                                        maximum: 100,
                                     },
                                     reason: {
                                         type: 'string',
                                     },
                                 },
                                 required: ['score', 'reason'],
+                                additionalProperties: false,
                             },
                             appearance: {
                                 type: 'object',
                                 properties: {
                                     score: {
                                         type: 'number',
-                                        minimum: 1,
-                                        maximum: 100,
                                     },
                                     reason: {
                                         type: 'string',
                                     },
                                 },
                                 required: ['score', 'reason'],
+                                additionalProperties: false,
                             },
                             personality: {
                                 type: 'object',
                                 properties: {
                                     score: {
                                         type: 'number',
-                                        minimum: 1,
-                                        maximum: 100,
                                     },
                                     reason: {
                                         type: 'string',
                                     },
                                 },
                                 required: ['score', 'reason'],
+                                additionalProperties: false,
                             },
                             background: {
                                 type: 'object',
                                 properties: {
                                     score: {
                                         type: 'number',
-                                        minimum: 1,
-                                        maximum: 100,
                                     },
                                     reason: {
                                         type: 'string',
                                     },
                                 },
                                 required: ['score', 'reason'],
+                                additionalProperties: false,
                             },
                             introduction: {
                                 type: 'object',
                                 properties: {
                                     score: {
                                         type: 'number',
-                                        minimum: 1,
-                                        maximum: 100,
                                     },
                                     reason: {
                                         type: 'string',
                                     },
                                 },
                                 required: ['score', 'reason'],
+                                additionalProperties: false,
                             },
                             creativeElements: {
                                 type: 'object',
                                 properties: {
                                     score: {
                                         type: 'number',
-                                        minimum: 1,
-                                        maximum: 100,
                                     },
                                     reason: {
                                         type: 'string',
                                     },
                                 },
                                 required: ['score', 'reason'],
+                                additionalProperties: false,
                             },
                             consistency: {
                                 type: 'object',
                                 properties: {
                                     score: {
                                         type: 'number',
-                                        minimum: 1,
-                                        maximum: 100,
                                     },
                                     reason: {
                                         type: 'string',
                                     },
                                 },
                                 required: ['score', 'reason'],
+                                additionalProperties: false,
                             },
                             structure: {
                                 type: 'object',
                                 properties: {
                                     score: {
                                         type: 'number',
-                                        minimum: 1,
-                                        maximum: 100,
                                     },
                                     reason: {
                                         type: 'string',
                                     },
                                 },
                                 required: ['score', 'reason'],
+                                additionalProperties: false,
                             },
                         },
                         required: ['grammarAndSpelling', 'appearance', 'personality', 'background', 'introduction', 'creativeElements', 'consistency', 'structure'],
@@ -222,6 +214,9 @@ async function getEvaluation(
     });
 
     const data = await response.json();
+    if (data.error) {
+        console.error(JSON.parse(data.error.metadata.raw).message);
+    }
     const evaluation = (await parseEvaluationFromCodeBlock(data.choices[0].message.content)) || (await parseEvaluationFromEntireContent(data.choices[0].message.content.trim()));
 
     if (evaluation) {
