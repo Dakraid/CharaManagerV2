@@ -24,7 +24,7 @@ useRouteCache((helper) => {
 
 const hasError = ref<boolean>(false);
 
-characterStore.updateLoadingState(true);
+characterStore.isFetching = true;
 
 let relations: Relation[] = [];
 try {
@@ -73,7 +73,7 @@ try {
     hasError.value = true;
 }
 
-characterStore.updateLoadingState(false);
+characterStore.isFetching = false;
 
 async function showCompare(parent: Character, child: Character) {
     await router.push({

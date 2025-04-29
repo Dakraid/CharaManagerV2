@@ -97,10 +97,6 @@ export const useCharacterStore = defineStore('chars', {
             }
         },
         async refreshCharacters() {
-            while (this.isFetching) {
-                await Sleep(100);
-            }
-
             this.isFetching = true;
             try {
                 await this.fetchHighestId();
@@ -113,13 +109,9 @@ export const useCharacterStore = defineStore('chars', {
             }
         },
         async fetchCharacterWithDef(id: number) {
-            while (this.isFetching) {
-                await Sleep(100);
-            }
-
             this.isFetching = true;
             try {
-                const { data, error } = await useCachedAsyncData<CharacterWithDef>(`character:full-${id}`, () =>
+                const { data, error, status, execute } = await useCachedAsyncData<CharacterWithDef>(`character:full-${id}`, () =>
                     $fetch<CharacterWithDef>('/api/chars/character', {
                         method: 'GET',
                         query: {
@@ -127,6 +119,14 @@ export const useCharacterStore = defineStore('chars', {
                         },
                     })
                 );
+
+                if (!data.value && status.value === 'idle' && execute) {
+                    await execute();
+                }
+
+                while (status.value === 'pending') {
+                    await Sleep(100);
+                }
 
                 if (error.value) {
                     throw error.value;

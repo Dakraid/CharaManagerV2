@@ -2,19 +2,19 @@
     <div class="relative flex h-full w-full items-center justify-start gap-10 overflow-hidden sui-tyndall-effect" :style="wrapperStyle">
         <div
             v-motion
-            class="pointer-events-none absolute h-24 flex-none overflow-hidden mix-blend-difference streak w-[200%] left-[-64vw] top-[48vw] lg:w-[150%] lg:left-[-28vw] lg:top-[32vw] lg:h-56 xl:left-[-16vw] xl:top-[21vw]"
+            class="pointer-events-none absolute h-24 flex-none overflow-hidden mix-blend-difference streak w-[200%] left-[-64vw] top-[40vw] lg:w-[150%] lg:left-[-23vw] lg:top-[32vw] lg:h-56 xl:left-[-18vw] xl:top-[12vw]"
             :initial="{ opacity: 0, rotate: '40deg', scaleY: 0.5 }"
             :enter="{ opacity: 0.32, rotate: '40deg', scaleY: 1 }"
             :duration="2000" />
         <div
             v-motion
-            class="pointer-events-none absolute h-12 flex-none overflow-hidden mix-blend-difference streak w-[200%] left-[-60vw] top-[40vw] lg:w-[150%] lg:left-[-32vw] lg:top-[24vw] lg:h-24 xl:left-[-12vw] xl:top-[17vw]"
+            class="pointer-events-none absolute h-12 flex-none overflow-hidden mix-blend-difference streak w-[200%] left-[-60vw] top-[32vw] lg:w-[150%] lg:left-[-19vw] lg:top-[24vw] lg:h-24 xl:left-[-14vw] xl:top-[8vw]"
             :initial="{ opacity: 0, rotate: '32deg', scaleY: 0.5 }"
             :enter="{ opacity: 0.36, rotate: '32deg', scaleY: 1 }"
             :duration="2000" />
         <div
             v-motion
-            class="pointer-events-none absolute h-20 flex-none overflow-hidden mix-blend-difference streak w-[200%] left-[-32vw] top-[32vw] lg:w-[150%] lg:left-[-12vw] lg:top-[16vw] lg:h-48 xl:left-[-10vw] xl:top-[10vw]"
+            class="pointer-events-none absolute h-20 flex-none overflow-hidden mix-blend-difference streak w-[200%] left-[-32vw] top-[24vw] lg:w-[150%] lg:left-[-12vw] lg:top-[16vw] lg:h-48 xl:left-[-12vw] xl:top-[1vw]"
             :initial="{ opacity: 0, rotate: '24deg', scaleY: 0.5 }"
             :enter="{ opacity: 0.4, rotate: '24deg', scaleY: 1 }"
             :duration="2000" />

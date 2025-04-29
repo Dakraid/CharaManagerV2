@@ -31,8 +31,8 @@ useRouteCache((helper) => {
 });
 
 onMounted(async () => {
+    characterStore.isFetching = false;
     await characterStore.refreshCharacters();
-    await characterStore.updateLoadingState(false);
 });
 </script>
 

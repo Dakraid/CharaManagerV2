@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { toTypedSchema } from '@vee-validate/zod';
-import { CircleX, LoaderCircle, Plus, X } from 'lucide-vue-next';
+import { LoaderCircle, Plus, Trash, X } from 'lucide-vue-next';
 import { useForm } from 'vee-validate';
 import * as z from 'zod';
 import { useToast } from '~/components/ui/toast';
@@ -147,7 +147,7 @@ const onSubmit = handleSubmit(async (values) => {
 });
 
 async function uploadFiles() {
-    await characterStore.updateLoadingState(true);
+    characterStore.isFetching = true;
     try {
         const { data } = await useFetch('/api/chars/characters', {
             method: 'PUT',
@@ -178,8 +178,8 @@ async function uploadFiles() {
     urlList.value = [];
     setValues({ links: [] });
 
+    characterStore.isFetching = false;
     await characterStore.refreshCharacters();
-    await characterStore.updateLoadingState(false);
 }
 
 async function removeFile(filename: string) {
@@ -211,7 +211,6 @@ onMounted(async () => {
                     <FormLabel>Source URIs</FormLabel>
                     <FormControl>
                         <div class="space-y-2 w-full">
-                            <!-- Input for adding new URLs -->
                             <div class="flex gap-2">
                                 <Input v-model="currentUrl" placeholder="Paste link here..." type="url" class="flex-grow" @keydown.enter.prevent="addUrl" />
                                 <Button type="button" variant="outline" size="icon" @click="addUrl">
@@ -219,18 +218,17 @@ onMounted(async () => {
                                 </Button>
                             </div>
 
-                            <!-- List of added URLs -->
                             <div v-if="urlList.length > 0" class="space-y-2 border rounded-md p-2 w-full">
-                                <div v-for="(url, index) in urlList" :key="index" class="flex items-center gap-2 w-full">
-                                    <div class="flex-grow text-sm truncate max-w-full overflow-hidden">{{ url }}</div>
-                                    <Button type="button" variant="ghost" size="icon" class="flex-shrink-0" @click="removeUrl(index)">
-                                        <X class="h-4 w-4" />
+                                <div v-for="(url, index) in urlList" :key="index" class="flex items-center gap-2 w-full px-2 py-1 rounded-md odd:bg-muted/50">
+                                    <a class="flex-grow text-sm truncate max-w-full overflow-hidden hover:underline" :href="url">{{ url }}</a>
+                                    <Button type="button" variant="destructive" size="icon" class="flex-shrink-0 border" @click="removeUrl(index)">
+                                        <Trash class="h-4 w-4" />
                                     </Button>
                                 </div>
                             </div>
                         </div>
                     </FormControl>
-                    <FormDescription>Add links from VenusAI, JannyAI, or Wyvern</FormDescription>
+                    <FormDescription class="text-center">Add links from VenusAI, JannyAI, or Wyvern</FormDescription>
                     <FormMessage />
                 </FormItem>
             </FormField>

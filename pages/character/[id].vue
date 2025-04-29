@@ -20,6 +20,7 @@ definePageMeta({
     },
 });
 
+characterStore.isFetching = true;
 characterStore.loadedCharacter = undefined;
 
 const showEditor = ref(false);

@@ -5,7 +5,7 @@ const nuxtApp = useNuxtApp();
 const characterStore = useCharacterStore();
 
 nuxtApp.hooks.hook('characters:menu', async (id: number) => {
-    await characterStore.updateLoadingState(true);
+    characterStore.isFetching = true;
     await navigateTo({
         path: `/character/${id}`,
     });

@@ -60,4 +60,7 @@ export default defineEventHandler(async (event) => {
             });
         }
     }
+
+    const p1 = runTask('ratings:generate', { payload: { id: update.id } });
+    await Promise.all([p1]);
 });
