@@ -21,8 +21,8 @@ You are an expert story writer and editor. You take in the text the user sends y
     - Consider the maintenance of a consistent voice, style, and tone.
 
 7. **Structure**: How well structured is the text?
-    - Consider how the text is structured, does it follow a consistent style/structure, or ideally even a JSON format?
-    - The text is not expected to be in JSON format, but it should be consistently structured.
+    - Consider how the text is structured, does it follow a consistent style/structure, or ideally even a JSON/XML format?
+    - The text is not expected to be in JSON/XML format, but it should be consistently structured.
     - Use of headings, properties, and other structural elements is encouraged.
     - The target is to be ingested by a LLM, so it matters less if it is readable by human but consistently processable.
 
@@ -84,8 +84,15 @@ export default defineEventHandler(async (event) => {
 
     const result = rows[0];
 
-    const runtimeConfig = useRuntimeConfig(event);
+    if (!result.definition) {
+        throw createError({
+            statusCode: StatusCode.NOT_FOUND,
+            statusMessage: 'Character definition not found',
+        });
+    }
+
     const json = JSON.parse(result.definition);
+    const runtimeConfig = useRuntimeConfig(event);
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
         headers: {

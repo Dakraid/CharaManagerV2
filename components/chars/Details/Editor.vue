@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import dayjs from 'dayjs';
-import { MessageSquarePlus, SendHorizontal, Trash2 } from 'lucide-vue-next';
+import { BrainCircuit, MessageSquarePlus, SendHorizontal, Trash2 } from 'lucide-vue-next';
 import { useToast } from '~/components/ui/toast';
 
 const { toast } = useToast();
@@ -9,6 +9,14 @@ const characterStore = useCharacterStore();
 
 const selectedEditor = ref('general');
 const jsonDump = ref(JSON.stringify(characterStore.loadedCharacter!.definition.data, null, 4));
+
+const previousContent = ref<{
+    description: string;
+    first_mes: string;
+    personality: string;
+    scenario: string;
+    alternate_greetings: string[];
+}>({ description: '', first_mes: '', personality: '', scenario: '', alternate_greetings: [] });
 
 async function navigateHome() {
     await navigateTo({
@@ -21,6 +29,7 @@ async function addGreeting() {
 }
 
 async function saveActiveDefinition() {
+    characterStore.isFetching = true;
     try {
         await useFetch('/api/defs/definition', {
             method: 'PATCH',
@@ -35,12 +44,18 @@ async function saveActiveDefinition() {
             description: err.message,
             variant: 'destructive',
         });
+
+        characterStore.isFetching = false;
+        return;
     }
 
     toast({
         title: 'Success',
         description: 'Definition was updated.',
     });
+
+    previousContent.value = { description: '', first_mes: '', personality: '', scenario: '', alternate_greetings: [] };
+    characterStore.isFetching = false;
 }
 
 async function deleteActiveCharacter() {
@@ -80,6 +95,70 @@ async function setContentHeight() {
 
         return;
     }
+}
+
+async function llmEdit(source: string, content: string, type: number, source_index: number = 0) {
+    const response = await $fetch<{ source: string; content: string }>('/api/llm/edit', {
+        method: 'POST',
+        body: {
+            source: source,
+            content: content,
+            type: type,
+        },
+    });
+
+    if (!response?.content) {
+        return undefined;
+    }
+
+    switch (source) {
+        case 'description':
+            previousContent.value.description = content;
+            break;
+        case 'first_mes':
+            previousContent.value.first_mes = content;
+            break;
+        case 'personality':
+            previousContent.value.personality = content;
+            break;
+        case 'scenario':
+            previousContent.value.scenario = content;
+            break;
+        case 'alternate_greetings':
+            previousContent.value.alternate_greetings[source_index] = content;
+            break;
+    }
+    return response.content;
+}
+
+async function generalLlmEdit() {
+    characterStore.isFetching = true;
+    const newDesc = await llmEdit('description', characterStore.loadedCharacter!.definition.data.description, 1);
+    if (newDesc) {
+        characterStore.loadedCharacter!.definition.data.description = newDesc;
+    }
+
+    if (characterStore.loadedCharacter!.definition.data.first_mes.trim().length > 10) {
+        const newFirstMes = await llmEdit('first_mes', characterStore.loadedCharacter!.definition.data.first_mes, 2);
+        if (newFirstMes) {
+            characterStore.loadedCharacter!.definition.data.first_mes = newFirstMes;
+        }
+    }
+
+    if (characterStore.loadedCharacter!.definition.data.personality.trim().length > 10) {
+        const newPersonality = await llmEdit('personality', characterStore.loadedCharacter!.definition.data.personality, 1);
+        if (newPersonality) {
+            characterStore.loadedCharacter!.definition.data.description = newPersonality;
+        }
+    }
+
+    if (characterStore.loadedCharacter!.definition.data.scenario.trim().length > 10) {
+        const newScenario = await llmEdit('scenario', characterStore.loadedCharacter!.definition.data.scenario, 1);
+        if (newScenario) {
+            characterStore.loadedCharacter!.definition.data.scenario = newScenario;
+        }
+    }
+    characterStore.isFetching = false;
 }
 
 onMounted(async () => {
@@ -122,22 +201,54 @@ onMounted(async () => {
                 <ScrollArea v-if="selectedEditor === 'general'" class="flex h-full w-full flex-col gap-8 rounded-md border p-3 pr-6 height-fix">
                     <div class="mb-8 h-full flex-1">
                         <Label for="description" class="mb-4 text-xl">Description</Label>
-                        <Textarea id="description" v-model="characterStore.loadedCharacter!.definition.data.description" spellcheck="true" class="h-full" />
+                        <div class="flex flex-row gap-2 h-full w-full">
+                            <Textarea id="description" v-model="characterStore.loadedCharacter!.definition.data.description" spellcheck="true" class="h-full w-full" />
+                            <Textarea
+                                v-if="previousContent.description.trim().length > 10"
+                                id="description_old"
+                                v-model="previousContent.description"
+                                spellcheck="true"
+                                class="h-full w-full" />
+                        </div>
                     </div>
 
                     <div class="mb-8 h-full flex-1">
                         <Label for="first_message" class="mb-4 text-xl">First Message</Label>
-                        <Textarea id="first_message" v-model="characterStore.loadedCharacter!.definition.data.first_mes" spellcheck="true" class="h-full" />
+                        <div class="flex flex-row gap-2 h-full w-full">
+                            <Textarea id="first_message" v-model="characterStore.loadedCharacter!.definition.data.first_mes" spellcheck="true" class="h-full" />
+                            <Textarea
+                                v-if="previousContent.first_mes.trim().length > 10"
+                                id="first_message_old"
+                                v-model="previousContent.first_mes"
+                                contenteditable="false"
+                                class="h-full w-full" />
+                        </div>
                     </div>
 
                     <div class="mb-8 h-full flex-1">
                         <Label for="personality" class="mb-4 text-xl">Personality</Label>
-                        <Textarea id="personality" v-model="characterStore.loadedCharacter!.definition.data.personality" spellcheck="true" class="h-full" />
+                        <div class="flex flex-row gap-2 h-full w-full">
+                            <Textarea id="personality" v-model="characterStore.loadedCharacter!.definition.data.personality" spellcheck="true" class="h-full" />
+                            <Textarea
+                                v-if="previousContent.personality.trim().length > 10"
+                                id="personality_old"
+                                v-model="previousContent.personality"
+                                contenteditable="false"
+                                class="h-full w-full" />
+                        </div>
                     </div>
 
                     <div class="mb-8 h-full flex-1">
                         <Label for="scenario" class="mb-4 text-xl">Scenario</Label>
-                        <Textarea id="scenario" v-model="characterStore.loadedCharacter!.definition.data.scenario" spellcheck="true" class="h-full" />
+                        <div class="flex flex-row gap-2 h-full w-full">
+                            <Textarea id="scenario" v-model="characterStore.loadedCharacter!.definition.data.scenario" spellcheck="true" class="h-full" />
+                            <Textarea
+                                v-if="previousContent.scenario.trim().length > 10"
+                                id="scenario_old"
+                                v-model="previousContent.scenario"
+                                contenteditable="false"
+                                class="h-full w-full" />
+                        </div>
                     </div>
                 </ScrollArea>
                 <ScrollArea v-else-if="selectedEditor === 'alternatives'" class="flex h-full w-full flex-col gap-8 rounded-md border p-3 pr-6 height-fix">
@@ -223,6 +334,21 @@ onMounted(async () => {
                     <span class="sr-only">Delete</span>
                     <Trash2 class="h-6 w-24" />
                 </Button>
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger>
+                            <Button type="submit" variant="secondary" @click="generalLlmEdit">
+                                <span class="sr-only">Edit</span>
+                                <BrainCircuit class="h-6 w-24" />
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom">
+                            <div class="flex justify-between gap-2">
+                                <p>This actions tries to improve the given text using AI.</p>
+                            </div>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
                 <Button type="submit" variant="secondary" @click="saveActiveDefinition">
                     <span class="sr-only">Save</span>
                     <SendHorizontal class="h-6 w-24" />

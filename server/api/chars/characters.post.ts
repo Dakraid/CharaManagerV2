@@ -11,7 +11,14 @@ export default defineEventHandler(async (event) => {
         });
     }
 
-    const { ids } = await readBody<{ ids: number[] }>(event);
+    const validatedBody = await readValidatedBody(event, (body) => postIdArraySchema.safeParse(body));
+    if (!validatedBody.success) {
+        throw createError({
+            statusCode: StatusCode.BAD_REQUEST,
+            statusMessage: validatedBody.error.message,
+        });
+    }
+    const ids = validatedBody.data.ids;
 
     const rows = await db
         .select({
