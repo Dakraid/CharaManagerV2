@@ -111,12 +111,10 @@ Check out the [deployment documentation](https://nuxt.com/docs/getting-started/d
 
 # License
 
-This project is licensed under AGPLv3.0
-The license text for the AGPLv3.0 can be found here: [AGPLv3.0](https://www.gnu.org/licenses/agpl-3.0.en.html)
+This project is licensed under the PolyForm Noncommercial License 1.0.0. The full license text is available in the LICENSE file.
 
-The following clause applies on top of it and overrides any conflicting clauses:
-**This project may not be used in a commercial context under any circumstance unless a commercial license has been granted by the owner. This stipulation applies on top of the
-AGPLv3 license.**
+To obtain a commercial license, please contact me at [licensing@schlikow.de](mailto:licensing@schlikow.de)
+
 
 # Credits
 
