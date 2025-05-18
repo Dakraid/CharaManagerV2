@@ -19,7 +19,7 @@ const approveUpload = ref<string>('');
 const currentUrl = ref<string>('');
 const urlList = ref<string[]>([]);
 
-const urlPrefixes = ['https://www.chub.ai/characters/', 'https://jannyai.com/characters/', 'https://app.wyvern.chat/characters/'];
+const urlPrefixes = ['https://www.chub.ai/characters/', 'https://chub.ai/characters/', 'https://jannyai.com/characters/', 'https://app.wyvern.chat/characters/'];
 
 const urlSchema = z
     .string()
@@ -32,7 +32,7 @@ const urlSchema = z
         },
         {
             message:
-                "URL must start with 'https://www.chub.ai/characters/' or 'https://jannyai.com/characters/' or 'https://app.wyvern.chat/characters/' and have only one occurrence of either.",
+                "URL must start with 'https://(www.)chub.ai/characters/' or 'https://jannyai.com/characters/' or 'https://app.wyvern.chat/characters/' and have only one occurrence of either.",
         }
     );
 
@@ -79,7 +79,7 @@ const onSubmit = handleSubmit(async (values) => {
 
     try {
         for (const url of values.links) {
-            if (url.startsWith('https://www.chub.ai/')) {
+            if (url.startsWith('https://www.chub.ai/') || url.startsWith('https://chub.ai/')) {
                 const { data, error } = await useFetch<FileUpload>('/api/sites/venusai', {
                     method: 'POST',
                     body: {
@@ -236,8 +236,7 @@ onMounted(async () => {
         </form>
 
         <Transition>
-            <LoaderCircle v-if="downloading" class="mx-auto h-20 w-20 motion-safe:animate-spin" />
-            <div v-else-if="files.length !== 0 && !downloading" class="flex flex-col gap-4">
+            <div v-if="files.length !== 0 && !downloading" class="flex flex-col gap-4">
                 <Button variant="outline" @click="uploadFiles">Save</Button>
                 <div class="flex justify-center gap-2 items-top">
                     <Checkbox id="importNotes" v-model:checked="personalityToCreatorNotes" />
