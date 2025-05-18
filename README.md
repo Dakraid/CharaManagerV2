@@ -115,7 +115,6 @@ This project is licensed under the PolyForm Noncommercial License 1.0.0. The ful
 
 To obtain a commercial license, please contact me at [licensing@schlikow.de](mailto:licensing@schlikow.de)
 
-
 # Credits
 
 This project is build using VueJS, NuxtJS, and Shadcn-Vue (and more).

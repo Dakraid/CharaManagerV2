@@ -70,9 +70,6 @@ export default defineNuxtConfig({
             brotli: true,
         },
     },
-    typescript: {
-        typeCheck: false,
-    },
     build: {
         transpile: ['dayjs/plugin/customParseFormat'],
     },
@@ -84,11 +81,7 @@ export default defineNuxtConfig({
         restoreState: true,
         sharedPrerenderData: true,
         viewTransition: true,
-        watcher: 'parcel',
         writeEarlyHints: true,
-    },
-    future: {
-        typescriptBundlerResolution: true,
     },
     fileStorage: {
         mount: resolve(__dirname, 'public/storage'),
