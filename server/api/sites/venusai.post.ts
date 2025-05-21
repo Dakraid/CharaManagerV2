@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 
 export default defineEventHandler(async (event) => {
-    // await Authenticate(event);
+    await Authenticate(event);
 
     const validatedBody = await readValidatedBody(event, body => postVenusUriSchema.safeParse(body));
     if (!validatedBody.success) {
