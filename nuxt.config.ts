@@ -73,16 +73,6 @@ export default defineNuxtConfig({
     build: {
         transpile: ['dayjs/plugin/customParseFormat'],
     },
-    experimental: {
-        asyncContext: true,
-        asyncEntry: true,
-        buildCache: true,
-        crossOriginPrefetch: true,
-        restoreState: true,
-        sharedPrerenderData: true,
-        viewTransition: true,
-        writeEarlyHints: true,
-    },
     fileStorage: {
         mount: resolve(__dirname, 'public/storage'),
     },
@@ -98,13 +88,13 @@ export default defineNuxtConfig({
     },
     multiCache: {
         component: {
-            enabled: false,
+            enabled: true,
         },
         data: {
-            enabled: false,
+            enabled: true,
         },
         route: {
-            enabled: false,
+            enabled: true,
         },
         cdn: {
             enabled: false,
