@@ -37,12 +37,7 @@ export default defineEventHandler(async (event) => {
             throw new Error('Download URL not found in character.');
         }
 
-        const characterResponse = await fetch(characterUrl, {
-            method: 'GET',
-            headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36',
-            },
-        });
+        const characterResponse = await fetch(characterUrl);
 
         if (!characterResponse.ok) {
             const responseText = await characterResponse.text();
@@ -52,7 +47,7 @@ export default defineEventHandler(async (event) => {
         const buffer = Buffer.from(await characterResponse.arrayBuffer());
         return <FileUpload>{
             name: fileName,
-            content: 'data:' + characterResponse.type + ';base64,' + buffer.toString('base64'),
+            content: 'data:image/png;base64,' + buffer.toString('base64'),
             lastModified: dayjs().format('YYYY-MM-DD HH:mm:ss'),
             sourceUri: validatedBody.data.targetUri,
         };

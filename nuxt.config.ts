@@ -98,13 +98,13 @@ export default defineNuxtConfig({
     },
     multiCache: {
         component: {
-            enabled: true,
+            enabled: false,
         },
         data: {
-            enabled: true,
+            enabled: false,
         },
         route: {
-            enabled: true,
+            enabled: false,
         },
         cdn: {
             enabled: false,
