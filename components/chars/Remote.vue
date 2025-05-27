@@ -19,7 +19,7 @@ const approveUpload = ref<string>('');
 const currentUrl = ref<string>('');
 const urlList = ref<string[]>([]);
 
-const urlPrefixes = ['https://www.chub.ai/characters/', 'https://chub.ai/characters/', 'https://jannyai.com/characters/', 'https://app.wyvern.chat/characters/'];
+const urlPrefixes = ['https://www.chub.ai/characters/', 'https://chub.ai/characters/', 'https://app.wyvern.chat/characters/'];
 
 const urlSchema = z
     .string()
@@ -31,8 +31,7 @@ const urlSchema = z
             return validPrefix && prefixCount === 1;
         },
         {
-            message:
-                "URL must start with 'https://(www.)chub.ai/characters/' or 'https://jannyai.com/characters/' or 'https://app.wyvern.chat/characters/' and have only one occurrence of either.",
+            message: "URL must start with 'https://(www.)chub.ai/characters/' or 'https://app.wyvern.chat/characters/' and have only one occurrence of either.",
         }
     );
 
@@ -81,24 +80,6 @@ const onSubmit = handleSubmit(async (values) => {
         for (const url of values.links) {
             if (url.startsWith('https://www.chub.ai/') || url.startsWith('https://chub.ai/')) {
                 const { data, error } = await useFetch<FileUpload>('/api/sites/venusai', {
-                    method: 'POST',
-                    body: {
-                        targetUri: url,
-                    },
-                });
-
-                if (!data.value) {
-                    toast({
-                        title: 'Error',
-                        description: error.value?.message,
-                        variant: 'destructive',
-                    });
-                    continue;
-                }
-
-                files.value.push(data.value);
-            } else if (url.startsWith('https://jannyai.com')) {
-                const { data, error } = await useFetch<FileUpload>('/api/sites/jannyai', {
                     method: 'POST',
                     body: {
                         targetUri: url,
